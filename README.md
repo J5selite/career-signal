@@ -39,6 +39,24 @@ npm run dev
 
 ---
 
+## Run it as a claude.ai artifact (no API key)
+
+`src/App.jsx` is dual-mode: it detects where it's running. As an artifact it uses the
+sandbox's `window.storage` for persistence and calls the Anthropic API directly —
+the artifact environment injects auth, so usage comes from your Claude subscription
+and **no API key is needed**.
+
+1. Open [claude.ai](https://claude.ai), start a new chat, and attach `src/App.jsx`.
+2. Ask: *"Render this exact code as a React artifact. Don't change anything."*
+3. Use the app in the artifact panel; publish/share the artifact link if you want
+   friends to use it (their usage bills to their own Claude accounts).
+
+Artifact-mode limitations: the share card's PNG download falls back to a
+"take a screenshot" hint (no npm imports in the sandbox), and cards persist in the
+artifact's storage rather than your browser.
+
+---
+
 ## Deploy to Vercel
 
 ```bash

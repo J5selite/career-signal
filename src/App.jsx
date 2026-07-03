@@ -1,11 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { toPng } from "html-to-image";
 
-// ── Storage shim: replaces Claude artifact's storage with localStorage ──
-const storage = {
-  async get(key){ try{ const v = localStorage.getItem(key); return v ? { value: v } : null; } catch { return null; } },
-  async set(key, value){ try{ localStorage.setItem(key, value); return { value }; } catch { return null; } },
-};
+// ── Dual-mode environment detection ──
+// This one file runs in two places:
+//  - As a claude.ai ARTIFACT: window.storage persists cards, and the Anthropic API
+//    is called directly (the artifact sandbox injects auth — no API key needed).
+//  - LOCALLY / on Vercel: localStorage persists cards, and AI calls go through the
+//    /api/anthropic proxy (Vite dev middleware or the serverless function).
+const IS_ARTIFACT = typeof window !== "undefined" && window.location.hostname.includes("claude");
+const API_URL = IS_ARTIFACT ? "https://api.anthropic.com/v1/messages" : "/api/anthropic";
+const API_HEADERS = IS_ARTIFACT
+  ? { "Content-Type": "application/json", "anthropic-version": "2023-06-01" }
+  : { "Content-Type": "application/json" };
+
+const storage = (typeof window !== "undefined" && window.storage && window.storage.get)
+  ? window.storage
+  : {
+      async get(key){ try{ const v = localStorage.getItem(key); return v ? { value: v } : null; } catch { return null; } },
+      async set(key, value){ try{ localStorage.setItem(key, value); return { value }; } catch { return null; } },
+    };
 
 
 const EXTRACT_PROMPT = `You are looking at a LinkedIn profile screenshot. Extract career information and return ONLY valid JSON, no markdown, no backticks.
@@ -195,6 +207,9 @@ function ShareCard({card,onClose}){
     setSaving(true);setSaveErr("");
     const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("render timed out")),ms))]);
     try{
+      // Dynamic import: available locally via Vite; unavailable in the artifact
+      // sandbox, where this throws and the catch shows the screenshot hint.
+      const { toPng } = await import("html-to-image");
       const node=document.getElementById("share-card-inner");
       let url;
       try{url=await withTimeout(toPng(node,{pixelRatio:2}),8000);}
@@ -461,7 +476,7 @@ export default function App(){
       };
       const imgBlocks=imgs.map(i=>({type:"image",source:{type:"base64",media_type:i.type,data:i.b64}}));
       // Extraction is mechanical vision→JSON: thinking off keeps it fast and cheap.
-      const r1=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-5",max_tokens:2000,thinking:{type:"disabled"},messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
+      const r1=await fetch(API_URL,{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-5",max_tokens:2000,thinking:{type:"disabled"},messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
       const d1=await readJson(r1);
       if(d1.error)throw new Error(`API error: ${d1.error.message}`);
       const ex=repairJSON(d1.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
@@ -474,7 +489,7 @@ export default function App(){
       const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nGrades / academic record: ${ex.grades||"Not visible"}\nTimeline (roles with dates): ${ex.timeline||"Not visible"}\nConcrete evidence quotes: ${ex.evidence||"None visible"}\nActivities: ${ex.acts||"None"}\nNotes (background, traction signals, context): ${ex.notes||"None"}${roastMode?`\n\nADDITIONALLY: include one extra JSON field "roast" — 3-5 sentences of brutally funny roasting of this profile. Every jab must be grounded in the visible evidence above (no invented facts). Punch at the signalling, the buzzwords and the LinkedIn theatre — never at protected characteristics or the person's worth. Dry UK banter energy, PG-13.`:""}`;
       // Scoring benefits from reasoning: Sonnet 5 runs adaptive thinking by default
       // when `thinking` is omitted. max_tokens covers thinking + the long JSON report.
-      const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-5",max_tokens:8000,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
+      const r2=await fetch(API_URL,{method:"POST",headers:API_HEADERS,body:JSON.stringify({model:"claude-sonnet-5",max_tokens:8000,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
       const d2=await readJson(r2);
       if(d2.error)throw new Error(`Scoring error: ${d2.error.message}`);
       const sc=repairJSON(d2.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
@@ -504,6 +519,13 @@ export default function App(){
 
   const reset=()=>{setStep(0);setImgs([]);setExtracted(null);setDone(null);setErr("");setDupWarn(null);setUpdating(null);setRevealed(false);setFlipping(false);};
 
+  // window.confirm/alert are blocked inside the artifact sandbox — use an
+  // arm-then-confirm click pattern and an inline status message instead.
+  const [confirmDel,setConfirmDel]=useState(null);
+  const armDelete=id=>{setConfirmDel(id);setTimeout(()=>setConfirmDel(c=>c===id?null:c),3000);};
+  const [ioMsg,setIoMsg]=useState("");
+  const flashIo=m=>{setIoMsg(m);setTimeout(()=>setIoMsg(""),5000);};
+
   const exportCards=()=>{
     const blob=new Blob([JSON.stringify({app:"career-attack",exported:new Date().toISOString(),cards},null,2)],{type:"application/json"});
     const a=document.createElement("a");
@@ -526,8 +548,8 @@ export default function App(){
       }
       const rescored=merged.map(c=>({...c,percentile:getPct(merged.filter(x=>x.id!==c.id),c.OVR)}));
       await persist(rescored);
-      alert(`Imported: ${added} new, ${replaced} updated, ${incoming.length-added-replaced} skipped.`);
-    }catch(e){alert(`Import failed: ${e.message}`);}
+      flashIo(`Imported: ${added} new, ${replaced} updated, ${incoming.length-added-replaced} skipped`);
+    }catch(e){flashIo(`Import failed: ${e.message}`);}
     if(importRef.current)importRef.current.value="";
   };
 
@@ -785,7 +807,8 @@ export default function App(){
                 <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)"}}>LEADERBOARD</div>
                 <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>{cards.length} profiles ranked by OVR</div>
               </div>
-              <div style={{display:"flex",gap:8}}>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                {ioMsg&&<span style={{color:"var(--v555)",fontSize:9,letterSpacing:1,fontFamily:"'Space Mono',monospace",marginRight:6}}>{ioMsg}</span>}
                 <button onClick={exportCards} disabled={!cards.length} style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--v555)":"var(--v1e)",padding:"8px 14px",borderRadius:5,cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬇ EXPORT</button>
                 <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"8px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬆ IMPORT</button>
                 <input ref={importRef} type="file" accept="application/json,.json" style={{display:"none"}} onChange={e=>importCards(e.target.files?.[0])}/>
@@ -815,7 +838,7 @@ export default function App(){
                       </div>
                       <div style={{fontFamily:"'Bebas Neue'",fontSize:24,color:ct2.acc}}>{c.OVR}</div>
                       <div style={{fontSize:9,color:"var(--v444)"}}>TOP {100-(c.percentile||50)}%</div>
-                      <button className="delbtn" onClick={e=>{e.stopPropagation();if(confirm("Delete this card?"))deleteCard(c.id);}} style={{background:"none",border:"none",color:"#ff4444",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,padding:0,lineHeight:1}}>✕</button>
+                      <button className="delbtn" onClick={e=>{e.stopPropagation();if(confirmDel===c.id){deleteCard(c.id);setConfirmDel(null);}else{armDelete(c.id);}}} title={confirmDel===c.id?"Click again to delete":"Delete card"} style={{background:"none",border:"none",color:"#ff4444",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,padding:0,lineHeight:1}}>{confirmDel===c.id?"SURE?":"✕"}</button>
                     </div>
                   );
                 })}
@@ -898,7 +921,7 @@ export default function App(){
               <div style={{display:"flex",gap:8}}>
                 <button onClick={()=>setShowShare(true)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>SHARE CARD</button>
                 <button title="Profile changed? Look at it again" onClick={()=>{setUpdating(sel.id);setView("create");reset();setUpdating(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="color-mix(in srgb, var(--gold) 33%, transparent)";e.target.style.color="var(--gold)";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v444)";}}>UPDATE</button>
-                <button onClick={()=>{if(confirm("Delete this card?"))deleteCard(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v333)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v333)";}}>DELETE</button>
+                <button onClick={()=>{if(confirmDel===sel.id){deleteCard(sel.id);setConfirmDel(null);}else{armDelete(sel.id);}}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v333)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v333)";}}>{confirmDel===sel.id?"CLICK AGAIN TO CONFIRM":"DELETE"}</button>
               </div>
             </div>
             {sel.moniker&&<div style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:ct.acc,marginBottom:4,textAlign:"center",textShadow:`0 0 20px ${ct.acc}44`}}>{sel.moniker}</div>}
