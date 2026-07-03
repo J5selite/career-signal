@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toPng } from "html-to-image";
 
 // ── Storage shim: replaces Claude artifact's storage with localStorage ──
 const storage = {
@@ -172,10 +173,38 @@ function StatTooltip({stat,children}){
 
 function Star({sz}){return <div style={{width:sz,height:sz,background:"rgba(0,0,0,0.55)",clipPath:"polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)",flexShrink:0}}/>;}
 
+function CardBack({glow,sz=1.05}){
+  const w=Math.round(220*sz),h=Math.round(310*sz);
+  return(
+    <div style={{width:w,height:h,borderRadius:8,background:"#0b0b0b",border:"1px solid #333",boxShadow:`0 0 34px ${glow},0 6px 18px #00000099`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,position:"relative",overflow:"hidden",animation:"pulseGlow 1.6s ease-in-out infinite",fontFamily:"'Bebas Neue',sans-serif",userSelect:"none"}}>
+      <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(45deg,transparent 0 14px,rgba(255,255,255,0.025) 14px 28px)"}}/>
+      <div style={{width:76,height:76,borderRadius:"50%",border:"2px solid #FFD70055",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,color:"#FFD700",letterSpacing:2}}>CA</div>
+      <div style={{color:"#ffffff44",fontSize:12,letterSpacing:4}}>CAREER ATTACK</div>
+      <div style={{color:"#ffffff22",fontSize:8,letterSpacing:2,fontFamily:"'Space Mono',monospace"}}>TAP TO REVEAL</div>
+    </div>
+  );
+}
+
 function ShareCard({card,onClose}){
   const t=T(card.OVR);
   const thesis1=card.thesis?card.thesis.split(".")[0]+".":"";
   const confColor=card.confidence==="HIGH"?"#88cc00":card.confidence==="LOW"?"#cc4400":"#cc8800";
+  const [saving,setSaving]=useState(false);
+  const [saveErr,setSaveErr]=useState("");
+  const download=async()=>{
+    setSaving(true);setSaveErr("");
+    const withTimeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("render timed out")),ms))]);
+    try{
+      const node=document.getElementById("share-card-inner");
+      let url;
+      try{url=await withTimeout(toPng(node,{pixelRatio:2}),8000);}
+      catch{url=await withTimeout(toPng(node,{pixelRatio:2,skipFonts:true}),8000);}
+      const a=document.createElement("a");
+      a.download=`${(card.name&&card.name!=="Unknown"?card.name:card.moniker||"card").replace(/\s+/g,"-").toLowerCase()}-career-attack.png`;
+      a.href=url;a.click();
+    }catch(e){console.error("PNG export failed",e);setSaveErr("Export failed — take a screenshot instead");}
+    finally{setSaving(false);}
+  };
   return(
     <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:200,display:"flex",alignItems:"center",justifyContent:"center",padding:24}} onClick={onClose}>
       <div onClick={e=>e.stopPropagation()} style={{maxWidth:420,width:"100%"}}>
@@ -220,9 +249,10 @@ function ShareCard({card,onClose}){
             <div style={{color:t.acc,fontSize:9,letterSpacing:2,opacity:0.5}}>CAREER ATTACK</div>
           </div>
         </div>
-        <div style={{display:"flex",gap:8,marginTop:12,justifyContent:"center"}}>
-          <div style={{color:"var(--v333)",fontSize:9,letterSpacing:1,fontFamily:"'Space Mono',monospace",textAlign:"center"}}>take a screenshot to share · press esc to close</div>
+        <div style={{display:"flex",gap:8,marginTop:14,justifyContent:"center"}}>
+          <button onClick={download} disabled={saving} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 22px",borderRadius:5,cursor:saving?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",opacity:saving?0.6:1}}>{saving?"RENDERING…":"⬇ DOWNLOAD PNG"}</button>
         </div>
+        <div style={{color:saveErr?"#ff4444":"var(--v333)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",textAlign:"center",marginTop:8}}>{saveErr||"saves a 2× image ready for stories & group chats"}</div>
         <button onClick={onClose} style={{display:"block",margin:"8px auto 0",background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>CLOSE</button>
       </div>
     </div>
@@ -341,6 +371,13 @@ export default function App(){
   const [dupWarn,setDupWarn]=useState(null);
   const [updating,setUpdating]=useState(null);
   const [showShare,setShowShare]=useState(false);
+  const [revealed,setRevealed]=useState(false);
+  const [flipping,setFlipping]=useState(false);
+  const [roastMode,setRoastMode]=useState(()=>{try{return localStorage.getItem("ca_roast")==="1";}catch{return false;}});
+  const [vsA,setVsA]=useState("");
+  const [vsB,setVsB]=useState("");
+  const importRef=useRef();
+  const toggleRoast=()=>{setRoastMode(r=>{try{localStorage.setItem("ca_roast",r?"0":"1");}catch{}return !r;});};
   const fileRef=useRef();
   const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("ca_theme")||"dark";}catch{return "dark";}});
 
@@ -425,7 +462,7 @@ export default function App(){
         if(dup){setDupWarn(dup);setExtracting(false);return;}
       }
       setExtracting(false);setScoring(true);
-      const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nGrades / academic record: ${ex.grades||"Not visible"}\nTimeline (roles with dates): ${ex.timeline||"Not visible"}\nConcrete evidence quotes: ${ex.evidence||"None visible"}\nActivities: ${ex.acts||"None"}\nNotes (background, traction signals, context): ${ex.notes||"None"}`;
+      const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nGrades / academic record: ${ex.grades||"Not visible"}\nTimeline (roles with dates): ${ex.timeline||"Not visible"}\nConcrete evidence quotes: ${ex.evidence||"None visible"}\nActivities: ${ex.acts||"None"}\nNotes (background, traction signals, context): ${ex.notes||"None"}${roastMode?`\n\nADDITIONALLY: include one extra JSON field "roast" — 3-5 sentences of brutally funny roasting of this profile. Every jab must be grounded in the visible evidence above (no invented facts). Punch at the signalling, the buzzwords and the LinkedIn theatre — never at protected characteristics or the person's worth. Dry UK banter energy, PG-13.`:""}`;
       const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
       const d2=await r2.json();
       if(d2.error)throw new Error(`Scoring error: ${d2.error.message}`);
@@ -437,10 +474,13 @@ export default function App(){
       const OVR=cl(stats.PRES*0.20+stats.PACE*0.15+stats.REACH*0.15+stats.STACK*0.20+stats.RARE*0.05+stats.DEPTH*0.25);
       const all=[...cards];
       const uid=updating||Date.now().toString();
-      const newCard={id:uid,...ex,stats,OVR,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
+      // Re-scan history: keep the last 10 snapshots so the profile can show stat deltas
+      const prevCard=updating?all.find(c=>c.id===uid):null;
+      const history=prevCard?[...(prevCard.history||[]),{date:prevCard.updatedAt||prevCard.createdAt,OVR:prevCard.OVR,stats:prevCard.stats}].slice(-10):[];
+      const newCard={id:uid,...ex,stats,OVR,history,roast:sc.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
       const base=updating?all.filter(c=>c.id!==uid):all;
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
-      await persist(updated);setDone(newCard);setStep(3);setUpdating(null);
+      await persist(updated);setDone(newCard);setRevealed(false);setFlipping(false);setStep(3);setUpdating(null);
     }catch(e){setErr(`Error: ${e.message}`);console.error(e);}
     setExtracting(false);setScoring(false);
   };
@@ -451,7 +491,34 @@ export default function App(){
     if(sel?.id===id){setSel(null);setView("leaderboard");}
   };
 
-  const reset=()=>{setStep(0);setImgs([]);setExtracted(null);setDone(null);setErr("");setDupWarn(null);setUpdating(null);};
+  const reset=()=>{setStep(0);setImgs([]);setExtracted(null);setDone(null);setErr("");setDupWarn(null);setUpdating(null);setRevealed(false);setFlipping(false);};
+
+  const exportCards=()=>{
+    const blob=new Blob([JSON.stringify({app:"career-attack",exported:new Date().toISOString(),cards},null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.download=`career-attack-collection-${new Date().toISOString().slice(0,10)}.json`;
+    a.href=URL.createObjectURL(blob);a.click();URL.revokeObjectURL(a.href);
+  };
+  const importCards=async file=>{
+    if(!file)return;
+    try{
+      const data=JSON.parse(await file.text());
+      const incoming=Array.isArray(data)?data:data.cards;
+      if(!Array.isArray(incoming))throw new Error("no cards found in file");
+      const merged=[...cards];
+      let added=0,replaced=0;
+      for(const c of incoming){
+        if(!c||!c.stats||typeof c.OVR!=="number")continue;
+        const i=merged.findIndex(m=>m.id===c.id||(c.name&&c.name!=="Unknown"&&m.name&&m.name.toLowerCase().trim()===c.name.toLowerCase().trim()));
+        if(i===-1){merged.push(c);added++;}
+        else if((c.updatedAt||c.createdAt||"")>(merged[i].updatedAt||merged[i].createdAt||"")){merged[i]=c;replaced++;}
+      }
+      const rescored=merged.map(c=>({...c,percentile:getPct(merged.filter(x=>x.id!==c.id),c.OVR)}));
+      await persist(rescored);
+      alert(`Imported: ${added} new, ${replaced} updated, ${incoming.length-added-replaced} skipped.`);
+    }catch(e){alert(`Import failed: ${e.message}`);}
+    if(importRef.current)importRef.current.value="";
+  };
 
   const sorted=[...cards].sort((a,b)=>b.OVR-a.OVR);
   const avg=cards.length?Math.round(cards.reduce((s,c)=>s+c.OVR,0)/cards.length):0;
@@ -481,6 +548,8 @@ export default function App(){
         @keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes flipIn{from{transform:rotateY(-90deg)}to{transform:rotateY(0deg)}}
+        @keyframes pulseGlow{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
         ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--s0a)}::-webkit-scrollbar-thumb{background:var(--v222)}
         .row:hover{background:var(--s11)!important;border-color:color-mix(in srgb, var(--gold) 13%, transparent)!important}
         .ghost:hover{color:var(--gold)!important}
@@ -489,7 +558,7 @@ export default function App(){
 
       <div style={{display:"flex",alignItems:"center",borderBottom:"1px solid var(--s11)",background:"var(--bg)",padding:"0 28px",position:"sticky",top:0,zIndex:100}}>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,color:"var(--gold)",marginRight:36,padding:"15px 0",textShadow:"0 0 18px color-mix(in srgb, var(--gold) 27%, transparent)",cursor:"pointer"}} onClick={()=>{setView("home");reset();setSel(null);}}>CAREER ATTACK</div>
-        {["home","create","leaderboard","guide"].map(v=>(
+        {["home","create","versus","leaderboard","guide"].map(v=>(
           <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s"}}>{v}</button>
         ))}
         <div style={{flex:1}}/>
@@ -632,13 +701,36 @@ export default function App(){
                   </div>
                 )}
                 {err&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:1,marginBottom:12}}>{err}</div>}
+                {!dupWarn&&(
+                  <div onClick={toggleRoast} style={{display:"flex",alignItems:"center",gap:10,background:"var(--s0f)",border:`1px solid ${roastMode?"var(--c-reach)":"var(--b15)"}`,borderRadius:8,padding:"10px 14px",marginBottom:12,cursor:"pointer",transition:"border-color 0.15s"}}>
+                    <div style={{width:30,height:16,borderRadius:9,background:roastMode?"var(--c-reach)":"var(--v1e)",position:"relative",transition:"background 0.15s",flexShrink:0}}>
+                      <div style={{position:"absolute",top:2,left:roastMode?16:2,width:12,height:12,borderRadius:"50%",background:"#fff",transition:"left 0.15s"}}/>
+                    </div>
+                    <div>
+                      <span style={{color:roastMode?"var(--c-reach)":"var(--v555)",fontSize:10,letterSpacing:1}}>🔥 ROAST MODE</span>
+                      <span style={{color:"var(--v2a)",fontSize:9,marginLeft:8}}>adds a brutal (but evidence-based) roast to the report</span>
+                    </div>
+                  </div>
+                )}
                 {!dupWarn&&<button onClick={()=>analyse(false)} disabled={extracting||scoring} style={{width:"100%",background:extracting||scoring?"var(--s11)":"var(--gold)",color:extracting||scoring?"var(--v333)":"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:extracting||scoring?"not-allowed":"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",transition:"background 0.15s"}}>
                   {extracting?"READING PROFILE…":scoring?"CALCULATING OVR…":"ANALYSE & GENERATE CARD"}
                 </button>}
               </div>
             )}
 
-            {step===3&&done&&(
+            {step===3&&done&&!revealed&&(
+              <div style={{textAlign:"center",animation:"fadeUp 0.5s ease",padding:"24px 0"}}>
+                <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:24}}>Analysis complete — your pull is ready</div>
+                <div style={{display:"flex",justifyContent:"center",perspective:900}}>
+                  <div onClick={()=>{if(flipping)return;setFlipping(true);setTimeout(()=>setRevealed(true),260);}} style={{cursor:"pointer",transform:flipping?"rotateY(90deg)":"rotateY(0deg)",transition:"transform 0.26s ease-in"}}>
+                    <CardBack glow={T(done.OVR).glow}/>
+                  </div>
+                </div>
+                <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginTop:22}}>tap the card to reveal · the glow hints the tier</div>
+              </div>
+            )}
+
+            {step===3&&done&&revealed&&(
               <div style={{textAlign:"center",animation:"fadeUp 0.5s ease"}}>
                 {extracted&&(
                   <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:16,textAlign:"left"}}>
@@ -650,10 +742,17 @@ export default function App(){
                     </div>
                   </div>
                 )}
-                <div style={{display:"flex",justifyContent:"center",marginBottom:20}}><Card card={withMeta(done)} sz={1.05} onClick={()=>{setSel(done);setView("profile");}}/></div>
+                <div style={{display:"flex",justifyContent:"center",marginBottom:20,perspective:900}}><div style={{animation:"flipIn 0.26s ease-out"}}><Card card={withMeta(done)} sz={1.05} onClick={()=>{setSel(done);setView("profile");}}/></div></div>
+                {done.history?.length>0&&(()=>{const ps=done.history[done.history.length-1];const d=done.OVR-ps.OVR;return(
+                  <div style={{fontSize:10,marginBottom:14,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"OVR unchanged":(d>0?`▲ OVR +${d}`:`▼ OVR ${d}`)} since last scan ({new Date(ps.date).toLocaleDateString()})</div>
+                );})()}
                 {done.thesis&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
                   <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Profile Thesis</div>
                   <div style={{color:"var(--v888)",fontSize:11,lineHeight:1.7}}>{done.thesis}</div>
+                </div>}
+                {done.roast&&<div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
+                  <div style={{color:"var(--c-reach)",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>🔥 The Roast</div>
+                  <div style={{color:"var(--v777)",fontSize:11,lineHeight:1.8}}>{done.roast}</div>
                 </div>}
                 <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"16px 20px",marginBottom:20}}>
                   <Bell cards={cards.filter(c=>c.id!==done.id)} targetOvr={done.OVR} acc={T(done.OVR).acc}/>
@@ -675,7 +774,12 @@ export default function App(){
                 <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)"}}>LEADERBOARD</div>
                 <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>{cards.length} profiles ranked by OVR</div>
               </div>
-              <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 20%, transparent)",color:"var(--gold)",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 40%, transparent)"} onMouseLeave={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 20%, transparent)"}>+ ADD PROFILE</button>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={exportCards} disabled={!cards.length} style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--v555)":"var(--v1e)",padding:"8px 14px",borderRadius:5,cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬇ EXPORT</button>
+                <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"8px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬆ IMPORT</button>
+                <input ref={importRef} type="file" accept="application/json,.json" style={{display:"none"}} onChange={e=>importCards(e.target.files?.[0])}/>
+                <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 20%, transparent)",color:"var(--gold)",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 40%, transparent)"} onMouseLeave={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 20%, transparent)"}>+ ADD PROFILE</button>
+              </div>
             </div>
             {sorted.length===0?(
               <div style={{textAlign:"center",padding:"64px 0",color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2}}>NO PROFILES YET</div>
@@ -709,6 +813,72 @@ export default function App(){
           </div>
         )}
 
+        {view==="versus"&&(
+          <div style={{animation:"fadeUp 0.4s ease"}}>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)"}}>VERSUS</div>
+            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginBottom:28}}>pick two cards — stat by stat, no debate</div>
+            {cards.length<2?(
+              <div style={{textAlign:"center",padding:"64px 0"}}>
+                <div style={{color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,marginBottom:14}}>NEED AT LEAST 2 CARDS</div>
+                <button onClick={()=>setView("create")} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>+ ADD PROFILES</button>
+              </div>
+            ):(
+              <>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:28}}>
+                  {[["A",vsA,setVsA,vsB],["B",vsB,setVsB,vsA]].map(([label,val,setVal,other])=>(
+                    <select key={label} value={val} onChange={e=>setVal(e.target.value)} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:6,padding:"11px 12px",color:val?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:10,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                      <option value="">— Select card {label} —</option>
+                      {sorted.filter(c=>c.id!==other).map(c=><option key={c.id} value={c.id}>{c.name!=="Unknown"?c.name:(c.moniker||"Unknown")} · OVR {c.OVR}</option>)}
+                    </select>
+                  ))}
+                </div>
+                {(()=>{
+                  const a=cards.find(c=>c.id===vsA),b=cards.find(c=>c.id===vsB);
+                  if(!a||!b)return <div style={{textAlign:"center",color:"var(--v2a)",fontSize:10,letterSpacing:2,textTransform:"uppercase",padding:"40px 0"}}>select two cards above to run the matchup</div>;
+                  const aWins=STATS.filter(s=>a.stats[s]>b.stats[s]).length;
+                  const bWins=STATS.filter(s=>b.stats[s]>a.stats[s]).length;
+                  const ta=T(a.OVR),tb=T(b.OVR);
+                  const winner=a.OVR>b.OVR?a:b.OVR>a.OVR?b:null;
+                  return(
+                    <div style={{animation:"fadeUp 0.3s ease"}}>
+                      <div style={{display:"flex",gap:20,justifyContent:"center",alignItems:"center",flexWrap:"wrap",marginBottom:28}}>
+                        <Card card={withMeta(a)} sz={0.85} onClick={()=>{setSel(a);setView("profile");}}/>
+                        <div style={{textAlign:"center",minWidth:130}}>
+                          <div style={{fontFamily:"'Bebas Neue'",fontSize:44,lineHeight:1}}>
+                            <span style={{color:ta.acc}}>{a.OVR}</span>
+                            <span style={{color:"var(--v333)",margin:"0 8px",fontSize:26}}>:</span>
+                            <span style={{color:tb.acc}}>{b.OVR}</span>
+                          </div>
+                          <div style={{color:"var(--v444)",fontSize:10,letterSpacing:1,marginTop:6,fontFamily:"'Space Mono',monospace"}}>{aWins} – {bWins} on stats</div>
+                          <div style={{marginTop:12,fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,color:winner?T(winner.OVR).acc:"var(--v555)"}}>
+                            {winner?`${(winner.name!=="Unknown"?winner.name:winner.moniker||"?").split(" ").pop().toUpperCase()} WINS`:"DEAD HEAT"}
+                          </div>
+                        </div>
+                        <Card card={withMeta(b)} sz={0.85} onClick={()=>{setSel(b);setView("profile");}}/>
+                      </div>
+                      <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 22px",maxWidth:560,margin:"0 auto"}}>
+                        {[...STATS.map(st=>({label:st,av:a.stats[st],bv:b.stats[st],color:STAT_INFO[st].color})),{label:"OVR",av:a.OVR,bv:b.OVR,color:"var(--gold)"}].map(r=>(
+                          <div key={r.label} style={{display:"grid",gridTemplateColumns:"1fr 52px 1fr",gap:12,alignItems:"center",marginBottom:8,borderTop:r.label==="OVR"?"1px solid var(--b15)":"none",paddingTop:r.label==="OVR"?10:0}}>
+                            <div style={{display:"flex",alignItems:"center",gap:8,flexDirection:"row-reverse"}}>
+                              <span style={{fontFamily:"'Bebas Neue'",fontSize:15,minWidth:24,textAlign:"left",color:r.av>=r.bv?r.color:"var(--v444)"}}>{r.av}</span>
+                              <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden",transform:"scaleX(-1)"}}><div style={{width:`${r.av}%`,height:"100%",background:r.color,opacity:r.av>=r.bv?0.9:0.3}}/></div>
+                            </div>
+                            <span style={{color:"var(--v555)",fontSize:8,letterSpacing:1,textAlign:"center"}}>{r.label}</span>
+                            <div style={{display:"flex",alignItems:"center",gap:8}}>
+                              <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${r.bv}%`,height:"100%",background:r.color,opacity:r.bv>=r.av?0.9:0.3}}/></div>
+                              <span style={{fontFamily:"'Bebas Neue'",fontSize:15,minWidth:24,textAlign:"right",color:r.bv>=r.av?r.color:"var(--v444)"}}>{r.bv}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            )}
+          </div>
+        )}
+
         {view==="profile"&&sel&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:640,margin:"0 auto"}}>
             {showShare&&<ShareCard card={sel} onClose={()=>setShowShare(false)}/>}
@@ -736,6 +906,7 @@ export default function App(){
                         </StatTooltip>
                         <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${v}%`,height:"100%",background:`linear-gradient(90deg,${A(info?.color||ct.acc,53)},${info?.color||ct.acc})`,borderRadius:2}}/></div>
                         <span style={{color:"var(--vddd)",fontSize:12,fontFamily:"'Bebas Neue'",minWidth:26,textAlign:"right"}}>{v}</span>
+                        {(()=>{const ps=sel.history?.[sel.history.length-1];if(!ps?.stats)return null;const d=v-(ps.stats[st]??v);if(!d)return null;return <span style={{color:d>0?"#16a34a":"#dc2626",fontSize:8,minWidth:22,fontFamily:"'Space Mono',monospace"}}>{d>0?`+${d}`:d}</span>;})()}
                       </div>
                     );
                   })}
@@ -752,6 +923,9 @@ export default function App(){
                     }
                   </div>
                   {cards.length<30&&<div style={{color:"var(--v1e)",fontSize:8,marginTop:4,letterSpacing:0.5}}>percentile unlocks at 30 profiles</div>}
+                  {sel.history?.length>0&&(()=>{const ps=sel.history[sel.history.length-1];const d=sel.OVR-ps.OVR;return(
+                    <div style={{fontSize:9,marginTop:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"unchanged":(d>0?`▲ +${d}`:`▼ ${d}`)} since last scan · {new Date(ps.date).toLocaleDateString()}</div>
+                  );})()}
                 </div>
 
                 {/* Confidence score — internal/operational */}
@@ -779,6 +953,14 @@ export default function App(){
               <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
                 <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>Profile Thesis</div>
                 <div style={{color:"var(--v888)",fontSize:12,lineHeight:1.85}}>{sel.thesis}</div>
+              </div>
+            )}
+
+            {/* Roast */}
+            {sel.roast&&(
+              <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
+                <div style={{color:"var(--c-reach)",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>🔥 The Roast</div>
+                <div style={{color:"var(--v777)",fontSize:12,lineHeight:1.85}}>{sel.roast}</div>
               </div>
             )}
 
