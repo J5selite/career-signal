@@ -29,14 +29,13 @@ npm install
 cp .env.example .env
 #    then open .env and paste your real key
 
-# 3. Run with the Vercel CLI (so the /api function works locally)
-npm i -g vercel        # one-time install
-vercel dev
+# 3. Run the dev server (a built-in proxy serves /api/anthropic locally)
+npm run dev
 ```
 
-`vercel dev` runs both the Vite frontend and the serverless `/api/anthropic` function together, and loads `.env`. Open the URL it prints (usually http://localhost:3000).
+`npm run dev` includes a dev proxy (see `vite.config.js`) that serves `/api/anthropic` locally and reads `ANTHROPIC_API_KEY` from `.env` — no Vercel CLI needed for local development. Restart the dev server after editing `.env`.
 
-> Plain `npm run dev` (Vite only) will serve the UI but the AI calls will 404, because there's no serverless function running. Use `vercel dev` for the full app.
+> `vercel dev` still works too and exercises the real serverless function in `api/anthropic.js` — useful before deploying.
 
 ---
 
@@ -67,7 +66,7 @@ That's it — you'll get a live URL.
 
 ## Notes
 
-- **Model name:** the app uses `claude-sonnet-4-20250514` (set in `src/App.jsx`, two places). If Anthropic returns a model error, update that string to a current model ID from the [Anthropic docs](https://docs.claude.com).
+- **Model name:** the app uses `claude-sonnet-5` (set in `src/App.jsx`, two places). The previous `claude-sonnet-4-20250514` was retired in June 2026. If Anthropic returns a model error, update the string to a current model ID from the [Anthropic docs](https://docs.claude.com).
 - **Image size:** the serverless proxy allows bodies up to 10MB. Very large screenshots may exceed this on Vercel's Hobby tier (4.5MB hard limit on the platform). If big screenshots fail, downscale them or split into smaller crops.
 - **Where data lives:** cards are stored in the browser's `localStorage`, so they're per-device and not shared between users. When you're ready for a shared leaderboard, swap the `storage` shim in `src/App.jsx` for a real database (e.g. Vercel KV, Supabase, or Postgres).
 - **Cost:** every analysis makes two API calls (extract + score). Keep an eye on your Anthropic usage.

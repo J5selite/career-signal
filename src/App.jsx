@@ -451,9 +451,18 @@ export default function App(){
     if(imgs.length===0)return;
     setExtracting(true);setErr("");setDupWarn(null);
     try{
+      // Read the body as text first: if the /api route isn't running (plain vite
+      // without the dev proxy, or a missing serverless function), the response is
+      // empty or HTML — surface a useful error instead of "Unexpected end of JSON input".
+      const readJson=async r=>{
+        const text=await r.text();
+        if(!text)throw new Error(`the /api/anthropic endpoint returned ${r.status} with an empty body — the API proxy isn't running. Restart the dev server (npm run dev now includes a built-in proxy) and make sure your ANTHROPIC_API_KEY is in .env.`);
+        try{return JSON.parse(text);}catch{throw new Error(`the /api/anthropic endpoint returned something that isn't JSON (${r.status}): ${text.slice(0,120)}`);}
+      };
       const imgBlocks=imgs.map(i=>({type:"image",source:{type:"base64",media_type:i.type,data:i.b64}}));
-      const r1=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1600,messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
-      const d1=await r1.json();
+      // Extraction is mechanical vision→JSON: thinking off keeps it fast and cheap.
+      const r1=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-5",max_tokens:2000,thinking:{type:"disabled"},messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
+      const d1=await readJson(r1);
       if(d1.error)throw new Error(`API error: ${d1.error.message}`);
       const ex=repairJSON(d1.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
       setExtracted(ex);
@@ -463,8 +472,10 @@ export default function App(){
       }
       setExtracting(false);setScoring(true);
       const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nGrades / academic record: ${ex.grades||"Not visible"}\nTimeline (roles with dates): ${ex.timeline||"Not visible"}\nConcrete evidence quotes: ${ex.evidence||"None visible"}\nActivities: ${ex.acts||"None"}\nNotes (background, traction signals, context): ${ex.notes||"None"}${roastMode?`\n\nADDITIONALLY: include one extra JSON field "roast" — 3-5 sentences of brutally funny roasting of this profile. Every jab must be grounded in the visible evidence above (no invented facts). Punch at the signalling, the buzzwords and the LinkedIn theatre — never at protected characteristics or the person's worth. Dry UK banter energy, PG-13.`:""}`;
-      const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
-      const d2=await r2.json();
+      // Scoring benefits from reasoning: Sonnet 5 runs adaptive thinking by default
+      // when `thinking` is omitted. max_tokens covers thinking + the long JSON report.
+      const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-5",max_tokens:8000,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
+      const d2=await readJson(r2);
       if(d2.error)throw new Error(`Scoring error: ${d2.error.message}`);
       const sc=repairJSON(d2.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
       // The model returns six independent stats; the app owns the OVR arithmetic so the
