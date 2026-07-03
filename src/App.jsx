@@ -19,249 +19,135 @@ Extract:
 - how: how they likely secured it — "internship" if they interned there first, "direct" if applied directly, "founder" if they founded or co-founded it, "lateral" if moved from similar role, "other" otherwise
 - prev: estimated prior internships/roles as string — one of "0","1","2","3","4","5+"
 - acts: activities, societies, awards, competitions, academic achievements mentioned — comma separated string, or "None"
-- notes: anything notable — academic record (e.g. AAA* A-levels, near-perfect GCSEs), non-target school, unusual background, technical skills mentioned, startup traction signals (users/revenue/funding), first from uni, etc. Be specific.
+- grades: visible academic results (A-levels, GCSEs, degree class, GPA, scholarships) as a string, or "Not visible"
+- timeline: chronological list of roles with dates, e.g. "Jun 2023 spring week at X; Jul 2024 SWE intern at Y (10 wks); Sep 2024 co-founded Z" — keep dates, or "Not visible"
+- evidence: concrete, near-verbatim artifacts and numbers from role/project descriptions (what was built, with what tech, for whom, any users/revenue/results/awards) — semicolon separated, or "None visible". Copy specifics, do not summarise into adjectives.
+- notes: anything notable — non-target school, unusual background, startup traction signals, first from uni, context (military service, country switch), etc. Be specific.
 - profile_type: classify as "finance", "technical", "founder", or "technical_founder" based on the dominant signal
 
-Return ONLY: {"name":"...","uni":"...","year":"...","age":21,"company":"...","role":"...","how":"internship","prev":"1","acts":"...","notes":"...","profile_type":"finance"}`;
+Return ONLY: {"name":"...","uni":"...","year":"...","age":21,"company":"...","role":"...","how":"internship","prev":"1","acts":"...","grades":"...","timeline":"...","evidence":"...","notes":"...","profile_type":"finance"}`;
 
-const SCORE_PROMPT = `You are a rigorous career scouting system. Before scoring, you MUST identify the profile type and apply the correct logic. Follow every rule exactly.
+const SCORE_PROMPT = `You are a rigorous, skeptical career scout. You score the VISIBLE early-career signal in a profile summary. You are rating signal, not human worth. Follow every rule exactly.
 
-═══ STEP 0: IDENTIFY PROFILE TYPE ═══
-Read the profile carefully and classify as one of:
-- FINANCE: primary signal is firm/role in investment banking, consulting, PE, VC, trading, asset management
-- TECHNICAL: primary signal is software engineering, AI/ML, computer science, applied technical work
-- FOUNDER: primary signal is starting or co-founding a company — even if early stage
+═══ THE MEASUREMENT CONTRACT ═══
+Reference population: career-focused university students and recent graduates who are active on LinkedIn.
+- 50 is the MEDIAN of that population — typical, not bad.
+- Use the FULL 1-99 range on every stat. Most real profiles should land between 30 and 75 on most stats. If all six of your scores sit between 55 and 85, you are compressing the scale — recheck against the anchors.
+- Score each stat INDEPENDENTLY, as if the other five did not exist. One impressive fact must not raise all six scores (halo error). A single fact may feed several stats, but only through the property each stat measures — "Jane Street internship in first year" moves PRES (selectivity) and PACE (earliness), and moves DEPTH only if output is shown.
+- Evidence beats vibes: institutions, dates, artifacts, numbers and conversions are evidence. Adjectives, buzzwords and self-descriptions are not.
 
-A person can be TECHNICAL + FOUNDER. This matters for how you score PRES.
+═══ EVIDENCE DISCIPLINE ═══
+1. Before scoring, list the concrete evidence: institutions, roles with dates, artifacts, numbers, awards.
+2. Score each stat only from evidence relevant to THAT stat. If a stat has no relevant evidence, score it 40-55 (unknown is not bad and not good) and say so in its reason.
+3. Never guess upward. A thin profile with one famous name = high PRES, low DEPTH — not high everything.
 
-═══ STEP 1: ANTI-DOUBLE-COUNTING RULES ═══
-Read these first. Violating them is the most common calibration error.
+═══ SINGLE-HOME RULES (anti-double-counting) ═══
+Each property of the evidence is scored in exactly one place:
+- Selectivity of seats → PRES only
+- Earliness vs stage → PACE only (age lives inside PACE; there is no separate age bonus anywhere)
+- Starting context / background → REACH only
+- Coherence of the pieces → STACK only
+- Scarcity of the combination → RARE only
+- Verified output → DEPTH only
 
-1. PRES is absolute for the profile type — include academic platform for TECHNICAL/FOUNDER profiles.
-2. REACH is the ONLY place to reward non-target school, unusual background, or low access.
-3. PACE is stage-based — first-year vs penultimate matters more than age 19 vs 20.
-4. Lack of startup traction → cap DEPTH and note in ceiling. Do NOT also drag down PRES, PACE, STACK, or floor.
-5. A founder route secured through self-creation ("how = other") is "high-agency, low-validation" — reduce external validation score, not the whole person.
-6. STACK requires coherence — score it on the narrative, not on whether companies are famous.
-7. Rarity is configuration-based — do not re-score reach or traction through RARE.
+═══ STAT DEFINITIONS & ANCHORS ═══
 
-═══ STEP 2: CALIBRATION FLOORS ═══
-If someone has elite academic pedigree + real skill evidence, they cannot be scored like a generic unknown founder. Apply these floors before scoring:
+PRES — Seat Selectivity (weight 20%)
+"How hard is it to be admitted to the seats on this profile?" Judged by offer/admission rates and competition for the seat — not fame, not background. A selective degree course is a seat too.
+Lens by profile type: FINANCE — firm + desk halo dominates (GS IBD ≠ GS ops; Goldman is Goldman whether from Cambridge or Coventry). TECHNICAL — course selectivity + employer hiring bar. FOUNDER — selectivity of BACKING (YC batch, funded round, selective accelerator). A self-created founder title carries NO selectivity by itself: anyone can print the title. An unbacked founder's credit lives in DEPTH (what they built) and PACE (how early), not here.
+- 90-99: multiple of the most selective seats in the market (sub-2% offer rates: Jane Street/Citadel/GS IBD/MBB, DeepMind, YC batch, IMO-level programmes)
+- 70-89: one clearly elite seat, or several strongly selective ones (top EB M&A, FAANG SWE intern, Oxbridge/ETH/MIT on a competitive course)
+- 50-69: solid selective seats — strong university + recognised scheme or mid-tier internships
+- 30-49: mostly open-entry roles (societies, ambassador schemes, unselective internships)
+- 1-29: no selective seat visible
 
-- Cambridge/Oxford/Imperial/LSE/ETH CS or equivalent elite STEM + strong grades: PRES floor = 75. Even if every work experience is mid.
-- Add real SWE/AI/applied engineering experience (actual technical work, not vague role titles): PRES floor rises to 80–83. DEPTH floor = 70.
-- Add coherent founder/project narrative with credible technical background: OVR floor = 83–88.
-- Add users/revenue/elite internship (DeepMind/Google/Citadel/Jane Street/YC): OVR floor = 88–93.
-- Add exceptional external validation (top research, Olympiad, major open source, top hackathon): 93+.
+PACE — Stage-Adjusted Earliness (weight 15%)
+"How far ahead of the standard timeline is each milestone?" Standard timeline: spring week in Y1-Y2, penultimate-year summer internship, return offer at graduation. Age lives HERE — never add separate age credit.
+- 90-99: operating 2+ years ahead (elite exposure before university; first year doing penultimate-level work)
+- 70-89: about 1 year ahead (Y1 spring week or paid technical work; elite summer secured early)
+- 50-69: on schedule
+- 30-49: about a year behind, no visible context
+- 1-29: several years behind, no context
+Never punish military service, illness, founding a company, or switching countries — treat as on-schedule unless the evidence itself shows drift.
 
-═══ STEP 3: STAT DEFINITIONS ═══
+REACH — Contextual Overperformance (weight 15%)
+"Given the visible starting context, how far above expectation did they land?" The ONLY stat where background, school type and access count.
+- 90-99: non-target or adverse context → elite destination
+- 70-89: clear overperformance (semi-target → BB front office; non-target → top tech)
+- 50-69: destination in line with the platform (Oxbridge → GS is on-script: hard, not shocking)
+- 30-49: mild underperformance versus the platform
+- 1-29: elite platform → visibly weak destination, no context
+If starting context is not visible, score 45-55 and say so in the reason.
 
-PRES — Destination Quality (25% weight)
-PRES VARIES BY PROFILE TYPE. This is critical.
+STACK — Compounding Narrative (weight 20%)
+"Do the assets reinforce one thesis, or is it a LinkedIn buffet?" Judge coherence and thematic depth, not fame — an unknown startup with real technical work can compound a builder narrative better than a random famous badge.
+- 90-99: 3+ assets where each builds on the last; one legible thesis
+- 70-89: a clear 2-3 asset thread
+- 50-69: partial coherence — a direction is guessable
+- 30-49: accumulation without direction (internship + society + ambassador + podcast + crypto club)
+- 1-29: contradictory pieces, or a single thin item (nothing to stack)
 
-FOR FINANCE PROFILES: 60% firm halo + 40% seat selectivity.
-- GS/MS/JPM/Citi/BAML IBD, MBB, Citadel/Jane Street/DE Shaw/KKR/Blackstone front-office: 88-99
-- Other BBs (DB/UBS/Barclays IBD), top EBs (Lazard/Rothschild/Evercore/Moelis): 78-87
-- Big4 advisory, Google/Meta/Amazon strategy roles: 65-77
-- Generic grad scheme, unrecognised boutique: 35-64
-Note: Goldman is Goldman whether from Cambridge or Coventry. Never factor background into PRES for finance.
+RARE — Configuration Scarcity (weight 5%)
+"Out of 1,000 random profiles from the reference population, how many look like this one?" About 1 → 90s; about 10 → 70s; about 50 → 50s; about 200 → 30s; interchangeable → 1-29.
+Lowest weight by design: scarcity is the hardest property to estimate from one screenshot, so it must season the OVR, not swing it. Do not re-reward difficulty (that is REACH) or brand (that is PRES) here.
 
-FOR TECHNICAL PROFILES: Blend university strength + course competitiveness + employer quality + role substance + project/founder proof.
-- Cambridge/Oxford/Imperial/ETH/MIT CS + elite grades + top-tier employer or serious project: 85-97
-- Cambridge/Oxford/Imperial CS + strong grades + mid-tier employers or early-stage project: 78-86
-- Strong target uni (Warwick/UCL/Edinburgh CS) + strong technical employers: 68-78
-- Good uni + decent technical experience: 55-67
-- Unknown uni + no recognisable employer: 35-54
-Key principle: For technical students, academic platform IS part of destination quality. Cambridge CS is not "good uni" — it is S-tier academic selection. A Cambridge CS student with near-perfect grades should have PRES around 78-86 even if work experience is startup-level.
+DEPTH — Verified Output (weight 25%)
+"What does the evidence prove they can DO?" Highest weight by design: output is the only signal that cannot be bought with a brand name or inflated language.
+- 90-99: independently verifiable results — shipped product with usage or revenue numbers, publication, national competition win
+- 70-89: concrete artifacts described with real technical or professional specifics (what was built, with what, for whom), or a performance conversion (spring → summer, return offer)
+- 50-69: output plausible from a serious seat, but nothing described
+- 30-49: titles only
+- 1-29: buzzwords and inflated language only
 
-FOR FOUNDER PROFILES: Weight product traction + team signal + funding/backing + technical depth. University still anchors the floor.
-- YC/funded startup + credible team + real users: 85-95
-- Early-stage founder, Cambridge/Oxford/Imperial anchor, credible technical background, no traction yet: 72-82 (high-agency, low-validation signal)
-- Unknown founder, no clear technical background, no traction: 40-60
-Critical rule: Founder title + credible technical background + elite academic anchor = good signal, low validation. Score around 75-82 for this combination. Do NOT tank it to 42 because the startup is unproven. Cap ceiling, not floor.
+═══ CONSISTENCY CHECKS (run after scoring) ═══
+- If DEPTH ≥ 80 and STACK ≥ 80, PRES and RARE below 30 need an explicit reason in stat_reasons.
+- If confidence is LOW, no stat may exceed 70 unless that specific stat's evidence is directly visible.
+- Spiky profiles are normal and honest. Do not average stats toward each other, and do not push everything toward 65.
+Do NOT output an overall score. The app computes OVR = PRES×0.20 + PACE×0.15 + REACH×0.15 + STACK×0.20 + RARE×0.05 + DEPTH×0.25 from your six numbers. Your job is six honest, independent stats.
 
-PACE — Pipeline Speed (15% weight)
-Stage-adjusted, not age-adjusted. Measures how compressed progress is vs the normal timeline.
-Normal timeline: spring week Y1/Y2, penultimate internship Y2, return offer → grad. Anything ahead = points.
-- Pre-university landing real elite exposure: 90-99
-- First year landing penultimate-level internship or spring at elite firm: 84-91
-- First year landing spring week, paid technical role, or contract work: 75-83
-- Penultimate year landing expected elite internship: 60-74
-- Final year with return offer already secured: 55-65
-- Post-grad normal progression: 45-54
-- 2+ years behind peers, no explanation: 30-44
-Do not punish for military service, founding a company, switching countries, illness. Pace rewards compressed progress, not youth worship. If someone is in first/second year and has already accumulated technical internships AND a co-founder title, this is an early mover profile. Score 80+.
+═══ ANTI-HALLUCINATION RULES ═══
+Non-negotiable. Only describe what is VISIBLE in the evidence.
+- Label every inference: "this suggests", "the visible evidence implies" — never state motivations, choices, or character as fact.
+BAD: "He walked away from Goldman." GOOD: "The visible profile does not show a traditional elite internship route, so the path currently reads as self-directed rather than institutionally validated."
+BAD: "A deliberate builder who avoids the corporate grind." GOOD: "No corporate internship is visible — which could indicate a deliberate founder path, or simply evidence not yet on the profile."
+- Never claim a firm is elite unless you recognise it; if unknown, call it "an early-stage company with no publicly visible traction".
+- If a section (e.g. education) is missing, acknowledge the gap rather than assume.
 
-REACH — Contextual Overperformance (15% weight)
-"Given where this person started, how far above expectation did they land?"
-For elite academic backgrounds (Cambridge CS, AAA* grades, grammar school), the expected baseline is already very high. A Cambridge CS student getting startup SWE roles is impressive but not shocking — do not inflate reach.
-- Post-92/non-target → elite front-office or top-tier tech: 90-99
-- Non-target → strong EB or top tech: 80-89
-- Russell Group → elite front-office: 70-79
-- Semi-target → GS/MS/JPM IBD: 62-71
-- Target (LSE/Imperial) → GS IBD: 52-61
-- Oxbridge → GS IBD: 45-55 (still hard, not shocking)
-- Oxbridge/elite academic → expected graduate role in line with their background: 25-44
-For technical profiles: Cambridge CS getting SWE roles = expected. Reach should not be inflated. If the roles were secured BEFORE university admission, reach improves significantly because they were operating above their peer stage.
+═══ CLASSIFICATION ═══
+profile_type — the scoring lens for PRES. Choose the most accurate: "Finance / Consulting", "Technical Builder", "Founder", "Technical Founder", "Creator / Media", "Research / Academic", "Policy / Social Impact", "Generalist Operator", "Hybrid".
+archetype — the narrative build: "Technical Founder Prospect", "Non-Target Breakout", "Prestige Stacker", "Platform Builder", "Applied AI Builder", "Creator-Operator Hybrid", "Research-Led Operator", "Finance Track Climber", "Academic Weapon", "High-Agency Generalist", "Founder Bet".
+confidence — evidence quality: "HIGH" (education + experience + detailed descriptions all visible), "MEDIUM" (some detail, key sections missing), "LOW" (titles without context, or major sections absent).
+confidence_reason — one sentence: what evidence was present and what was missing.
 
-STACK — Compounding Narrative (20% weight)
-"Do the pieces reinforce each other into a serious thesis, or are they random shiny badges?"
-Judge on coherence and thematic depth, NOT on whether companies are famous. An unknown startup with real technical work compounding into a coherent AI/builder narrative is strong stack.
-Strong stack signal: themes connect across experiences. Each role builds on the last. Technical skills compound.
-Weak stack signal: random internship + society + ambassador + podcast + crypto club = LinkedIn buffet.
-- Coherent elite trajectory, 3+ assets compounding with thematic depth: 85-99
-- Strong 2-3 asset narrative with real thematic coherence: 78-86
-- 1 strong asset + supporting coherent context: 65-77
-- Decent but lacks clear direction: 45-64
-- Scattered or thin: 25-44
-
-RARE — Configuration Scarcity (10% weight)
-"How many people with this exact combination of assets exist?"
-Compare to the reference group carefully. Cambridge CS + startup = rare compared to average UK student. Less rare compared to Cambridge CS peer group specifically.
-- Non-target + elite outcome + unusual combination: 88-99
-- Elite academic + founder + early technical work + AI focus = rare among general population, moderate among elite CS peers: 72-84
-- Standard target path at great firm: 40-55
-- Common among exact peer group: 30-50
-
-DEPTH — Evidence of Real Skill (15% weight)
-"What have they actually built, written, won, sold, researched, led, created, or improved?"
-Actual technical work descriptions = strong signal. Vague role titles = weak signal.
-Applied engineering examples (strong depth signals): automating systems with image processing + LLMs + SSO integration, building React/Node backends, web scraping tools with real use cases, shipped products. These are real build evidence.
-Missing signals that cap depth: no metrics, no users, no revenue, no scale data, no competition wins, no open-source proof, no published research, no "built X used by Y people."
-- Multiple verified outputs with results: 85-99
-- One strong verifiable technical output or conversion proof (spring → summer = performance proof): 72-84
-- Real applied engineering work described in detail, but no metrics/scale proof: 65-75
-- Implied depth from serious role, nothing independently verified: 50-64
-- Thin or inflated language only: 15-49
-Key calibration: If someone describes actual technical work (React frontend, NodeJS backend, LLM integration, image processing), this is real build evidence. Score 70+. A score of 55 should be reserved for mostly vague project descriptions with no execution proof.
-
-AGE STAGE MODIFIER (applied after weighted OVR)
--5 to +8. Do not punish age if output and depth are serious.
-- Sixth form landing real elite signal: +7 to +8
-- First year landing penultimate-level opportunity or contract work: +5 to +7
-- First year landing spring or niche role: +3 to +5
-- Penultimate year, expected elite internship: 0 to +2
-- Final year with return offer: 0 to +2
-- 22-24, strong trajectory: 0
-- 24+, same milestone as peers, no context or depth: -2 to -5
-
-═══ STEP 4: OVR FORMULA ═══
-base = round(PRES*0.25 + STACK*0.20 + REACH*0.15 + PACE*0.15 + DEPTH*0.15 + RARE*0.10)
-OVR = min(99, max(1, base + age_stage_modifier))
-
-═══ STEP 5: SCORE BANDS ═══
-95-99: Generational — multiple elite signals simultaneously, real validated output, young, unique narrative. Rare as hell.
-90-94: Nationally elite — top-tier outcome with coherent stack, some rarity, and proof.
-85-89: Very elite / high-conviction — serious enough for elite recruiters, founders, investors.
-75-84: Strong standout — strong uni, real experience, narrative, some proof.
-65-74: Solid ambitious — good but common among career-focused students.
-50-64: Normal LinkedIn competence — not bad, just not special.
-Under 50: Weak signal.
-
-═══ STEP 6: ANTI-HALLUCINATION RULES ═══
-These are non-negotiable. Violating them destroys user trust.
-
-NEVER invent narrative the profile does not explicitly show. Every inference must be labelled as inference.
-
-BAD: "He walked away from Goldman."
-GOOD: "The visible profile does not show a traditional elite internship route, so the path currently reads as self-directed rather than institutionally validated."
-
-BAD: "She chose research over finance."
-GOOD: "The profile shows a research role rather than a front-office internship — whether this was a deliberate choice or circumstantial is not visible from the evidence."
-
-BAD: "A deliberate builder who avoids the corporate grind."
-GOOD: "The profile has no corporate internship in the visible section, which could indicate a deliberate founder path or simply that this evidence is not yet visible."
-
-Rules:
-- Only describe what is VISIBLE in the screenshot
-- If you are inferring, write "this suggests" or "the visible evidence implies" not "he/she did/chose/decided"
-- Never state motivations, choices, or character as fact unless explicitly evidenced
-- Never claim a firm is elite unless you recognise it — if unknown, say "an early-stage startup with no publicly visible traction"
-- If information is missing (e.g. education not in screenshot), acknowledge the gap rather than assume
-
-═══ STEP 7: CLASSIFICATION OUTPUT ═══
-
-profile_type: The scoring lens. Determines how PRES is weighted. Choose the most accurate:
-- "Finance / Consulting" — primary signal is firm/role in IB, consulting, PE, VC, trading
-- "Technical Builder" — primary signal is software engineering, CS, applied AI/ML work
-- "Founder" — primary signal is founding or co-founding a company
-- "Technical Founder" — blend of strong CS/technical background + founding activity
-- "Creator / Media" — primary signal is content, audience, distribution
-- "Research / Academic" — primary signal is publications, academic output, research roles
-- "Policy / Social Impact" — primary signal is public sector, NGO, impact-focused organisations
-- "Generalist Operator" — no single dominant signal; strong breadth, unclear specialisation
-- "Hybrid" — two equally strong tracks from different categories
-
-archetype: The narrative build. What career pattern does this represent? Choose the most accurate:
-- "Technical Founder Prospect" — elite CS/technical background moving toward founding
-- "Non-Target Breakout" — outperformed their background massively
-- "Prestige Stacker" — systematically collecting institutional validation
-- "Platform Builder" — building audience, distribution, or platform alongside credentials
-- "Applied AI Builder" — consistent applied AI/ML execution across roles
-- "Creator-Operator Hybrid" — content/audience combined with professional credentials
-- "Research-Led Operator" — academic depth being converted into career capital
-- "Finance Track Climber" — classic institutional finance path, optimising for brand and seat
-- "Academic Weapon" — elite academic pedigree as the primary anchor
-- "High-Agency Generalist" — creating opportunities rather than waiting for structured routes
-- "Founder Bet" — high agency, low external validation, unproven upside
-
-confidence: Evidence quality score. How much visible evidence did you have to work with?
-- "HIGH" — education + experience + awards/metrics + detailed role descriptions all visible
-- "MEDIUM" — education or experience visible with some detail, but key sections missing
-- "LOW" — minimal evidence; primarily job titles without context, or major sections absent
-
-confidence_reason: One sentence explaining what evidence was present and what was missing. E.g. "Experience section shows detailed role descriptions with technical specifics; education section not visible in screenshots."
-
-═══ STEP 8: SCOUTING REPORT RULES ═══
-
-CRITICAL: Every sentence in the scouting report must do one of four jobs:
-1. Cite visible evidence (name specific companies, roles, skills, dates from the profile)
-2. Interpret what that evidence means (label inferences as inferences)
-3. Explain what it does not prove (separate promise from proof)
-4. Calibrate against the correct peer group
-
-The formula for every section: EVIDENCE → INFERENCE → CAVEAT.
-
-FIELD DEFINITIONS:
-
-moniker: 2-4 word punchy nickname grounded in what the profile ACTUALLY shows. Match to archetype. Never invent narrative.
-
-thesis: Profile Thesis — one paragraph with (a) core read in one sentence using evidence, (b) what makes it coherent or incoherent, (c) the central tension. Must feel like a scout who thought about it, not a summary bot. All inferences labelled as such.
-
-best_signal: Single strongest element with specific evidence cited. Formula: "Best signal: [specific visible evidence]. That suggests [inference — labelled as inference]. [Caveat]."
-
-weak_signal: Deeper weakness — not just surface gap but category of missing validation. Distinguish prospect from proven operator. All inferences labelled.
-
-traits: What the path signals about character and agency. Label every inference. Note directionality if present. Note agency level.
-
-not_proven: What the visible evidence does NOT yet prove. Specific — name capabilities not yet evidenced. Calibrate to exact peer group.
-
-peer_calibration: Three reference groups explicitly named. General population → exact peer group → elite tier above. What would be needed for each step up.
-
-floor: Realistic minimum outcome. For elite academic + technical work, floor is not "average graduate." Name specific roles and company types.
-
-base_case: Most likely outcome. Two branches if relevant.
-
-ceiling: Highest realistic outcome if everything compounds. State what specifically would unlock it.
-
-upgrade: One specific, concrete thing that would most improve this profile fastest.
+═══ SCOUTING REPORT ═══
+Every sentence must do one of four jobs: cite visible evidence, interpret it (labelled as inference), state what it does not prove, or calibrate against the right peer group. Formula: EVIDENCE → INFERENCE → CAVEAT.
+- moniker: 2-4 word punchy nickname grounded in what the profile actually shows.
+- thesis: one paragraph — the core read in one sentence using evidence, what makes it coherent or incoherent, and the central tension.
+- best_signal: "Best signal: [specific visible evidence]. That suggests [labelled inference]. [Caveat]."
+- weak_signal: the deeper missing category of validation, not just the surface gap.
+- traits: what the path signals about agency and direction — every inference labelled.
+- not_proven: specific capabilities not yet evidenced, calibrated to the exact peer group.
+- peer_calibration: three named reference groups — general student population, exact peer group, and the elite tier above — with what each step up would require.
+- floor / base_case / ceiling: realistic minimum, most likely, and best outcome — name specific roles and company types, and what would unlock the ceiling.
+- upgrade: the single most concrete thing that would improve this profile fastest.
 
 Return ONLY valid JSON, no markdown, no backticks:
-{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"OVR":X,"profile_type":"...","archetype":"...","confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","floor":"...","base_case":"...","ceiling":"...","upgrade":"..."}`;
+{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"stat_reasons":{"PRES":"one sentence citing the evidence used","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"profile_type":"...","archetype":"...","confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","floor":"...","base_case":"...","ceiling":"...","upgrade":"..."}`;
 
 function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+p*x);return s*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
-function getPct(cards,ovr){if(cards.length<5){const z=(ovr-65)/12;return Math.min(99,Math.max(1,Math.round(50*(1+erf(z/Math.sqrt(2))))));}return Math.min(99,Math.max(1,Math.round((cards.filter(c=>c.OVR<ovr).length/cards.length)*100)));}
+function getPct(cards,ovr){if(cards.length<5){const z=(ovr-58)/13;return Math.min(99,Math.max(1,Math.round(50*(1+erf(z/Math.sqrt(2))))));}return Math.min(99,Math.max(1,Math.round((cards.filter(c=>c.OVR<ovr).length/cards.length)*100)));}
 function T(ovr){if(ovr>=88)return{bg:"#0b0700",strip:"#FFD700",stripD:"#8a5c00",acc:"#FFD700",glow:"#FFD70044",label:"ELITE",dot:"0.07"};if(ovr>=78)return{bg:"#060610",strip:"#8fa8ff",stripD:"#3348bb",acc:"#99b0ff",glow:"#8fa8ff44",label:"RARE",dot:"0.07"};if(ovr>=65)return{bg:"#090909",strip:"#c0c0c0",stripD:"#555",acc:"#d0d0d0",glow:"#cccccc33",label:"UNCOMMON",dot:"0.05"};return{bg:"#080600",strip:"#dd8800",stripD:"#6a3d00",acc:"#ee9900",glow:"#dd880033",label:"STANDARD",dot:"0.05"};}
 function S(ovr){return ovr>=90?5:ovr>=80?4:ovr>=70?3:ovr>=60?2:1;}
+const A=(c,p)=>`color-mix(in srgb, ${c} ${p}%, transparent)`;
 const STATS=["PRES","PACE","REACH","STACK","RARE","DEPTH"];
 
 const STAT_INFO={
-  PRES:{full:"Prestige — Destination Quality",color:"#FFD700",desc:"60% firm halo + 40% seat selectivity. Goldman is Goldman whether you're from Cambridge or Coventry — background never enters this score. The seat matters too: Goldman IBD ≠ Goldman ops.",examples:["GS/MS/JPM IBD, MBB, Citadel → 88-99","Lazard/Rothschild/Evercore M&A → 78-87","Big4 advisory, Google/Meta → 65-77","Generic grad scheme → 35-49"]},
-  PACE:{full:"Pace — Pipeline Speed",color:"#00E5FF",desc:"How compressed is their progress relative to the normal recruitment timeline? Stage-adjusted, not age-adjusted. A 24-year-old who founded a company and pivoted to finance is not slow — context matters.",examples:["Pre-uni / sixth form landing elite signal → 92-99","First year landing penultimate-level internship → 84-91","Penultimate year, expected elite internship → 60-74","Post-grad, 2+ years behind peers, no context → 30-44"]},
-  REACH:{full:"Reach — Contextual Overperformance",color:"#FF6B35",desc:"Given where they started, how far above expectation did they land? This is the ONLY stat that rewards non-target school, unusual background, or lack of network access. Never double-counted in Prestige.",examples:["Post-92 non-target → GS IBD → 90-99","Russell Group → elite EB → 70-79","LSE/Imperial → GS IBD → 52-61","Oxbridge → GS IBD → 45-55 (hard, but not shocking)"]},
-  STACK:{full:"Stack — Compounding Narrative",color:"#A855F7",desc:"Do the pieces build on each other into a serious thesis, or are they random shiny badges? Like a great TV show: eight coherent seasons beats one great season. LinkedIn buffets are penalised.",examples:["3+ compounding assets with coherent theme + proof → 85-99","2-asset narrative with depth → 70-84","1 headline role, decent supporting context → 55-69","Scattered: startup + society + ambassador + crypto club → 25-39"]},
-  RARE:{full:"Rarity — Configuration Scarcity",color:"#10B981",desc:"How many people with this exact combination exist? Rewards unusual combinations (configuration rarity), not just unusual individual items. Cambridge + GS is prestigious — but common among elite finance profiles.",examples:["Non-target + GS + research + platform → 88-99","Elite athlete + front-office + strong academics → 85-95","Coventry + GS (route rarity) → 75-85","Standard target path, even at great firm → 35-50"]},
-  DEPTH:{full:"Depth — Evidence of Real Skill",color:"#F43F5E",desc:"What have they actually built, written, won, sold, researched, led, or improved? This protects the system from LinkedIn slop. Prestige gets you noticed. Depth tells us if there's a person behind the logo.",examples:["Published research / competition wins / product with users → 85-99","Spring → summer conversion (performance proof) / real output → 70-84","Implied depth from serious role — nothing independently verified → 50-69","Job titles only, no evidence of independent output → 15-49"]},
+  PRES:{full:"Prestige — Seat Selectivity · 20%",color:"var(--gold)",desc:"How hard is it to be ADMITTED to the seats on this profile? Judged on offer rates and competition — not fame, not background. A selective degree course counts as a seat. A self-created founder title doesn't: anyone can print one — unbacked founders earn credit in Depth and Pace instead.",examples:["Jane Street/GS IBD/MBB/DeepMind/YC batch → 90-99","Top EB, FAANG intern, Oxbridge competitive course → 70-89","Strong uni + recognised scheme → 50-69","Open-entry roles only (societies, ambassador) → 30-49"]},
+  PACE:{full:"Pace — Stage-Adjusted Earliness · 15%",color:"var(--c-pace)",desc:"How far ahead of the standard recruitment timeline is each milestone? Age lives here — there is no separate age bonus anywhere in the system. Military service, illness, founding, or switching countries never count as 'behind'.",examples:["2+ years ahead (pre-uni elite exposure) → 90-99","~1 year ahead (Y1 spring / early elite summer) → 70-89","On schedule → 50-69","Behind with no visible context → 1-49"]},
+  REACH:{full:"Reach — Contextual Overperformance · 15%",color:"var(--c-reach)",desc:"Given the visible starting context, how far above expectation did they land? The ONLY stat where background, school type and access count. If the starting context isn't visible, this sits near 50 — unknown is neither good nor bad.",examples:["Non-target / adverse context → elite destination → 90-99","Semi-target → BB front office → 70-89","On-script for the platform (Oxbridge → GS) → 50-69","Elite platform → weak destination, no context → 1-49"]},
+  STACK:{full:"Stack — Compounding Narrative · 20%",color:"var(--c-stack)",desc:"Do the assets reinforce one thesis, or is it a LinkedIn buffet? Judged on coherence, not fame — an unknown startup with real technical work can compound a builder narrative better than a random famous badge.",examples:["3+ assets, each building on the last → 90-99","Clear 2-3 asset thread → 70-89","A direction is guessable → 50-69","Accumulation without direction → 30-49"]},
+  RARE:{full:"Rarity — Configuration Scarcity · 5%",color:"var(--c-rare)",desc:"Of 1,000 random career-focused profiles, how many look like this one? Deliberately the lowest weight: scarcity is the hardest thing to estimate from a screenshot, so it seasons the OVR rather than swinging it.",examples:["~1 in 1,000 → 90-99","~10 in 1,000 → 70-89","~50 in 1,000 → 50-69","Interchangeable with peers → 1-49"]},
+  DEPTH:{full:"Depth — Verified Output · 25%",color:"var(--c-depth)",desc:"What does the evidence prove they can actually DO? Deliberately the highest weight: output is the only signal that can't be bought with a brand name or inflated language. Prestige gets you noticed — Depth is whether there's a person behind the logo.",examples:["Verifiable results: users, revenue, publication, national win → 90-99","Concrete artifacts described, or spring→summer conversion → 70-89","Serious seat, nothing described → 50-69","Titles or buzzwords only → 1-49"]},
 };
 
 function StatTooltip({stat,children}){
@@ -271,13 +157,13 @@ function StatTooltip({stat,children}){
     <div style={{position:"relative",display:"inline-flex",alignItems:"center"}} onMouseEnter={()=>setShow(true)} onMouseLeave={()=>setShow(false)}>
       {children}
       {show&&info&&(
-        <div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",width:220,background:"#111",border:`1px solid ${info.color}33`,borderRadius:6,padding:"10px 12px",zIndex:50,pointerEvents:"none"}}>
+        <div style={{position:"absolute",bottom:"calc(100% + 8px)",left:"50%",transform:"translateX(-50%)",width:220,background:"var(--s11)",border:`1px solid ${A(info.color,20)}`,borderRadius:6,padding:"10px 12px",zIndex:50,pointerEvents:"none"}}>
           <div style={{color:info.color,fontFamily:"'Bebas Neue'",fontSize:13,letterSpacing:1,marginBottom:4}}>{info.full}</div>
-          <div style={{color:"#888",fontSize:9,lineHeight:1.6,marginBottom:6}}>{info.desc}</div>
+          <div style={{color:"var(--v888)",fontSize:9,lineHeight:1.6,marginBottom:6}}>{info.desc}</div>
           <div style={{display:"flex",flexDirection:"column",gap:2}}>
-            {info.examples.map((ex,i)=><div key={i} style={{color:"#444",fontSize:8,letterSpacing:0.5}}>· {ex}</div>)}
+            {info.examples.map((ex,i)=><div key={i} style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5}}>· {ex}</div>)}
           </div>
-          <div style={{position:"absolute",bottom:-5,left:"50%",width:8,height:8,background:"#111",border:`1px solid ${info.color}33`,borderRight:"none",borderTop:"none",transform:"translateX(-50%) rotate(-45deg)"}}/>
+          <div style={{position:"absolute",bottom:-5,left:"50%",width:8,height:8,background:"var(--s11)",border:`1px solid ${A(info.color,20)}`,borderRight:"none",borderTop:"none",transform:"translateX(-50%) rotate(-45deg)"}}/>
         </div>
       )}
     </div>
@@ -319,7 +205,7 @@ function ShareCard({card,onClose}){
                 <div key={st} style={{display:"flex",alignItems:"center",gap:8}}>
                   <span style={{color:"#ffffff33",fontSize:8,minWidth:34,letterSpacing:0.5,fontFamily:"'Space Mono',monospace"}}>{st}</span>
                   <div style={{flex:1,height:3,background:"#ffffff0a",borderRadius:2,overflow:"hidden"}}>
-                    <div style={{width:`${v}%`,height:"100%",background:info?.color||t.acc,opacity:0.7}}/>
+                    <div style={{width:`${v}%`,height:"100%",background:t.acc,opacity:0.7}}/>
                   </div>
                   <span style={{color:"#ffffff77",fontSize:10,minWidth:20,textAlign:"right"}}>{v}</span>
                 </div>
@@ -335,9 +221,9 @@ function ShareCard({card,onClose}){
           </div>
         </div>
         <div style={{display:"flex",gap:8,marginTop:12,justifyContent:"center"}}>
-          <div style={{color:"#333",fontSize:9,letterSpacing:1,fontFamily:"'Space Mono',monospace",textAlign:"center"}}>take a screenshot to share · press esc to close</div>
+          <div style={{color:"var(--v333)",fontSize:9,letterSpacing:1,fontFamily:"'Space Mono',monospace",textAlign:"center"}}>take a screenshot to share · press esc to close</div>
         </div>
-        <button onClick={onClose} style={{display:"block",margin:"8px auto 0",background:"none",border:"none",color:"#333",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>CLOSE</button>
+        <button onClick={onClose} style={{display:"block",margin:"8px auto 0",background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>CLOSE</button>
       </div>
     </div>
   );
@@ -383,7 +269,7 @@ function ShareCard({card,onClose}){
   );
 }
 
-function Bell({cards,targetOvr,acc="#FFD700"}){
+function Bell({cards,targetOvr,acc="var(--gold)"}){
   const mean=cards.length>=5?cards.reduce((s,c)=>s+c.OVR,0)/cards.length:65;
   const variance=cards.length>=5?cards.reduce((s,c)=>s+(c.OVR-mean)**2,0)/cards.length:144;
   const std=Math.sqrt(variance)||12,W=260,H=72,pad=16;
@@ -408,16 +294,16 @@ function Bell({cards,targetOvr,acc="#FFD700"}){
       <line x1={tx} y1={H-8} x2={tx} y2={8} stroke={acc} strokeWidth="1.5" strokeDasharray="3,2" opacity="0.8"/>
       <circle cx={tx} cy={toY(pdf(targetOvr))} r="3" fill={acc}/>
       <text x={tx} y={6} textAnchor="middle" fill={acc} fontSize="9" fontFamily="Bebas Neue">{targetOvr}</text>
-      <line x1={pad} y1={H-8} x2={W-pad} y2={H-8} stroke="#ffffff18" strokeWidth="0.5"/>
+      <line x1={pad} y1={H-8} x2={W-pad} y2={H-8} stroke="var(--axis)" strokeWidth="0.5"/>
     </svg>
   );
 }
 
 function Key({label,sub,wide,pressed}){
   return(
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minWidth:wide?76:46,height:46,background:pressed?"#FFD700":"#161616",border:`1px solid ${pressed?"#FFD700":"#2a2a2a"}`,borderBottom:`${pressed?"1px":"3px"} solid ${pressed?"#aa8800":"#333"}`,borderRadius:5,padding:"4px 8px",transform:pressed?"translateY(2px)":"none",transition:"all 0.12s",boxShadow:pressed?"none":"0 2px 0 #000",cursor:"default"}}>
-      <span style={{fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,color:pressed?"#000":"#aaa",letterSpacing:0.5,textAlign:"center",lineHeight:1.2}}>{label}</span>
-      {sub&&<span style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:pressed?"#00000077":"#444",letterSpacing:0.5,marginTop:2}}>{sub}</span>}
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minWidth:wide?76:46,height:46,background:pressed?"var(--gold)":"var(--s16)",border:`1px solid ${pressed?"var(--gold)":"var(--v2a)"}`,borderBottom:`${pressed?"1px":"3px"} solid ${pressed?"var(--gold-deep)":"var(--v333)"}`,borderRadius:5,padding:"4px 8px",transform:pressed?"translateY(2px)":"none",transition:"all 0.12s",boxShadow:pressed?"none":"0 2px 0 var(--gold-ink)",cursor:"default"}}>
+      <span style={{fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,color:pressed?"var(--gold-ink)":"var(--vaaa)",letterSpacing:0.5,textAlign:"center",lineHeight:1.2}}>{label}</span>
+      {sub&&<span style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:pressed?"#00000077":"var(--v444)",letterSpacing:0.5,marginTop:2}}>{sub}</span>}
     </div>
   );
 }
@@ -429,10 +315,10 @@ function Steps({cur}){
       {steps.map((s,i)=>(
         <div key={i} style={{display:"flex",alignItems:"center",flex:i<steps.length-1?1:"auto"}}>
           <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
-            <div style={{width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:i<=cur?"#FFD700":"#111",border:i<=cur?"none":"1px solid #1e1e1e",fontFamily:"'Bebas Neue'",fontSize:13,color:i<=cur?"#000":"#333",flexShrink:0,transition:"all 0.3s"}}>{i<cur?"✓":i+1}</div>
-            <span style={{color:i===cur?"#FFD700":i<cur?"#555":"#2a2a2a",fontSize:8,letterSpacing:1.5,textTransform:"uppercase",whiteSpace:"nowrap"}}>{s}</span>
+            <div style={{width:28,height:28,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",background:i<=cur?"var(--gold)":"var(--s11)",border:i<=cur?"none":"1px solid var(--v1e)",fontFamily:"'Bebas Neue'",fontSize:13,color:i<=cur?"var(--gold-ink)":"var(--v333)",flexShrink:0,transition:"all 0.3s"}}>{i<cur?"✓":i+1}</div>
+            <span style={{color:i===cur?"var(--gold)":i<cur?"var(--v555)":"var(--v2a)",fontSize:8,letterSpacing:1.5,textTransform:"uppercase",whiteSpace:"nowrap"}}>{s}</span>
           </div>
-          {i<steps.length-1&&<div style={{flex:1,height:1,background:i<cur?"#FFD70033":"#141414",margin:"0 10px",marginBottom:20,transition:"background 0.3s"}}/>}
+          {i<steps.length-1&&<div style={{flex:1,height:1,background:i<cur?"color-mix(in srgb, var(--gold) 20%, transparent)":"var(--b14)",margin:"0 10px",marginBottom:20,transition:"background 0.3s"}}/>}
         </div>
       ))}
     </div>
@@ -456,6 +342,15 @@ export default function App(){
   const [updating,setUpdating]=useState(null);
   const [showShare,setShowShare]=useState(false);
   const fileRef=useRef();
+  const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("ca_theme")||"dark";}catch{return "dark";}});
+
+  useEffect(()=>{
+    const root=document.documentElement;
+    root.classList.remove("theme-dark","theme-light");
+    root.classList.add(theme==="light"?"theme-light":"theme-dark");
+    document.body.style.background=theme==="light"?"#f4f2ec":"#080808";
+    try{localStorage.setItem("ca_theme",theme);}catch{}
+  },[theme]);
 
   useEffect(()=>{(async()=>{try{const r=await storage.get("ca_v2");if(r?.value)setCards(JSON.parse(r.value));}catch{}})();},[]);
   const persist=async u=>{setCards(u);try{await storage.set("ca_v2",JSON.stringify(u));}catch{}};
@@ -520,7 +415,7 @@ export default function App(){
     setExtracting(true);setErr("");setDupWarn(null);
     try{
       const imgBlocks=imgs.map(i=>({type:"image",source:{type:"base64",media_type:i.type,data:i.b64}}));
-      const r1=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
+      const r1=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1600,messages:[{role:"user",content:[...imgBlocks,{type:"text",text:EXTRACT_PROMPT}]}]})});
       const d1=await r1.json();
       if(d1.error)throw new Error(`API error: ${d1.error.message}`);
       const ex=repairJSON(d1.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
@@ -530,14 +425,19 @@ export default function App(){
         if(dup){setDupWarn(dup);setExtracting(false);return;}
       }
       setExtracting(false);setScoring(true);
-      const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nActivities & academic record: ${ex.acts||"None"}\nNotes (academic record, traction signals, context): ${ex.notes||"None"}`;
-      const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
+      const msg=`Profile type: ${ex.profile_type||"finance"}\nName: ${ex.name}\nUniversity: ${ex.uni}\nAge: ${ex.age}\nCompany: ${ex.company}\nRole: ${ex.role}\nHow secured: ${ex.how}\nPrior internships/roles: ${ex.prev}\nGrades / academic record: ${ex.grades||"Not visible"}\nTimeline (roles with dates): ${ex.timeline||"Not visible"}\nConcrete evidence quotes: ${ex.evidence||"None visible"}\nActivities: ${ex.acts||"None"}\nNotes (background, traction signals, context): ${ex.notes||"None"}`;
+      const r2=await fetch("/api/anthropic",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,system:SCORE_PROMPT,messages:[{role:"user",content:msg}]})});
       const d2=await r2.json();
       if(d2.error)throw new Error(`Scoring error: ${d2.error.message}`);
       const sc=repairJSON(d2.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
+      // The model returns six independent stats; the app owns the OVR arithmetic so the
+      // formula is always applied exactly (LLMs are unreliable at weighted sums).
+      const cl=v=>Math.min(99,Math.max(1,Math.round(Number(v)||50)));
+      const stats={PRES:cl(sc.PRES),PACE:cl(sc.PACE),REACH:cl(sc.REACH),STACK:cl(sc.STACK),RARE:cl(sc.RARE),DEPTH:cl(sc.DEPTH)};
+      const OVR=cl(stats.PRES*0.20+stats.PACE*0.15+stats.REACH*0.15+stats.STACK*0.20+stats.RARE*0.05+stats.DEPTH*0.25);
       const all=[...cards];
       const uid=updating||Date.now().toString();
-      const newCard={id:uid,...ex,stats:{PRES:sc.PRES,PACE:sc.PACE,REACH:sc.REACH,STACK:sc.STACK,RARE:sc.RARE,DEPTH:sc.DEPTH},OVR:sc.OVR,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
+      const newCard={id:uid,...ex,stats,OVR,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
       const base=updating?all.filter(c=>c.id!==uid):all;
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
       await persist(updated);setDone(newCard);setStep(3);setUpdating(null);
@@ -555,29 +455,46 @@ export default function App(){
 
   const sorted=[...cards].sort((a,b)=>b.OVR-a.OVR);
   const avg=cards.length?Math.round(cards.reduce((s,c)=>s+c.OVR,0)/cards.length):0;
-  const ct=sel?T(sel.OVR):{acc:"#FFD700"};
+  const ct=sel?T(sel.OVR):{acc:"var(--gold)"};
   const withMeta=c=>({...c,_totalCards:cards.length});
 
   return(
-    <div style={{minHeight:"100vh",background:"#080808",color:"#eee",fontFamily:"'Space Mono',monospace"}}>
+    <div style={{minHeight:"100vh",background:"var(--bg)",color:"var(--veee)",fontFamily:"'Space Mono',monospace"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
+        html.theme-dark{
+          --bg:#080808;--s0a:#0a0a0a;--s0c:#0c0c0c;--s0f:#0f0f0f;--s11:#111;--s16:#161616;
+          --b14:#141414;--b15:#151515;
+          --v1a:#1a1a1a;--v1e:#1e1e1e;--v222:#222;--v2a:#2a2a2a;--v2e:#2e2e2e;--v333:#333;--v444:#444;--v555:#555;--v666:#666;--v777:#777;--v888:#888;--vaaa:#aaa;--vddd:#ddd;--veee:#eee;
+          --gold:#FFD700;--gold2:#FF8800;--gold-deep:#aa8800;--gold-ink:#000;
+          --c-pace:#00E5FF;--c-reach:#FF6B35;--c-stack:#A855F7;--c-rare:#10B981;--c-depth:#F43F5E;
+          --warn-bg:#1a0a00;--conf-bg:#0a0a00;--conf-dim:#2a2200;--conf-label:#3a3200;--axis:#ffffff18;
+        }
+        html.theme-light{
+          --bg:#f4f2ec;--s0a:#edeae1;--s0c:#f9f8f3;--s0f:#fdfcf9;--s11:#eae7dd;--s16:#e6e3d9;
+          --b14:#e6e2d6;--b15:#e4e0d4;
+          --v1a:#dbd7cb;--v1e:#d3cfc2;--v222:#b0ac9c;--v2a:#a19d8d;--v2e:#98947f;--v333:#8b8778;--v444:#827e6f;--v555:#757263;--v666:#6a675a;--v777:#615e52;--v888:#57544a;--vaaa:#454338;--vddd:#26251f;--veee:#1c1b18;
+          --gold:#8a6b00;--gold2:#a34d00;--gold-deep:#5f4a00;--gold-ink:#fff;
+          --c-pace:#00707e;--c-reach:#c2410c;--c-stack:#7c3aed;--c-rare:#047857;--c-depth:#be123c;
+          --warn-bg:#faeadd;--conf-bg:#f5efd8;--conf-dim:#857a3f;--conf-label:#6b6125;--axis:#00000022;
+        }
         @keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:#0a0a0a}::-webkit-scrollbar-thumb{background:#222}
-        .row:hover{background:#111!important;border-color:#FFD70022!important}
-        .ghost:hover{color:#FFD700!important}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--s0a)}::-webkit-scrollbar-thumb{background:var(--v222)}
+        .row:hover{background:var(--s11)!important;border-color:color-mix(in srgb, var(--gold) 13%, transparent)!important}
+        .ghost:hover{color:var(--gold)!important}
         .delbtn{opacity:0;transition:opacity 0.15s}.row:hover .delbtn{opacity:1}
       `}</style>
 
-      <div style={{display:"flex",alignItems:"center",borderBottom:"1px solid #111",background:"#080808",padding:"0 28px",position:"sticky",top:0,zIndex:100}}>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,color:"#FFD700",marginRight:36,padding:"15px 0",textShadow:"0 0 18px #FFD70044",cursor:"pointer"}} onClick={()=>{setView("home");reset();setSel(null);}}>CAREER ATTACK</div>
+      <div style={{display:"flex",alignItems:"center",borderBottom:"1px solid var(--s11)",background:"var(--bg)",padding:"0 28px",position:"sticky",top:0,zIndex:100}}>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,color:"var(--gold)",marginRight:36,padding:"15px 0",textShadow:"0 0 18px color-mix(in srgb, var(--gold) 27%, transparent)",cursor:"pointer"}} onClick={()=>{setView("home");reset();setSel(null);}}>CAREER ATTACK</div>
         {["home","create","leaderboard","guide"].map(v=>(
-          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid #FFD700":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"#FFD700":"#444",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s"}}>{v}</button>
+          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s"}}>{v}</button>
         ))}
         <div style={{flex:1}}/>
-        <span style={{color:"#222",fontSize:9,letterSpacing:1}}>{cards.length} PROFILES</span>
+        <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Switch to light mode":"Switch to dark mode"} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:14,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color="var(--v444)";e.target.style.borderColor="var(--v1e)";}}>{theme==="dark"?"☀":"☾"}</button>
+        <span style={{color:"var(--v222)",fontSize:9,letterSpacing:1}}>{cards.length} PROFILES</span>
       </div>
 
       <div style={{maxWidth:880,margin:"0 auto",padding:"36px 24px"}}>
@@ -585,34 +502,34 @@ export default function App(){
         {view==="home"&&(
           <div style={{animation:"fadeUp 0.4s ease"}}>
             <div style={{textAlign:"center",marginBottom:52}}>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:60,letterSpacing:4,lineHeight:1,background:"linear-gradient(135deg,#FFD700,#FF8800)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>CAREER ATTACK</div>
-              <div style={{color:"#333",fontSize:10,letterSpacing:4,marginTop:8,textTransform:"uppercase"}}>who's most cracked — rated, ranked, no debate</div>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:60,letterSpacing:4,lineHeight:1,background:"linear-gradient(135deg,var(--gold),var(--gold2))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>CAREER ATTACK</div>
+              <div style={{color:"var(--v333)",fontSize:10,letterSpacing:4,marginTop:8,textTransform:"uppercase"}}>who's most cracked — rated, ranked, no debate</div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:52}}>
               {[{l:"Total Profiles",v:cards.length},{l:"Firms Represented",v:[...new Set(cards.map(c=>c.company))].length},{l:"Avg OVR",v:cards.length?avg:"—"}].map(s=>(
-                <div key={s.l} style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"22px 16px",textAlign:"center"}}>
-                  <div style={{fontFamily:"'Bebas Neue'",fontSize:38,color:"#FFD700",lineHeight:1,textShadow:"0 0 12px #FFD70033"}}>{s.v}</div>
-                  <div style={{color:"#333",fontSize:8,letterSpacing:2,marginTop:4,textTransform:"uppercase"}}>{s.l}</div>
+                <div key={s.l} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"22px 16px",textAlign:"center"}}>
+                  <div style={{fontFamily:"'Bebas Neue'",fontSize:38,color:"var(--gold)",lineHeight:1,textShadow:"0 0 12px color-mix(in srgb, var(--gold) 20%, transparent)"}}>{s.v}</div>
+                  <div style={{color:"var(--v333)",fontSize:8,letterSpacing:2,marginTop:4,textTransform:"uppercase"}}>{s.l}</div>
                 </div>
               ))}
             </div>
             {sorted.length>0&&(
               <>
-                <div style={{color:"#2a2a2a",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:20}}>TEAM OF THE YEAR</div>
+                <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:20}}>TEAM OF THE YEAR</div>
                 <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center",marginBottom:40}}>
                   {sorted.slice(0,Math.min(3,sorted.length)).map(c=><Card key={c.id} card={withMeta(c)} sz={0.85} onClick={()=>{setSel(c);setView("profile");}}/>)}
                 </div>
-                <div style={{background:"#0c0c0c",border:"1px solid #141414",borderRadius:8,padding:"20px 24px"}}>
-                  <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>OVR DISTRIBUTION</div>
+                <div style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"20px 24px"}}>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>OVR DISTRIBUTION</div>
                   <Bell cards={cards} targetOvr={avg}/>
                 </div>
               </>
             )}
             {cards.length===0&&(
               <div style={{textAlign:"center",padding:"60px 0"}}>
-                <div style={{color:"#1a1a1a",fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:2}}>NO PROFILES YET</div>
-                <div style={{color:"#2a2a2a",fontSize:9,marginTop:8,letterSpacing:1}}>screenshot a linkedin, we score it instantly</div>
-                <button onClick={()=>setView("create")} style={{marginTop:20,background:"#FFD700",color:"#000",border:"none",padding:"11px 28px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>CREATE FIRST CARD</button>
+                <div style={{color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:2}}>NO PROFILES YET</div>
+                <div style={{color:"var(--v2a)",fontSize:9,marginTop:8,letterSpacing:1}}>screenshot a linkedin, we score it instantly</div>
+                <button onClick={()=>setView("create")} style={{marginTop:20,background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"11px 28px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>CREATE FIRST CARD</button>
               </div>
             )}
           </div>
@@ -620,38 +537,38 @@ export default function App(){
 
         {view==="create"&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:540,margin:"0 auto"}}>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:3,color:"#FFD700",marginBottom:2}}>{updating?"UPDATE CARD":"NEW CARD"}</div>
-            <div style={{color:"#333",fontSize:9,letterSpacing:2,marginBottom:32,textTransform:"uppercase"}}>Find a LinkedIn profile, screenshot it, and we'll rate it</div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:3,color:"var(--gold)",marginBottom:2}}>{updating?"UPDATE CARD":"NEW CARD"}</div>
+            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,marginBottom:32,textTransform:"uppercase"}}>Find a LinkedIn profile, screenshot it, and we'll rate it</div>
             {step<3&&<Steps cur={step}/>}
 
             {step===0&&(
               <div style={{animation:"fadeUp 0.3s ease"}}>
-                <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:10,padding:"26px 24px",marginBottom:14}}>
-                  <div style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>1 — FIND THEIR LINKEDIN PROFILE</div>
-                  <div style={{color:"#666",fontSize:11,lineHeight:1.9,marginBottom:10}}>Go to their LinkedIn. You want to capture the sections that tell the story — the more you include, the sharper the analysis.</div>
+                <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:10,padding:"26px 24px",marginBottom:14}}>
+                  <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>1 — FIND THEIR LINKEDIN PROFILE</div>
+                  <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.9,marginBottom:10}}>Go to their LinkedIn. You want to capture the sections that tell the story — the more you include, the sharper the analysis.</div>
                   <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:18}}>
                     {[{s:"Experience",d:"job titles, companies, dates, role descriptions",req:true},{s:"Education",d:"university, degree, grades if visible",req:true},{s:"Awards / Honours",d:"prizes, competitions, academic distinctions",req:false},{s:"Metrics / About",d:"traction numbers, audience size, anything concrete",req:false}].map(x=>(
                       <div key={x.s} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-                        <div style={{width:6,height:6,borderRadius:"50%",background:x.req?"#FFD700":"#333",marginTop:4,flexShrink:0}}/>
-                        <div><span style={{color:x.req?"#aaa":"#444",fontSize:10,letterSpacing:0.5}}>{x.s}</span><span style={{color:"#2a2a2a",fontSize:9,marginLeft:8}}>{x.d}</span>{x.req&&<span style={{color:"#FFD70055",fontSize:8,marginLeft:6}}>essential</span>}</div>
+                        <div style={{width:6,height:6,borderRadius:"50%",background:x.req?"var(--gold)":"var(--v333)",marginTop:4,flexShrink:0}}/>
+                        <div><span style={{color:x.req?"var(--vaaa)":"var(--v444)",fontSize:10,letterSpacing:0.5}}>{x.s}</span><span style={{color:"var(--v2a)",fontSize:9,marginLeft:8}}>{x.d}</span>{x.req&&<span style={{color:"color-mix(in srgb, var(--gold) 33%, transparent)",fontSize:8,marginLeft:6}}>essential</span>}</div>
                       </div>
                     ))}
                   </div>
                   <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#0a66c2",color:"#fff",textDecoration:"none",padding:"9px 18px",borderRadius:5,fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>OPEN LINKEDIN ↗</a>
                 </div>
-                <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:10,padding:"26px 24px",marginBottom:20}}>
-                  <div style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>2 — SCREENSHOT IT</div>
-                  <div style={{color:"#666",fontSize:11,lineHeight:1.9,marginBottom:24}}>Hold these three keys at the same time. A crosshair appears — drag a box around just their <span style={{color:"#aaa"}}>Experience section</span>. Screenshot copies to clipboard, no saving needed. Once you've done that, repeat for their <span style={{color:"#aaa"}}>Education section</span>. You can paste both on the next page — multiple screenshots are fine.</div>
+                <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:10,padding:"26px 24px",marginBottom:20}}>
+                  <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>2 — SCREENSHOT IT</div>
+                  <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.9,marginBottom:24}}>Hold these three keys at the same time. A crosshair appears — drag a box around just their <span style={{color:"var(--vaaa)"}}>Experience section</span>. Screenshot copies to clipboard, no saving needed. Once you've done that, repeat for their <span style={{color:"var(--vaaa)"}}>Education section</span>. You can paste both on the next page — multiple screenshots are fine.</div>
                   <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:8,marginBottom:18}}>
                     <Key label="⊞ WIN" sub="windows key" wide pressed={pk.win}/>
-                    <span style={{color:"#333",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                    <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
                     <Key label="SHIFT" pressed={pk.shift}/>
-                    <span style={{color:"#333",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                    <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
                     <Key label="S" pressed={pk.s}/>
                   </div>
-                  <div style={{color:"#2a2a2a",fontSize:9,textAlign:"center",letterSpacing:1}}>What's it called? Snip & Sketch — press these keys to try, they'll light up</div>
+                  <div style={{color:"var(--v2a)",fontSize:9,textAlign:"center",letterSpacing:1}}>What's it called? Snip & Sketch — press these keys to try, they'll light up</div>
                 </div>
-                <button onClick={()=>setStep(1)} style={{width:"100%",background:"#FFD700",color:"#000",border:"none",padding:"13px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>GOT MY SCREENSHOTS →</button>
+                <button onClick={()=>setStep(1)} style={{width:"100%",background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>GOT MY SCREENSHOTS →</button>
               </div>
             )}
 
@@ -660,10 +577,10 @@ export default function App(){
                 {imgs.length>0&&(
                   <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                     {imgs.map((im,i)=>(
-                      <div key={i} style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
+                      <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
                         <img src={im.preview} alt="" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0}}/>
-                        <span style={{color:"#444",fontSize:9,flex:1,letterSpacing:0.5}}>Screenshot {i+1}</span>
-                        <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#333",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0}}>remove</button>
+                        <span style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5}}>Screenshot {i+1}</span>
+                        <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0}}>remove</button>
                       </div>
                     ))}
                   </div>
@@ -673,17 +590,17 @@ export default function App(){
                   onDragLeave={()=>setDrag(false)}
                   onDrop={e=>{e.preventDefault();setDrag(false);Array.from(e.dataTransfer.files).forEach(addFile);}}
                   onClick={()=>fileRef.current?.click()}
-                  style={{border:`2px dashed ${drag?"#FFD700":"#1e1e1e"}`,borderRadius:10,padding:"44px 24px",textAlign:"center",cursor:"pointer",background:drag?"#FFD70008":"#0a0a0a",transition:"all 0.2s",marginBottom:12}}>
+                  style={{border:`2px dashed ${drag?"var(--gold)":"var(--v1e)"}`,borderRadius:10,padding:"44px 24px",textAlign:"center",cursor:"pointer",background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0a)",transition:"all 0.2s",marginBottom:12}}>
                   <div style={{fontSize:28,marginBottom:12,opacity:0.3}}>⬆</div>
-                  <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:2,color:drag?"#FFD700":"#2e2e2e",marginBottom:6}}>{imgs.length>0?"ADD ANOTHER SCREENSHOT":"PASTE OR DROP HERE"}</div>
-                  <div style={{color:"#FFD70066",fontSize:11,letterSpacing:1,marginBottom:4,fontFamily:"'Space Mono'"}}>Ctrl + V to paste from clipboard</div>
-                  <div style={{color:"#1e1e1e",fontSize:9,letterSpacing:1}}>paste multiple if you have both Experience and Education screenshots</div>
+                  <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:2,color:drag?"var(--gold)":"var(--v2e)",marginBottom:6}}>{imgs.length>0?"ADD ANOTHER SCREENSHOT":"PASTE OR DROP HERE"}</div>
+                  <div style={{color:"color-mix(in srgb, var(--gold) 40%, transparent)",fontSize:11,letterSpacing:1,marginBottom:4,fontFamily:"'Space Mono'"}}>Ctrl + V to paste from clipboard</div>
+                  <div style={{color:"var(--v1e)",fontSize:9,letterSpacing:1}}>paste multiple if you have both Experience and Education screenshots</div>
                   <input ref={fileRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>Array.from(e.target.files).forEach(addFile)}/>
                 </div>
                 {err&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:1,marginBottom:12}}>{err}</div>}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <button className="ghost" onClick={()=>setStep(0)} style={{background:"none",border:"none",color:"#333",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>← BACK</button>
-                  {imgs.length>0&&<button onClick={()=>setStep(2)} style={{background:"#FFD700",color:"#000",border:"none",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>ANALYSE {imgs.length} SCREENSHOT{imgs.length>1?"S":""} →</button>}
+                  <button className="ghost" onClick={()=>setStep(0)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>← BACK</button>
+                  {imgs.length>0&&<button onClick={()=>setStep(2)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>ANALYSE {imgs.length} SCREENSHOT{imgs.length>1?"S":""} →</button>}
                 </div>
               </div>
             )}
@@ -692,30 +609,30 @@ export default function App(){
               <div style={{animation:"fadeUp 0.3s ease"}}>
                 <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                   {imgs.map((im,i)=>(
-                    <div key={i} style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,overflow:"hidden"}}>
+                    <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden"}}>
                       <img src={im.preview} alt="" style={{width:"100%",display:"block",maxHeight:140,objectFit:"cover",objectPosition:"top"}}/>
                     </div>
                   ))}
-                  <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"#333",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0,textDecoration:"underline",alignSelf:"flex-end"}}>edit screenshots</button>
+                  <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0,textDecoration:"underline",alignSelf:"flex-end"}}>edit screenshots</button>
                 </div>
                 {dupWarn&&(
-                  <div style={{background:"#1a0a00",border:"1px solid #FF6B3533",borderRadius:8,padding:"14px 18px",marginBottom:14}}>
-                    <div style={{color:"#FF6B35",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Profile already in database</div>
-                    <div style={{color:"#666",fontSize:10,lineHeight:1.6,marginBottom:10}}><span style={{color:"#888"}}>{dupWarn.name}</span> ({dupWarn.company}) was already analysed. Update their card or skip?</div>
+                  <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 20%, transparent)",borderRadius:8,padding:"14px 18px",marginBottom:14}}>
+                    <div style={{color:"var(--c-reach)",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Profile already in database</div>
+                    <div style={{color:"var(--v666)",fontSize:10,lineHeight:1.6,marginBottom:10}}><span style={{color:"var(--v888)"}}>{dupWarn.name}</span> ({dupWarn.company}) was already analysed. Update their card or skip?</div>
                     <div style={{display:"flex",gap:8}}>
-                      <button onClick={()=>{setUpdating(dupWarn.id);setDupWarn(null);analyse(true);}} style={{background:"#FF6B35",color:"#000",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>UPDATE CARD</button>
-                      <button onClick={()=>{setDupWarn(null);reset();}} style={{background:"none",border:"1px solid #333",color:"#555",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>SKIP</button>
+                      <button onClick={()=>{setUpdating(dupWarn.id);setDupWarn(null);analyse(true);}} style={{background:"var(--c-reach)",color:"var(--gold-ink)",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>UPDATE CARD</button>
+                      <button onClick={()=>{setDupWarn(null);reset();}} style={{background:"none",border:"1px solid var(--v333)",color:"var(--v555)",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>SKIP</button>
                     </div>
                   </div>
                 )}
                 {(extracting||scoring)&&(
-                  <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"14px 18px",marginBottom:14,display:"flex",alignItems:"center",gap:12}}>
-                    <div style={{width:14,height:14,border:"2px solid #FFD70033",borderTop:"2px solid #FFD700",borderRadius:"50%",animation:"spin 0.8s linear infinite",flexShrink:0}}/>
-                    <span style={{color:"#444",fontSize:10,letterSpacing:1}}>{extracting?"Reading the profile…":"Calculating OVR…"}</span>
+                  <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:14,display:"flex",alignItems:"center",gap:12}}>
+                    <div style={{width:14,height:14,border:"2px solid color-mix(in srgb, var(--gold) 20%, transparent)",borderTop:"2px solid var(--gold)",borderRadius:"50%",animation:"spin 0.8s linear infinite",flexShrink:0}}/>
+                    <span style={{color:"var(--v444)",fontSize:10,letterSpacing:1}}>{extracting?"Reading the profile…":"Calculating OVR…"}</span>
                   </div>
                 )}
                 {err&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:1,marginBottom:12}}>{err}</div>}
-                {!dupWarn&&<button onClick={()=>analyse(false)} disabled={extracting||scoring} style={{width:"100%",background:extracting||scoring?"#111":"#FFD700",color:extracting||scoring?"#333":"#000",border:"none",padding:"13px",borderRadius:5,cursor:extracting||scoring?"not-allowed":"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",transition:"background 0.15s"}}>
+                {!dupWarn&&<button onClick={()=>analyse(false)} disabled={extracting||scoring} style={{width:"100%",background:extracting||scoring?"var(--s11)":"var(--gold)",color:extracting||scoring?"var(--v333)":"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:extracting||scoring?"not-allowed":"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",transition:"background 0.15s"}}>
                   {extracting?"READING PROFILE…":scoring?"CALCULATING OVR…":"ANALYSE & GENERATE CARD"}
                 </button>}
               </div>
@@ -724,27 +641,27 @@ export default function App(){
             {step===3&&done&&(
               <div style={{textAlign:"center",animation:"fadeUp 0.5s ease"}}>
                 {extracted&&(
-                  <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"14px 18px",marginBottom:16,textAlign:"left"}}>
-                    <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>Extracted from screenshots</div>
+                  <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:16,textAlign:"left"}}>
+                    <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>Extracted from screenshots</div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"6px 16px"}}>
                       {[["Name",extracted.name],["University",extracted.uni],["Company",extracted.company],["Role",extracted.role],["Age",extracted.age],["Cohort",extracted.year]].map(([l,v])=>(
-                        <div key={l}><span style={{color:"#2a2a2a",fontSize:8,letterSpacing:1}}>{l}: </span><span style={{color:"#777",fontSize:9}}>{v||"—"}</span></div>
+                        <div key={l}><span style={{color:"var(--v2a)",fontSize:8,letterSpacing:1}}>{l}: </span><span style={{color:"var(--v777)",fontSize:9}}>{v||"—"}</span></div>
                       ))}
                     </div>
                   </div>
                 )}
                 <div style={{display:"flex",justifyContent:"center",marginBottom:20}}><Card card={withMeta(done)} sz={1.05} onClick={()=>{setSel(done);setView("profile");}}/></div>
-                {done.thesis&&<div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
-                  <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Profile Thesis</div>
-                  <div style={{color:"#888",fontSize:11,lineHeight:1.7}}>{done.thesis}</div>
+                {done.thesis&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Profile Thesis</div>
+                  <div style={{color:"var(--v888)",fontSize:11,lineHeight:1.7}}>{done.thesis}</div>
                 </div>}
-                <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"16px 20px",marginBottom:20}}>
+                <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"16px 20px",marginBottom:20}}>
                   <Bell cards={cards.filter(c=>c.id!==done.id)} targetOvr={done.OVR} acc={T(done.OVR).acc}/>
-                  <div style={{color:"#333",fontSize:9,textAlign:"center",marginTop:6,letterSpacing:1}}>TOP {100-(done.percentile||50)}% · OVR {done.OVR}</div>
+                  <div style={{color:"var(--v333)",fontSize:9,textAlign:"center",marginTop:6,letterSpacing:1}}>TOP {100-(done.percentile||50)}% · OVR {done.OVR}</div>
                 </div>
                 <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-                  <button onClick={reset} style={{background:"none",border:"1px solid #1e1e1e",color:"#555",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>ADD ANOTHER</button>
-                  <button onClick={()=>{setSel(done);setView("profile");}} style={{background:"#FFD700",color:"#000",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>VIEW PROFILE →</button>
+                  <button onClick={reset} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>ADD ANOTHER</button>
+                  <button onClick={()=>{setSel(done);setView("profile");}} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>VIEW PROFILE →</button>
                 </div>
               </div>
             )}
@@ -755,34 +672,34 @@ export default function App(){
           <div style={{animation:"fadeUp 0.4s ease"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:32}}>
               <div>
-                <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"#FFD700"}}>LEADERBOARD</div>
-                <div style={{color:"#333",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>{cards.length} profiles ranked by OVR</div>
+                <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)"}}>LEADERBOARD</div>
+                <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>{cards.length} profiles ranked by OVR</div>
               </div>
-              <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid #FFD70033",color:"#FFD700",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="#FFD70066"} onMouseLeave={e=>e.target.style.borderColor="#FFD70033"}>+ ADD PROFILE</button>
+              <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 20%, transparent)",color:"var(--gold)",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 40%, transparent)"} onMouseLeave={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 20%, transparent)"}>+ ADD PROFILE</button>
             </div>
             {sorted.length===0?(
-              <div style={{textAlign:"center",padding:"64px 0",color:"#1a1a1a",fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2}}>NO PROFILES YET</div>
+              <div style={{textAlign:"center",padding:"64px 0",color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2}}>NO PROFILES YET</div>
             ):(
               <div style={{display:"flex",flexDirection:"column",gap:2}}>
-                <div style={{display:"grid",gridTemplateColumns:"36px 1fr 1fr 1fr 52px 60px",padding:"8px 12px",gap:8,color:"#2a2a2a",fontSize:8,letterSpacing:2,textTransform:"uppercase",borderBottom:"1px solid #111",marginBottom:4}}>
+                <div style={{display:"grid",gridTemplateColumns:"36px 1fr 1fr 1fr 52px 60px",padding:"8px 12px",gap:8,color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",borderBottom:"1px solid var(--s11)",marginBottom:4}}>
                   <span>#</span><span>Name</span><span>University</span><span>Company / Role</span><span>OVR</span><span>Top %</span>
                 </div>
                 {sorted.map((c,i)=>{
                   const ct2=T(c.OVR);
                   return(
-                    <div key={c.id} className="row" onClick={()=>{setSel(c);setView("profile");}} style={{display:"grid",gridTemplateColumns:"36px 1fr 1fr 1fr 52px 60px 28px",padding:"12px 12px",gap:8,alignItems:"center",background:i%2===0?"#0a0a0a":"#0c0c0c",borderRadius:5,cursor:"pointer",border:"1px solid transparent",transition:"background 0.12s,border-color 0.12s"}}>
-                      <span style={{fontFamily:"'Bebas Neue'",fontSize:18,color:i===0?"#FFD700":i===1?"#B0B0B0":i===2?"#CD7F32":"#282828"}}>{i+1}</span>
+                    <div key={c.id} className="row" onClick={()=>{setSel(c);setView("profile");}} style={{display:"grid",gridTemplateColumns:"36px 1fr 1fr 1fr 52px 60px 28px",padding:"12px 12px",gap:8,alignItems:"center",background:i%2===0?"var(--s0a)":"var(--s0c)",borderRadius:5,cursor:"pointer",border:"1px solid transparent",transition:"background 0.12s,border-color 0.12s"}}>
+                      <span style={{fontFamily:"'Bebas Neue'",fontSize:18,color:i===0?"var(--gold)":i===1?"#B0B0B0":i===2?"#CD7F32":"var(--v2a)"}}>{i+1}</span>
                       <div>
-                        <div style={{fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:1,color:"#ddd"}}>{c.name}</div>
-                        <div style={{fontSize:8,color:"#2e2e2e",letterSpacing:1,marginTop:1}}>CLASS OF {c.year||"—"}</div>
+                        <div style={{fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:1,color:"var(--vddd)"}}>{c.name}</div>
+                        <div style={{fontSize:8,color:"var(--v2e)",letterSpacing:1,marginTop:1}}>CLASS OF {c.year||"—"}</div>
                       </div>
-                      <div style={{fontSize:10,color:"#444",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.uni}</div>
+                      <div style={{fontSize:10,color:"var(--v444)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.uni}</div>
                       <div>
                         <div style={{fontSize:10,color:ct2.acc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.company}</div>
-                        <div style={{fontSize:8,color:"#333",marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.role}</div>
+                        <div style={{fontSize:8,color:"var(--v333)",marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.role}</div>
                       </div>
                       <div style={{fontFamily:"'Bebas Neue'",fontSize:24,color:ct2.acc}}>{c.OVR}</div>
-                      <div style={{fontSize:9,color:"#444"}}>TOP {100-(c.percentile||50)}%</div>
+                      <div style={{fontSize:9,color:"var(--v444)"}}>TOP {100-(c.percentile||50)}%</div>
                       <button className="delbtn" onClick={e=>{e.stopPropagation();if(confirm("Delete this card?"))deleteCard(c.id);}} style={{background:"none",border:"none",color:"#ff4444",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:10,padding:0,lineHeight:1}}>✕</button>
                     </div>
                   );
@@ -796,55 +713,55 @@ export default function App(){
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:640,margin:"0 auto"}}>
             {showShare&&<ShareCard card={sel} onClose={()=>setShowShare(false)}/>}
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
-              <button className="ghost" onClick={()=>{setView("leaderboard");setSel(null);}} style={{background:"none",border:"none",color:"#333",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>← BACK</button>
+              <button className="ghost" onClick={()=>{setView("leaderboard");setSel(null);}} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>← BACK</button>
               <div style={{display:"flex",gap:8}}>
-                <button onClick={()=>setShowShare(true)} style={{background:"#FFD700",color:"#000",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>SHARE CARD</button>
-                <button title="Profile changed? Look at it again" onClick={()=>{setUpdating(sel.id);setView("create");reset();setUpdating(sel.id);}} style={{background:"none",border:"1px solid #1e1e1e",color:"#444",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#FFD70055";e.target.style.color="#FFD700";}} onMouseLeave={e=>{e.target.style.borderColor="#1e1e1e";e.target.style.color="#444";}}>UPDATE</button>
-                <button onClick={()=>{if(confirm("Delete this card?"))deleteCard(sel.id);}} style={{background:"none",border:"1px solid #1e1e1e",color:"#333",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="#1e1e1e";e.target.style.color="#333";}}>DELETE</button>
+                <button onClick={()=>setShowShare(true)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>SHARE CARD</button>
+                <button title="Profile changed? Look at it again" onClick={()=>{setUpdating(sel.id);setView("create");reset();setUpdating(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="color-mix(in srgb, var(--gold) 33%, transparent)";e.target.style.color="var(--gold)";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v444)";}}>UPDATE</button>
+                <button onClick={()=>{if(confirm("Delete this card?"))deleteCard(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v333)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v333)";}}>DELETE</button>
               </div>
             </div>
             {sel.moniker&&<div style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,color:ct.acc,marginBottom:4,textAlign:"center",textShadow:`0 0 20px ${ct.acc}44`}}>{sel.moniker}</div>}
             <div style={{display:"flex",gap:24,flexWrap:"wrap",justifyContent:"center",marginBottom:28}}>
               <Card card={withMeta(sel)} sz={1}/>
               <div style={{flex:1,minWidth:200,display:"flex",flexDirection:"column",gap:14}}>
-                <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"16px 18px"}}>
-                  <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:2,marginBottom:12,textTransform:"uppercase"}}>Stat Breakdown <span style={{color:"#1e1e1e",fontSize:7}}>— hover for details</span></div>
+                <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"16px 18px"}}>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:12,textTransform:"uppercase"}}>Stat Breakdown <span style={{color:"var(--v1e)",fontSize:7}}>— hover for details</span></div>
                   {STATS.map(st=>{
                     const v=sel.stats[st];
                     const info=STAT_INFO[st];
                     return(
-                      <div key={st} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                      <div key={st} title={sel.stat_reasons?.[st]||undefined} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
                         <StatTooltip stat={st}>
-                          <span style={{color:"#555",fontSize:9,minWidth:38,letterSpacing:1,cursor:"help",borderBottom:"1px dotted #333"}}>{st}</span>
+                          <span style={{color:"var(--v555)",fontSize:9,minWidth:38,letterSpacing:1,cursor:"help",borderBottom:"1px dotted var(--v333)"}}>{st}</span>
                         </StatTooltip>
-                        <div style={{flex:1,height:4,background:"#1a1a1a",borderRadius:2,overflow:"hidden"}}><div style={{width:`${v}%`,height:"100%",background:`linear-gradient(90deg,${info?.color||ct.acc}88,${info?.color||ct.acc})`,borderRadius:2}}/></div>
-                        <span style={{color:"#ddd",fontSize:12,fontFamily:"'Bebas Neue'",minWidth:26,textAlign:"right"}}>{v}</span>
+                        <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${v}%`,height:"100%",background:`linear-gradient(90deg,${A(info?.color||ct.acc,53)},${info?.color||ct.acc})`,borderRadius:2}}/></div>
+                        <span style={{color:"var(--vddd)",fontSize:12,fontFamily:"'Bebas Neue'",minWidth:26,textAlign:"right"}}>{v}</span>
                       </div>
                     );
                   })}
                 </div>
-                <div style={{background:"#0f0f0f",border:`1px solid ${ct.acc}1a`,borderRadius:8,padding:"16px 18px",textAlign:"center"}}>
+                <div style={{background:"var(--s0f)",border:`1px solid ${ct.acc}1a`,borderRadius:8,padding:"16px 18px",textAlign:"center"}}>
                   <div style={{fontFamily:"'Bebas Neue'",fontSize:58,color:ct.acc,lineHeight:1,textShadow:`0 0 18px ${ct.acc}55`}}>{sel.OVR}</div>
-                  <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:3,textTransform:"uppercase",marginBottom:6}}>OVERALL RATING</div>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:3,textTransform:"uppercase",marginBottom:6}}>OVERALL RATING</div>
                   {sel.archetype&&<div style={{color:ct.acc,fontSize:8,letterSpacing:1,marginBottom:12,opacity:0.7}}>{sel.archetype}</div>}
                   <Bell cards={cards.filter(c=>c.id!==sel.id)} targetOvr={sel.OVR} acc={ct.acc}/>
-                  <div style={{color:"#333",fontSize:9,marginTop:6,letterSpacing:1}}>
+                  <div style={{color:"var(--v333)",fontSize:9,marginTop:6,letterSpacing:1}}>
                     {cards.length>=30
                       ?`Beta top ${100-(sel.percentile||50)}% · #${sorted.findIndex(c=>c.id===sel.id)+1} of ${cards.length}`
                       :`${T(sel.OVR).label} tier · #${sorted.findIndex(c=>c.id===sel.id)+1} of ${cards.length} analysed`
                     }
                   </div>
-                  {cards.length<30&&<div style={{color:"#1e1e1e",fontSize:8,marginTop:4,letterSpacing:0.5}}>percentile unlocks at 30 profiles</div>}
+                  {cards.length<30&&<div style={{color:"var(--v1e)",fontSize:8,marginTop:4,letterSpacing:0.5}}>percentile unlocks at 30 profiles</div>}
                 </div>
 
                 {/* Confidence score — internal/operational */}
-                <div style={{background:"#0a0a00",border:"1px solid #2a2200",borderRadius:8,padding:"12px 14px"}}>
+                <div style={{background:"var(--conf-bg)",border:"1px solid var(--conf-dim)",borderRadius:8,padding:"12px 14px"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                    <span style={{color:"#3a3200",fontSize:8,letterSpacing:2,textTransform:"uppercase"}}>Evidence Confidence</span>
+                    <span style={{color:"var(--conf-label)",fontSize:8,letterSpacing:2,textTransform:"uppercase"}}>Evidence Confidence</span>
                     <span style={{fontFamily:"'Bebas Neue'",fontSize:14,letterSpacing:1,color:sel.confidence==="HIGH"?"#88cc00":sel.confidence==="LOW"?"#cc4400":"#cc8800"}}>{sel.confidence||"MEDIUM"}</span>
                   </div>
-                  {sel.confidence_reason&&<div style={{color:"#2a2200",fontSize:9,lineHeight:1.5}}>{sel.confidence_reason}</div>}
-                  <div style={{color:"#2a1a00",fontSize:8,marginTop:4,letterSpacing:0.5}}>⚠ internal — not shown publicly</div>
+                  {sel.confidence_reason&&<div style={{color:"var(--conf-dim)",fontSize:9,lineHeight:1.5}}>{sel.confidence_reason}</div>}
+                  <div style={{color:"var(--conf-dim)",fontSize:8,marginTop:4,letterSpacing:0.5}}>⚠ internal — not shown publicly</div>
                 </div>
               </div>
             </div>
@@ -852,16 +769,16 @@ export default function App(){
             {/* Profile type + archetype row */}
             {(sel.profile_type||sel.archetype)&&(
               <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-                {sel.profile_type&&<div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:"#555"}}><span style={{color:"#2a2a2a",marginRight:6}}>TYPE</span>{sel.profile_type}</div>}
-                {sel.archetype&&<div style={{background:"#0f0f0f",border:`1px solid ${ct.acc}22`,borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:ct.acc,opacity:0.7}}><span style={{color:"#2a2a2a",marginRight:6}}>BUILD</span>{sel.archetype}</div>}
+                {sel.profile_type&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:"var(--v555)"}}><span style={{color:"var(--v2a)",marginRight:6}}>TYPE</span>{sel.profile_type}</div>}
+                {sel.archetype&&<div style={{background:"var(--s0f)",border:`1px solid ${ct.acc}22`,borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:ct.acc,opacity:0.7}}><span style={{color:"var(--v2a)",marginRight:6}}>BUILD</span>{sel.archetype}</div>}
               </div>
             )}
 
             {/* Profile thesis */}
             {sel.thesis&&(
-              <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
-                <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>Profile Thesis</div>
-                <div style={{color:"#888",fontSize:12,lineHeight:1.85}}>{sel.thesis}</div>
+              <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
+                <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:10,textTransform:"uppercase"}}>Profile Thesis</div>
+                <div style={{color:"var(--v888)",fontSize:12,lineHeight:1.85}}>{sel.thesis}</div>
               </div>
             )}
 
@@ -879,11 +796,11 @@ export default function App(){
                   {k:"ceiling",label:"Ceiling",icon:"▲",v:sel.ceiling},
                   {k:"upgrade",label:"Fastest Upgrade",icon:"↑",v:sel.upgrade},
                 ].filter(s=>s.v).map(s=>(
-                  <div key={s.k} style={{background:"#0c0c0c",border:"1px solid #141414",borderRadius:8,padding:"12px 18px",display:"flex",gap:10}}>
+                  <div key={s.k} style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"12px 18px",display:"flex",gap:10}}>
                     <span style={{color:ct.acc,fontSize:10,flexShrink:0,marginTop:2,width:12}}>{s.icon}</span>
                     <div>
-                      <div style={{color:"#2e2e2e",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>{s.label}</div>
-                      <div style={{color:"#666",fontSize:11,lineHeight:1.7}}>{s.v}</div>
+                      <div style={{color:"var(--v2e)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>{s.label}</div>
+                      <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.7}}>{s.v}</div>
                     </div>
                   </div>
                 ))}
@@ -891,66 +808,66 @@ export default function App(){
             )}
 
             {/* Profile details */}
-            <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"18px 20px"}}>
-              <div style={{color:"#2a2a2a",fontSize:8,letterSpacing:2,marginBottom:14,textTransform:"uppercase"}}>Profile Details</div>
+            <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 20px"}}>
+              <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:14,textTransform:"uppercase"}}>Profile Details</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                 {[{l:"University",v:sel.uni},{l:"Company",v:sel.company},{l:"Role",v:sel.role},{l:"Age",v:sel.age},{l:"Cohort",v:sel.year||"—"},{l:"How Secured",v:sel.how},{l:"Prior Internships",v:sel.prev}].map(d=>(
-                  <div key={d.l}><div style={{color:"#2a2a2a",fontSize:8,letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>{d.l}</div><div style={{color:"#888",fontSize:11}}>{d.v}</div></div>
+                  <div key={d.l}><div style={{color:"var(--v2a)",fontSize:8,letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>{d.l}</div><div style={{color:"var(--v888)",fontSize:11}}>{d.v}</div></div>
                 ))}
               </div>
-              {sel.acts&&sel.acts!=="None"&&<div style={{marginTop:12,borderTop:"1px solid #141414",paddingTop:12}}><div style={{color:"#2a2a2a",fontSize:8,letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Activities</div><div style={{color:"#555",fontSize:10,lineHeight:1.6}}>{sel.acts}</div></div>}
+              {sel.acts&&sel.acts!=="None"&&<div style={{marginTop:12,borderTop:"1px solid var(--b14)",paddingTop:12}}><div style={{color:"var(--v2a)",fontSize:8,letterSpacing:1,textTransform:"uppercase",marginBottom:4}}>Activities</div><div style={{color:"var(--v555)",fontSize:10,lineHeight:1.6}}>{sel.acts}</div></div>}
             </div>
           </div>
         )}
 
         {view==="guide"&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:660,margin:"0 auto"}}>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"#FFD700",marginBottom:4}}>HOW IT WORKS</div>
-            <div style={{color:"#333",fontSize:9,letterSpacing:2,marginBottom:32,textTransform:"uppercase"}}>the scoring system, the stats, and what we're actually measuring</div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)",marginBottom:4}}>HOW IT WORKS</div>
+            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,marginBottom:32,textTransform:"uppercase"}}>the scoring system, the stats, and what we're actually measuring</div>
 
             {/* Philosophy */}
-            <div style={{background:"#0f0f0f",border:"1px solid #FFD70022",borderRadius:8,padding:"20px 22px",marginBottom:14}}>
-              <div style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:10}}>THE PHILOSOPHY</div>
-              <div style={{color:"#555",fontSize:11,lineHeight:1.8}}>We are not ranking human worth. We are ranking <span style={{color:"#888"}}>visible early-career signal</span> — how strong, rare, fast, coherent, and substantiated someone's profile appears from the outside. LinkedIn is fake as hell sometimes. It captures signalling, not soul. It can suggest traits, but it cannot prove character, integrity, humility, work ethic, or depth. This system is a FIFA OVR for public career signal, plus a scouting report explaining what the score actually means.</div>
+            <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 13%, transparent)",borderRadius:8,padding:"20px 22px",marginBottom:14}}>
+              <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:10}}>THE PHILOSOPHY</div>
+              <div style={{color:"var(--v555)",fontSize:11,lineHeight:1.8}}>We are not ranking human worth. We are ranking <span style={{color:"var(--v888)"}}>visible early-career signal</span> — how strong, rare, fast, coherent, and substantiated someone's profile appears from the outside. LinkedIn is fake as hell sometimes. It captures signalling, not soul. It can suggest traits, but it cannot prove character, integrity, humility, work ethic, or depth. This system is a FIFA OVR for public career signal, plus a scouting report explaining what the score actually means. The scale is anchored: <span style={{color:"var(--v888)"}}>50 is the median career-focused student on LinkedIn</span> — every point above it has to be earned by evidence, not adjectives.</div>
             </div>
 
             {/* OVR formula */}
-            <div style={{background:"#0f0f0f",border:"1px solid #151515",borderRadius:8,padding:"20px 22px",marginBottom:14}}>
-              <div style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:10}}>WHAT DRIVES THE OVR</div>
-              <div style={{color:"#555",fontSize:11,lineHeight:1.9,marginBottom:14}}>Six categories feed the OVR. Each measures a distinct dimension — they are designed to not overlap. The weighting is internal and will be tuned as more profiles are added.</div>
+            <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"20px 22px",marginBottom:14}}>
+              <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:10}}>WHAT DRIVES THE OVR</div>
+              <div style={{color:"var(--v555)",fontSize:11,lineHeight:1.9,marginBottom:14}}>Six categories feed the OVR. Each measures one distinct property of the evidence, and each property is scored in exactly one place. The AI produces the six stats; the app computes the OVR itself so the formula is always applied exactly: <span style={{color:"var(--v888)"}}>OVR = 25% Depth + 20% Prestige + 20% Stack + 15% Reach + 15% Pace + 5% Rarity</span>. Depth carries the most weight because verified output is the only signal that can't be bought; Rarity carries the least because it's the hardest to estimate reliably from a screenshot.</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                {[{s:"PRES",c:"#FFD700",l:"Prestige",d:"Where you landed"},{s:"STACK",c:"#A855F7",l:"Stack",d:"How it compounds"},{s:"REACH",c:"#FF6B35",l:"Reach",d:"How far above expected"},{s:"PACE",c:"#00E5FF",l:"Pace",d:"How compressed"},{s:"DEPTH",c:"#F43F5E",l:"Depth",d:"Real proof of skill"},{s:"RARE",c:"#10B981",l:"Rarity",d:"How unusual the combo"}].map(x=>(
-                  <div key={x.s} style={{display:"flex",alignItems:"center",gap:8,background:"#0c0c0c",borderRadius:5,padding:"8px 10px"}}>
-                    <div style={{width:28,height:28,borderRadius:3,background:`${x.c}14`,border:`1px solid ${x.c}33`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:11,color:x.c,flexShrink:0}}>{x.s}</div>
-                    <div><div style={{color:x.c,fontSize:9,letterSpacing:0.5}}>{x.l}</div><div style={{color:"#2a2a2a",fontSize:8}}>{x.d}</div></div>
+                {[{s:"DEPTH",c:"var(--c-depth)",l:"Depth · 25%",d:"Verified output"},{s:"PRES",c:"var(--gold)",l:"Prestige · 20%",d:"Seat selectivity"},{s:"STACK",c:"var(--c-stack)",l:"Stack · 20%",d:"How it compounds"},{s:"REACH",c:"var(--c-reach)",l:"Reach · 15%",d:"Above expectation"},{s:"PACE",c:"var(--c-pace)",l:"Pace · 15%",d:"Ahead of timeline"},{s:"RARE",c:"var(--c-rare)",l:"Rarity · 5%",d:"Scarcity of the combo"}].map(x=>(
+                  <div key={x.s} style={{display:"flex",alignItems:"center",gap:8,background:"var(--s0c)",borderRadius:5,padding:"8px 10px"}}>
+                    <div style={{width:28,height:28,borderRadius:3,background:`${A(x.c,8)}`,border:`1px solid ${A(x.c,20)}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:11,color:x.c,flexShrink:0}}>{x.s}</div>
+                    <div><div style={{color:x.c,fontSize:9,letterSpacing:0.5}}>{x.l}</div><div style={{color:"var(--v2a)",fontSize:8}}>{x.d}</div></div>
                   </div>
                 ))}
               </div>
-              <div style={{color:"#2a2a2a",fontSize:8,marginTop:12,lineHeight:1.6}}>A stage modifier (−5 to +8) adjusts the final score based on how early in the career timeline the achievement was reached. This is separate from the six categories and is not a full stat.</div>
+              <div style={{color:"var(--v2a)",fontSize:8,marginTop:12,lineHeight:1.6}}>There are no hidden modifiers. Every stat uses the full 1–99 range with 50 anchored to the median career-focused student, so a profile of all 50s scores an OVR of 50.</div>
             </div>
 
             {/* Percentile note */}
-            <div style={{background:"#0c0c0c",border:"1px solid #1a1a1a",borderRadius:8,padding:"16px 20px",marginBottom:14}}>
-              <div style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:14,letterSpacing:2,marginBottom:8}}>ABOUT THE PERCENTILE</div>
-              <div style={{color:"#444",fontSize:10,lineHeight:1.8}}>Percentiles are based on the current analysed profile pool and will shift as more profiles are added. Early beta percentiles are <span style={{color:"#888"}}>directional, not population-wide claims</span> — they compare you against profiles that have been run through the system, not against all students or all LinkedIn users.</div>
-              <div style={{color:"#2a2a2a",fontSize:9,marginTop:8}}>The percentile unlocks once the pool reaches 30 profiles. Before that, profiles show their tier band instead.</div>
+            <div style={{background:"var(--s0c)",border:"1px solid var(--v1a)",borderRadius:8,padding:"16px 20px",marginBottom:14}}>
+              <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:14,letterSpacing:2,marginBottom:8}}>ABOUT THE PERCENTILE</div>
+              <div style={{color:"var(--v444)",fontSize:10,lineHeight:1.8}}>Percentiles are based on the current analysed profile pool and will shift as more profiles are added. Early beta percentiles are <span style={{color:"var(--v888)"}}>directional, not population-wide claims</span> — they compare you against profiles that have been run through the system, not against all students or all LinkedIn users.</div>
+              <div style={{color:"var(--v2a)",fontSize:9,marginTop:8}}>The percentile unlocks once the pool reaches 30 profiles. Before that, profiles show their tier band instead.</div>
             </div>
 
             {/* Stat cards */}
             {STATS.map(st=>{
               const info=STAT_INFO[st];
               return(
-                <div key={st} style={{background:"#0c0c0c",border:`1px solid ${info.color}18`,borderRadius:8,padding:"20px 22px",marginBottom:10}}>
+                <div key={st} style={{background:"var(--s0c)",border:`1px solid ${A(info.color,9)}`,borderRadius:8,padding:"20px 22px",marginBottom:10}}>
                   <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                    <div style={{width:36,height:36,borderRadius:4,background:`${info.color}14`,border:`1px solid ${info.color}33`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:14,color:info.color,letterSpacing:1}}>{st}</div>
+                    <div style={{width:36,height:36,borderRadius:4,background:`${A(info.color,8)}`,border:`1px solid ${A(info.color,20)}`,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:14,color:info.color,letterSpacing:1}}>{st}</div>
                     <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:info.color}}>{info.full}</div>
                   </div>
-                  <div style={{color:"#666",fontSize:11,lineHeight:1.75,marginBottom:12}}>{info.desc}</div>
+                  <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.75,marginBottom:12}}>{info.desc}</div>
                   <div style={{display:"flex",flexDirection:"column",gap:4}}>
                     {info.examples.map((ex,i)=>(
                       <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
                         <div style={{width:3,height:3,borderRadius:"50%",background:info.color,opacity:0.5,flexShrink:0}}/>
-                        <span style={{color:"#333",fontSize:9,letterSpacing:0.5}}>{ex}</span>
+                        <span style={{color:"var(--v333)",fontSize:9,letterSpacing:0.5}}>{ex}</span>
                       </div>
                     ))}
                   </div>
@@ -959,69 +876,60 @@ export default function App(){
             })}
 
             {/* Age modifier */}
-            <div style={{background:"#0c0c0c",border:"1px solid #ffffff0a",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
+            <div style={{background:"var(--s0c)",border:"1px solid #ffffff0a",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
               <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-                <div style={{width:36,height:36,borderRadius:4,background:"#ffffff0a",border:"1px solid #ffffff14",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:11,color:"#888",letterSpacing:1}}>AGE</div>
-                <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"#888"}}>Age — Stage Compression Modifier</div>
+                <div style={{width:36,height:36,borderRadius:4,background:"#ffffff0a",border:"1px solid #ffffff14",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Bebas Neue'",fontSize:11,color:"var(--v888)",letterSpacing:1}}>AGE</div>
+                <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"var(--v888)"}}>Age — Why It Isn't a Stat</div>
               </div>
-              <div style={{color:"#555",fontSize:11,lineHeight:1.75,marginBottom:12}}>Age is a modifier, not a full stat, because it would double-count with Pace. Instead it applies a small adjustment based on academic stage. A 24-year-old who founded a company, served in the military, or switched countries is not penalised. Context matters. Pace rewards compressed progress — not youth worship.</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:"4px 16px",color:"#2a2a2a",fontSize:9,letterSpacing:0.5}}>
-                {[["Sixth form landing real elite signal","+7 to +8"],["First year, penultimate-level opportunity","+5 to +7"],["First year, spring or niche role","+3 to +5"],["Penultimate year, expected elite internship","0 to +2"],["Final year with return offer","0 to +2"],["22–24, strong trajectory","0"],["24+, same milestone as peers, no context","−2 to −5"]].map(([s,v])=>(
-                  <>
-                  <span key={s+1}>{s}</span>
-                  <span key={s+2} style={{textAlign:"right",color:"#444"}}>{v}</span>
-                  </>
-                ))}
-              </div>
+              <div style={{color:"var(--v555)",fontSize:11,lineHeight:1.75}}>Earlier versions applied a separate age bonus on top of Pace. That double-counted the same property — earliness — twice, so it's gone. Age now lives entirely inside <span style={{color:"var(--c-pace)"}}>Pace</span>, which is stage-adjusted: what matters is how far ahead of the standard recruitment timeline each milestone landed, not the birthday attached to it. A 24-year-old who founded a company, served in the military, or switched countries is on-schedule, not behind. Pace rewards compressed progress — not youth worship.</div>
             </div>
 
             {/* Score bands */}
-            <div style={{background:"#0c0c0c",border:"1px solid #1a1a1a",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"#ddd",marginBottom:14}}>SCORE BANDS</div>
+            <div style={{background:"var(--s0c)",border:"1px solid var(--v1a)",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"var(--vddd)",marginBottom:14}}>SCORE BANDS</div>
               {[
-                {range:"95–99",label:"Generational",color:"#FFD700",desc:"Multiple elite signals simultaneously. Real output. Young. Unique narrative. Rare as hell — do not hand this out casually."},
-                {range:"90–94",label:"Nationally Elite",color:"#FFD700",desc:"Top-tier among ambitious students. GS/MBB-level outcome with coherent stack and some rarity."},
-                {range:"85–89",label:"Very Elite",color:"#99b0ff",desc:"High-conviction profile. Serious enough to attract elite recruiters, founders, or investors."},
-                {range:"75–84",label:"Strong Standout",color:"#99b0ff",desc:"Very good, not yet nationally elite. Good uni, strong internships, leadership, some narrative."},
-                {range:"65–74",label:"Solid Ambitious",color:"#d0d0d0",desc:"Good but common among career-focused students."},
-                {range:"50–64",label:"Normal LinkedIn Competence",color:"#d0d0d0",desc:"Not bad. Just not special."},
-                {range:"Under 50",label:"Weak Signal",color:"#ee9900",desc:"Little evidence, generic roles, no direction, or mostly inflated language."},
+                {range:"88–99",label:"Elite Tier",color:"var(--gold)",desc:"Several stats at the top of their anchors at once — hyper-selective seats AND verified output AND a coherent thesis. By construction this should almost never be handed out."},
+                {range:"78–87",label:"Rare Tier",color:"var(--vaaa)",desc:"One genuinely elite dimension plus an evidenced, coherent stack. Serious enough to interest elite recruiters, founders, or investors."},
+                {range:"65–77",label:"Uncommon Tier",color:"var(--v666)",desc:"Clearly above the median career-focused student, but missing either the proof or the coherence to go higher."},
+                {range:"50–64",label:"Standard Tier",color:"var(--v666)",desc:"The median zone — 50 IS the typical career-focused student on LinkedIn. Not an insult; the anchor of the whole scale."},
+                {range:"Under 50",label:"Developing",color:"var(--v555)",desc:"Thin evidence, open-entry seats, or accumulation without direction. The fastest way up is one concrete, verifiable output."},
               ].map(b=>(
-                <div key={b.range} style={{display:"flex",gap:14,alignItems:"flex-start",marginBottom:12,paddingBottom:12,borderBottom:"1px solid #111"}}>
+                <div key={b.range} style={{display:"flex",gap:14,alignItems:"flex-start",marginBottom:12,paddingBottom:12,borderBottom:"1px solid var(--s11)"}}>
                   <div style={{minWidth:56,textAlign:"right",fontFamily:"'Bebas Neue'",fontSize:20,color:b.color,lineHeight:1}}>{b.range}</div>
                   <div>
-                    <div style={{color:"#aaa",fontSize:10,letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>{b.label}</div>
-                    <div style={{color:"#444",fontSize:10,lineHeight:1.6}}>{b.desc}</div>
+                    <div style={{color:"var(--vaaa)",fontSize:10,letterSpacing:1,textTransform:"uppercase",marginBottom:2}}>{b.label}</div>
+                    <div style={{color:"var(--v444)",fontSize:10,lineHeight:1.6}}>{b.desc}</div>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Anti-double-counting */}
-            <div style={{background:"#0c0c0c",border:"1px solid #1a1a1a",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"#ddd",marginBottom:14}}>ANTI-DOUBLE-COUNTING RULES</div>
+            <div style={{background:"var(--s0c)",border:"1px solid var(--v1a)",borderRadius:8,padding:"20px 22px",marginBottom:10}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"var(--vddd)",marginBottom:14}}>SINGLE-HOME RULES</div>
+              <div style={{color:"var(--v444)",fontSize:10,lineHeight:1.7,marginBottom:14}}>Every property of the evidence is scored in exactly one stat. One fact can feed several stats — but only through the property each one measures. "Jane Street in first year" moves Prestige (selectivity) and Pace (earliness); it moves Depth only if output is shown.</div>
               {[
-                {n:"1",t:"Prestige is absolute","d":"Goldman is Goldman whether from Cambridge or Coventry. Never include background in PRES."},
-                {n:"2",t:"Reach is contextual","d":"Only Reach rewards non-target school, unusual degree, low access, or socioeconomic context."},
-                {n:"3",t:"Pace is stage-based","d":"First-year vs penultimate matters more than age 19 vs 20. Don't let raw age dominate."},
-                {n:"4",t:"Rarity is configuration-based","d":"Rarity asks 'how common is this exact combination?' — not 'how hard was their path?' (that's Reach)."},
-                {n:"5",t:"Stack requires coherence","d":"Random achievements don't compound. They clutter. Dilettantism is penalised."},
-                {n:"6",t:"Depth protects against LinkedIn fraudulence","d":"No real proof = no monster score. Prestige gets you noticed. Depth tells us if there's a person behind the logo."},
+                {n:"1",t:"Selectivity lives in Prestige","d":"Goldman is Goldman whether from Cambridge or Coventry — and a self-printed founder title is not a selective seat. Only admission difficulty counts here."},
+                {n:"2",t:"Background lives in Reach","d":"Only Reach rewards non-target school, unusual degree, low access, or socioeconomic context. If the starting context isn't visible, Reach sits near 50."},
+                {n:"3",t:"Earliness lives in Pace","d":"Age is inside Pace — there is no separate age bonus anywhere. Stage vs timeline is what matters, not the birthday."},
+                {n:"4",t:"Scarcity lives in Rarity","d":"Rarity asks 'how common is this exact combination?' — not 'how hard was the path?' (that's Reach). It's weighted 5% because it's the hardest to estimate."},
+                {n:"5",t:"Coherence lives in Stack","d":"Random achievements don't compound. They clutter. Dilettantism is penalised."},
+                {n:"6",t:"Proof lives in Depth","d":"No real output = no monster score, whatever the logos say. Weighted 25% because proof is the only signal that can't be bought."},
               ].map(r=>(
                 <div key={r.n} style={{display:"flex",gap:12,marginBottom:10}}>
-                  <span style={{color:"#FFD700",fontFamily:"'Bebas Neue'",fontSize:14,flexShrink:0,width:14}}>{r.n}</span>
+                  <span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:14,flexShrink:0,width:14}}>{r.n}</span>
                   <div>
-                    <span style={{color:"#888",fontSize:10,letterSpacing:0.5}}>{r.t} — </span>
-                    <span style={{color:"#444",fontSize:10,lineHeight:1.6}}>{r.d}</span>
+                    <span style={{color:"var(--v888)",fontSize:10,letterSpacing:0.5}}>{r.t} — </span>
+                    <span style={{color:"var(--v444)",fontSize:10,lineHeight:1.6}}>{r.d}</span>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Scouting report */}
-            <div style={{background:"#0c0c0c",border:"1px solid #1a1a1a",borderRadius:8,padding:"20px 22px"}}>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"#ddd",marginBottom:6}}>SCOUTING REPORT BREAKDOWN</div>
-              <div style={{color:"#444",fontSize:10,lineHeight:1.75,marginBottom:16}}>Every sentence must do one of four jobs: <span style={{color:"#888"}}>cite visible evidence, interpret what it means, explain what it does not prove, or calibrate against the right peer group.</span> The formula is Evidence → Inference → Caveat. Aesthetic language without evidence behind it is a calibration error.</div>
+            <div style={{background:"var(--s0c)",border:"1px solid var(--v1a)",borderRadius:8,padding:"20px 22px"}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,color:"var(--vddd)",marginBottom:6}}>SCOUTING REPORT BREAKDOWN</div>
+              <div style={{color:"var(--v444)",fontSize:10,lineHeight:1.75,marginBottom:16}}>Every sentence must do one of four jobs: <span style={{color:"var(--v888)"}}>cite visible evidence, interpret what it means, explain what it does not prove, or calibrate against the right peer group.</span> The formula is Evidence → Inference → Caveat. Aesthetic language without evidence behind it is a calibration error.</div>
               {[
                 {icon:"◈",l:"Profile Thesis","d":"The core read of the profile in one paragraph. Has an actual thesis. Identifies the central tension. Names the accurate archetype — not the inflated one. Feels like a scout who thought about the profile, not a summary bot."},
                 {icon:"◈",l:"Best Signal","d":"The single strongest element, cited with specific evidence. Names actual companies, roles, skills. Uses the formula: 'Best signal: [specific evidence]. That suggests [inference]. [Caveat].' Not 'strong stack' — but 'MyMarkingMachine mentions React, NodeJS, LLMs, image processing, and SSO — that is actual product infrastructure.'"},
@@ -1035,10 +943,10 @@ export default function App(){
                 {icon:"↑",l:"Fastest Upgrade","d":"The one specific thing that would most improve this profile. Not vague — concrete. 'Attach numbers to the startup: users, revenue, pilots, API calls. One credible number transforms the founder signal from open-ended to high-conviction.'"},
               ].map(s=>(
                 <div key={s.l} style={{display:"flex",gap:10,marginBottom:10}}>
-                  <span style={{color:"#FFD700",fontSize:10,flexShrink:0,marginTop:2,width:12}}>{s.icon}</span>
+                  <span style={{color:"var(--gold)",fontSize:10,flexShrink:0,marginTop:2,width:12}}>{s.icon}</span>
                   <div>
-                    <span style={{color:"#aaa",fontSize:10,letterSpacing:0.5}}>{s.l} — </span>
-                    <span style={{color:"#444",fontSize:10,lineHeight:1.6}}>{s.d}</span>
+                    <span style={{color:"var(--vaaa)",fontSize:10,letterSpacing:0.5}}>{s.l} — </span>
+                    <span style={{color:"var(--v444)",fontSize:10,lineHeight:1.6}}>{s.d}</span>
                   </div>
                 </div>
               ))}
@@ -1047,8 +955,8 @@ export default function App(){
         )}
 
       </div>
-      <div style={{borderTop:"1px solid #0f0f0f",padding:"20px 28px",display:"flex",justifyContent:"center"}}>
-        <span style={{color:"#1e1e1e",fontSize:9,letterSpacing:2,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>Made by Jammal &amp; Claude</span>
+      <div style={{borderTop:"1px solid var(--s0f)",padding:"20px 28px",display:"flex",justifyContent:"center"}}>
+        <span style={{color:"var(--v1e)",fontSize:9,letterSpacing:2,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>Made by Jammal &amp; Claude</span>
       </div>
     </div>
   );
