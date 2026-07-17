@@ -7,6 +7,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 //  - LOCALLY / on Vercel: localStorage persists cards, and AI calls go through the
 //    /api/anthropic proxy (Vite dev middleware or the serverless function).
 const IS_ARTIFACT = typeof window !== "undefined" && window.location.hostname.includes("claude");
+const UA = typeof navigator !== "undefined" ? navigator.userAgent : "";
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(UA) || (typeof navigator!=="undefined"&&navigator.maxTouchPoints>1&&/Mac/.test(UA));
+const IS_MAC = !IS_MOBILE && /Mac/i.test(UA);
 const API_URL = IS_ARTIFACT ? "https://api.anthropic.com/v1/messages" : "/api/anthropic";
 const API_HEADERS = IS_ARTIFACT
   ? { "Content-Type": "application/json", "anthropic-version": "2023-06-01" }
@@ -50,9 +53,11 @@ const storage = (typeof window !== "undefined" && window.storage && window.stora
     };
 
 
-const EXTRACT_PROMPT = `You are looking at a LinkedIn profile screenshot. Extract career information and return ONLY valid JSON, no markdown, no backticks.
+const EXTRACT_PROMPT = `You are looking at what should be a LinkedIn profile screenshot. Return ONLY valid JSON, no markdown, no backticks.
 
-Extract:
+FIRST — VALIDITY CHECK: if the image(s) do NOT contain readable career or education information (a meme, a random photo, abstract shapes, a non-profile webpage), return ONLY {"not_profile":true,"why":"one short plain-English sentence saying what the image appears to be"} and stop.
+
+Otherwise extract:
 - name: full name (string)
 - uni: university name (string, or "Unknown" if not visible)
 - uni_years: attendance years as shown, e.g. "2019 - 2022" (string, or "Not visible")
@@ -190,15 +195,17 @@ You audit evidence quality in BOTH directions. You audit CLAIMS, never character
 - smurf_check: the reverse audit. Strong operators often UNDERSELL — especially in IB and quant, profiles frequently show only the current seat with the history stripped and terse descriptions. Markers: elite current seat + near-empty history, one-line descriptions at serious firms, missing education on an otherwise senior profile. If markers are present, say so plainly, keep DEPTH conservative (unproven is unproven) but state that the true level likely EXCEEDS the visible score, and reflect this in confidence and confidence_reason rather than punishing PACE or REACH for missing history.
 
 ═══ CLASSIFICATION ═══
-profile_type — the scoring lens for PRES. Choose the most accurate: "Finance / Consulting", "Technical Builder", "Founder", "Technical Founder", "Creator / Media", "Research / Academic", "Policy / Social Impact", "Generalist Operator", "Hybrid".
-archetype — the narrative build: "Technical Founder Prospect", "Non-Target Breakout", "Prestige Stacker", "Platform Builder", "Applied AI Builder", "Creator-Operator Hybrid", "Research-Led Operator", "Finance Track Climber", "Academic Weapon", "High-Agency Generalist", "Founder Bet".
-type_reason — one sentence: why this profile_type and archetype were chosen over the nearest alternatives.
+profile_type — the scoring lens for PRES. Choose the most accurate: "Finance / Consulting", "Technical Builder", "Founder", "Technical Founder", "Creator / Media", "Research / Academic", "Policy / Social Impact", "Law", "Healthcare / Life Sciences", "Generalist Operator", "Early Path", "Hybrid".
+archetype — the narrative build: "Technical Founder Prospect", "Non-Target Breakout", "Prestige Stacker", "Platform Builder", "Applied AI Builder", "Creator-Operator Hybrid", "Research-Led Operator", "Finance Track Climber", "Academic Weapon", "High-Agency Generalist", "Founder Bet", "Foundation Builder".
+CLASSIFICATION DISCIPLINE: labels must be EARNED by evidence, never defaulted. If the profile shows no selective seats, no professional artifacts and no clear directional thread yet (e.g. part-time service work plus a general degree), the correct read is profile_type "Early Path" + archetype "Foundation Builder" — an honest, respectful label for someone at the start. NEVER hand "Finance / Consulting" to a profile with no finance evidence, and "High-Agency Generalist" requires demonstrated agency (things they created or initiated), not its absence. Weak and strong profiles must not receive identical labels.
+archetype_mix — when the profile genuinely straddles builds, up to 3 entries {"build":"...","weight":X} with integer percentage weights summing to 100, primary first (e.g. 60 Technical Founder Prospect / 40 Academic Weapon); a clean single-build profile gets one entry at 100.
+type_reason — one sentence: why this profile_type and archetype (and mix weights, if split) were chosen over the nearest alternatives.
 confidence — evidence quality: "HIGH" (education + experience + detailed descriptions all visible), "MEDIUM" (some detail, key sections missing), "LOW" (titles without context, or major sections absent).
 confidence_reason — one sentence: what evidence was present and what was missing.
 
 ═══ SCOUTING REPORT ═══
 Every sentence must do one of four jobs: cite visible evidence, interpret it (labelled as inference), state what it does not prove, or calibrate against the right peer group. Formula: EVIDENCE → INFERENCE → CAVEAT.
-- moniker: 2-4 word punchy nickname grounded in what the profile actually shows.
+- moniker: 2-4 word punchy nickname grounded in what the profile actually shows. NEVER mock a person's job, employer, background or circumstances — the moniker is neutral-to-respectful; jokes live ONLY in the roast field. For modest or early profiles use grounded monikers ("The Groundwork Year", "Early Foundations"), never puns at the person's expense.
 - thesis: one paragraph — the core read in one sentence using evidence, what makes it coherent or incoherent, and the central tension.
 - best_signal: "Best signal: [specific visible evidence]. That suggests [labelled inference]. [Caveat]."
 - weak_signal: the deeper missing category of validation, not just the surface gap.
@@ -206,7 +213,8 @@ Every sentence must do one of four jobs: cite visible evidence, interpret it (la
 - not_proven: specific capabilities not yet evidenced, calibrated to the exact peer group.
 - peer_calibration: a LADDER of 4 named reference groups, one bullet each, ordered narrowest to widest: (1) exact peer group (e.g. "Warwick CS second-years chasing tech roles"), (2) their industry's student population overall, (3) all career-focused students on LinkedIn, (4) the general student/graduate population. For each: an honest standing statement. The wider the group, the stronger most profiles look — state that plainly and let modest profiles see the bigger-pond frames where they genuinely rank well. Honest, never inflated: if a profile is behind even the widest group, say so with the fastest fix.
 - opportunity_capture: 2-4 bullets: what was actually AVAILABLE in this person's visible context (schemes, competitions, programmes, resources their school/industry/stage offers) vs what they TOOK. End with an honest capture read, e.g. "took most of what the context offered" or "clear available opportunities not yet taken: <named>". This is the done-vs-could-have-done section — generous to constrained contexts, honest about untaken chances.
-- floor / base_case / ceiling: realistic minimum, most likely, and best outcome — name specific roles and company types, and what would unlock the ceiling.
+- floor / base_case: realistic minimum and most likely outcome — name specific roles and company types.
+- ceiling: the genuinely MAXED-OUT potential — the step-function best case if every lever from here hits, not a timid increment. Paint the future state concretely: what they are doing, at what firm tier or scale, with what artifacts and numbers, and roughly when. Young profiles with real signal normally carry ceilings in the 85-95 range; a ceiling_ovr within ~5 points of the current OVR requires explicit justification (late career stage or hard structural constraints).
 - upgrade: the single most concrete thing that would improve this profile fastest.
 - improvement_plan: 3-5 concrete moves ranked by expected OVR impact. Each move must name the stat it raises, the evidence gap it closes, and be verifiable once done (a shipped artifact with numbers, a named class of programme, a conversion). No platitudes.
 - tier_path: what breaking into the next tier band up would require, and separately what the 88+ elite band demands - calibrated against real reference profiles, with no inflation of feasibility.
@@ -216,7 +224,7 @@ Every sentence must do one of four jobs: cite visible evidence, interpret it (la
 
 Output ALL fields, in exactly the template order below. Write best_signal, weak_signal, traits, not_proven, larp_check, smurf_check, peer_calibration, opportunity_capture, projected_roles, floor, base_case, ceiling, upgrade, improvement_plan and tier_path as 2-5 newline-separated bullet lines, each starting with "- " (use \\n between bullets inside the JSON string). thesis, moniker, type_reason and confidence_reason stay as prose. Keep each narrative field under 60 words (thesis, larp_check, smurf_check, improvement_plan and tier_path may run to 120). An omitted field is a failure.
 Return ONLY valid JSON, no markdown, no backticks:
-{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"stat_reasons":{"PRES":"one sentence citing the evidence used","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"profile_type":"...","archetype":"...","confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","opportunity_capture":"...","floor":"...","floor_ovr":X,"base_case":"...","base_ovr":X,"ceiling":"...","ceiling_ovr":X,"upgrade":"...","improvement_plan":"...","tier_path":"...","larp_check":"...","smurf_check":"...","projected_roles":"...","type_reason":"..."}`;
+{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"stat_reasons":{"PRES":"one sentence citing the evidence used","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"profile_type":"...","archetype":"...","archetype_mix":[{"build":"...","weight":100}],"confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","opportunity_capture":"...","floor":"...","floor_ovr":X,"base_case":"...","base_ovr":X,"ceiling":"...","ceiling_ovr":X,"upgrade":"...","improvement_plan":"...","tier_path":"...","larp_check":"...","smurf_check":"...","projected_roles":"...","type_reason":"..."}`;
 
 function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+p*x);return s*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
 function getPct(cards,ovr){if(cards.length<5){const z=(ovr-58)/13;return Math.min(99,Math.max(1,Math.round(50*(1+erf(z/Math.sqrt(2))))));}return Math.min(99,Math.max(1,Math.round((cards.filter(c=>c.OVR<ovr).length/cards.length)*100)));}
@@ -224,6 +232,8 @@ function T(ovr){if(ovr>=88)return{bg:"#0b0700",strip:"#FFD700",stripD:"#8a5c00",
 function S(ovr){return ovr>=90?5:ovr>=80?4:ovr>=70?3:ovr>=60?2:1;}
 const A=(c,p)=>`color-mix(in srgb, ${c} ${p}%, transparent)`;
 const STATS=["PRES","PACE","REACH","STACK","RARE","DEPTH"];
+const PROFILE_TYPES=["Finance / Consulting","Technical Builder","Founder","Technical Founder","Creator / Media","Research / Academic","Policy / Social Impact","Law","Healthcare / Life Sciences","Generalist Operator","Early Path","Hybrid"];
+const ARCHETYPES=["Technical Founder Prospect","Non-Target Breakout","Prestige Stacker","Platform Builder","Applied AI Builder","Creator-Operator Hybrid","Research-Led Operator","Finance Track Climber","Academic Weapon","High-Agency Generalist","Founder Bet","Foundation Builder"];
 
 // Rotating status lines so the wait shows how the card is actually being built.
 const STAGES_EXTRACT=["Reading the screenshots…","Pulling out roles, dates & companies…","Copying concrete evidence & numbers…","Building the career timeline…"];
@@ -231,6 +241,7 @@ const STAGES_SCORE=["Weighing seat selectivity — PRES…","Timing milestones v
 
 // Turn raw claude.ai limit payloads into a human message with the reset time.
 const friendlyErr=msg=>{
+  if(/No JSON found|Response malformed/i.test(msg))return "The scout's reply came back garbled — usually a cut-off response, not a problem with what you pasted. Hit the button again; if it keeps happening, the screenshots may not contain enough readable profile text.";
   if(/abort/i.test(msg))return "Timed out waiting for the scout — the claude.ai proxy is congested right now, not a problem with your screenshots. Hit the button again (retries often go straight through); tighter/fewer screenshots read faster, off-peak hours are quicker, and the permanent fix is the local/Vercel build on your own API key, which skips the shared queue entirely.";
   if(/exceeded_limit/i.test(msg)){
     const m=msg.match(/"resets?_?at"\s*:\s*(\d{10})/i);
@@ -245,9 +256,14 @@ const friendlyErr=msg=>{
 const EXTRACT_MODEL="claude-sonnet-5";
 const SCORE_MODEL="claude-sonnet-5";
 
+// Bumped whenever the scoring rubric changes meaningfully. Cards remember the
+// version they were scored under; older cards get flagged as outdated.
+const RUBRIC_VERSION=3; // v1.9: 2K anchors + industry fairness + opportunity capture
+
 // Prompt for the hypothetical 90-OVR upgraded card.
-const NINETY_PROMPT=`You are the same rigorous, skeptical career scout. You are given a real profile's current card. Produce the HYPOTHETICAL 90-OVR version of the SAME person - the upgraded future card, like a 69-rated player's 90-rated future edition. Rules:
+const NINETY_PROMPT=`You are the same rigorous, skeptical career scout. You are given a real profile's current card. Produce the HYPOTHETICAL 90-OVR version of the SAME person - the upgraded future card, like a 69-rated player's 90-rated future edition. This answers: if this person MAXXED OUT their potential from here, what does that specifically look like? Rules:
 - Stay in the same lane: same profile type and thesis. Upgrade the path, do not swap careers.
+- summary must paint the maxed-out FUTURE STATE concretely: what they are doing day to day, at what firm tier or scale, with what named artifacts and numbers to their name, and roughly what year it is when this card exists. A step-function leap, not a timid increment — bounded only by evidence-based plausibility for this person's lane and stage.
 - Every upgrade must be concrete and verifiable once done: named seat tiers, shipped artifacts with numbers, conversions, competition results. Do not invent specific facts about the person.
 - This is a projection, not a measurement. Write "would require" / "would look like" throughout.
 - No flattery, no overfitting: be brutal about the gap between the current card and 90.
@@ -280,6 +296,7 @@ Return ONLY valid JSON, no markdown, no backticks:
 {"headline":"one punchy sentence: the verdict","grade":"S|A|B|C|D","score":X,"what_it_is":"one sentence: what the post is announcing, neutrally","how_good":"3-5 bullet lines (\\n-separated, each starting '- '): how good this is and why — selectivity within its industry, earliness for the stage, rarity, what it proves","context_read":"2-3 bullets: how the visible/provided context changes the read, and what unknown context would move it most","vs_available":"2-3 bullets: the done-vs-could-have-done read — what this suggests about capturing available opportunities from their position","makes_it_stronger":"2-3 bullets: the specific follow-ups that would upgrade this achievement's signal","caveats":"1-2 bullets: what cannot be known from a post"}`;
 
 const CHANGELOG=[
+  {tag:"v1.9.1",date:"16 Jul 2026",items:["SECURITY: the API proxy is locked down — origin allowlist, single-model whitelist, server-side token cap and per-IP rate limiting; outside scripts can no longer ride the app's credentials","Non-profile images get a plain-English message ('that looks like a meme…') instead of a raw JSON error, and garbled scout replies get a human retry message","Classification discipline: thin profiles now read as EARLY PATH · FOUNDATION BUILDER instead of inheriting finance labels they haven't earned; monikers are banned from mocking anyone's job — jokes live in the roast only","MAX PROJECTION fixed (responses were getting cut off) and re-aimed: it now paints the fully maxxed-out future — what you're doing, where, with what numbers, and when","Ceilings un-nerfed: a ceiling within ~5 OVR of current now needs explicit justification; young profiles with real signal normally ceiling 85-95","GOT AN UPDATE? — updating a card now shows everything already on record so you only screenshot what's new, and established info is merged forward automatically","Outdated-rubric flags: cards scored under an older rating system get a * on the leaderboard and a re-score banner on their profile; every OVR change now says WHY (system update vs profile change)","Re-scores that come back HIGHER re-run the pack-opening reveal","Screenshot viewer rebuilt: plain click to enlarge (no magnifier cursor), ‹ › arrows and swipe to browse, an explicit red ✕ DELETE, and 'click anywhere to dismiss' in words","MY CARD: pick your aspirational type and build and see the gap between how you see yourself and how the scout reads you — one tap asks the scout what closes it","Profiles that straddle builds now show percentage archetype mixes (60% Technical Founder · 40% Academic Weapon)","Dark mode text lifted to white across the board","DEEP DIVE ANALYSIS: the full scouting rationale now lives in one collapsed section under the stats — your rating first, the reasoning when you want it","HOW GOOD IS THIS? restyled to match the create flow — paste a screenshot anywhere on the page, drop zone included","Mobile: OS-aware screenshot instructions (no more Windows keys on iPhones) and an 8px grace margin around every button","LinkedIn link previews: proper og: tags + a share image instead of a bare grey card"]},
   {tag:"v1.9",date:"16 Jul 2026",items:["HOW GOOD IS THIS? — new tab: paste any LinkedIn post (text or screenshot) announcing an achievement and get a graded, context-aware breakdown on the same 1-99 scale — with a done-vs-could-have-done read and an optional follow-up chat","2K-style fixed calibration anchors: three synthetic reference profiles are now baked into every scan so identical evidence scores identically regardless of scan order — scans never calibrate against your pool","Industry fairness taught to the scout: law, medicine, research, policy, creative, sport and more each have their own selectivity ladder — the top of ANY ladder can hit 90+, and nobody is marked down for not being in finance or tech","Peer calibration is now a 4-rung ladder from your exact peer group out to the general population — modest cards get the honest bigger-pond frames where they genuinely rank well","OPPORTUNITY CAPTURE on every new scan: what was available in their context vs what they took","MAX PROJECTION now shows the per-stat current→max breakdown specific to the person, plus a dated milestone timeline with an estimated arrival for the full projection","Team of the Year now requires 80+ OVR — top-5 cards below 80 show as PENDING MORE CARDS","Stat rationale is click-to-expand per stat — clean numbers by default","Every button gives pressed feedback (shadow + press-down) and is clickable across its whole surface","Click any pasted screenshot to inspect it full-size before analysing","Versus verdicts name the actual people — no more Card A vs Card B","Card reveal cleaned up: copy removed, tier glow massively strengthened","Scan timing telemetry moved behind a settings toggle (⚙, default off)"]},
   {tag:"v1.8.2",date:"4 Jul 2026",items:["Watchdog blind spot fixed: the timeout only covered the connection handshake, not reading the response body — which is exactly where the claude.ai proxy stalls (your 556s scan proved it). The abort now covers the full round trip and actually fires","CANCEL button on every progress bar — kill a stuck request instantly and retry, no waiting for any timer","Scoring abort ceiling raised to 150s to fit the larger 5K-token reports on a congested proxy; extraction stays at 90s"]},
   {tag:"v1.8.1",date:"4 Jul 2026",items:["Report sections (Best Signal through Breaking Into The Higher Tiers) now render as bullet points — new scans write bullets natively, and older prose cards are auto-bulleted client-side","VS THE POOL on every profile: each stat and the OVR against the pool average with delta and rank (#3 of 12), fully deterministic","Natural segue into Versus: FULL MATCHUP VS THE FIELD and a vs-a-card picker jump straight into the head-to-head with both slots pre-filled"]},
@@ -647,6 +664,9 @@ export default function App(){
   const [hgChatBusy,setHgChatBusy]=useState(false);
   const [hgChatOpen,setHgChatOpen]=useState(false);
   const hgFileRef=useRef();
+  const [rsReveal,setRsReveal]=useState(null);
+  const [rsFlipping,setRsFlipping]=useState(false);
+  const [deepDive,setDeepDive]=useState(false);
   const recordTime=(phase,secs)=>{setScanStats(prev=>{const next={...prev,[phase]:[...(prev[phase]||[]),secs].slice(-30)};try{storage.set("ca_times",JSON.stringify(next));}catch{}return next;});};
   const [vsA,setVsA]=useState("");
   const [vsB,setVsB]=useState("");
@@ -694,13 +714,24 @@ export default function App(){
     return()=>clearInterval(ev);
   },[extracting,scoring,hgBusy]);
 
-  useEffect(()=>{setRoastOpen(false);setOpenStats({});},[sel?.id]);
+  useEffect(()=>{setRoastOpen(false);setOpenStats({});setDeepDive(false);setRsReveal(null);setRsFlipping(false);},[sel?.id]);
+
+  // HOW GOOD view: paste a screenshot anywhere on the page, like the create flow.
+  useEffect(()=>{
+    if(view!=="howgood")return;
+    const onPaste=e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);break;}}};
+    window.addEventListener("paste",onPaste);
+    return()=>window.removeEventListener("paste",onPaste);
+  },[view]);
+
+  const openLB=(list,idx=0,del=null)=>setLightbox({list,idx,del});
+  const saveAsp=async(k,v)=>{if(!sel)return;const upd=cards.map(c=>c.id===sel.id?{...c,[k]:v||null}:c);await persist(upd);setSel(s=>({...s,[k]:v||null}));};
   const persist=async u=>{setCards(u);try{await storage.set("ca_v2",JSON.stringify(u));}catch{}};
 
   useEffect(()=>{
     if(view!=="create"||step!==0)return;
-    const d=e=>{const k=e.key.toLowerCase();if(k==="meta"||k==="win"||e.metaKey)setPk(p=>({...p,win:true}));if(k==="shift")setPk(p=>({...p,shift:true}));if(k==="s")setPk(p=>({...p,s:true}));};
-    const u=e=>{const k=e.key.toLowerCase();if(k==="meta"||k==="win"||e.metaKey)setPk(p=>({...p,win:false}));if(k==="shift")setPk(p=>({...p,shift:false}));if(k==="s")setPk(p=>({...p,s:false}));};
+    const d=e=>{const k=e.key.toLowerCase();if(k==="meta"||k==="win"||e.metaKey)setPk(p=>({...p,win:true}));if(k==="shift")setPk(p=>({...p,shift:true}));if(k==="s")setPk(p=>({...p,s:true}));if(k==="4")setPk(p=>({...p,s4:true}));};
+    const u=e=>{const k=e.key.toLowerCase();if(k==="meta"||k==="win"||e.metaKey)setPk(p=>({...p,win:false}));if(k==="shift")setPk(p=>({...p,shift:false}));if(k==="s")setPk(p=>({...p,s:false}));if(k==="4")setPk(p=>({...p,s4:false}));};
     window.addEventListener("keydown",d);window.addEventListener("keyup",u);
     return()=>{window.removeEventListener("keydown",d);window.removeEventListener("keyup",u);};
   },[view,step]);
@@ -775,6 +806,21 @@ export default function App(){
       if(d1.error)throw new Error(`API error: ${d1.error.message}`);
       recordTime("extract",Math.round((Date.now()-t1)/1000));
       const ex=repairJSON(d1.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
+      if(ex&&ex.not_profile){
+        setErr(`That doesn't look like a LinkedIn profile screenshot${ex.why?` — ${String(ex.why).replace(/\.\s*$/,"").toLowerCase()}`:""}. Paste the profile's Experience and Education sections and try again.`);
+        setExtracting(false);setScoring(false);return;
+      }
+      // UPDATE MERGE: when updating an existing card, new screenshots only need the
+      // NEW information — established data is carried forward, never lost.
+      const prevForMerge=updating?cards.find(c=>c.id===updating):null;
+      if(prevForMerge){
+        const bad=v=>!v||/^(unknown|not visible|none|none visible|—|-)$/i.test(String(v).trim());
+        const keep=(nv,ov)=>bad(nv)?(bad(ov)?nv:ov):nv;
+        const joinU=(ov,nv)=>{if(bad(nv))return bad(ov)?nv:ov;if(bad(ov))return nv;return String(ov).includes(String(nv).slice(0,40))?ov:`${ov}; ${nv}`;};
+        ex.name=keep(ex.name,prevForMerge.name);ex.uni=keep(ex.uni,prevForMerge.uni);ex.uni_years=keep(ex.uni_years,prevForMerge.uni_years);ex.year=keep(ex.year,prevForMerge.year);ex.age=keep(ex.age,prevForMerge.age);ex.grades=keep(ex.grades,prevForMerge.grades);
+        ex.company=keep(ex.company,prevForMerge.company);ex.role=keep(ex.role,prevForMerge.role);ex.how=keep(ex.how,prevForMerge.how);ex.prev=keep(ex.prev,prevForMerge.prev);
+        ex.timeline=joinU(prevForMerge.timeline,ex.timeline);ex.evidence=joinU(prevForMerge.evidence,ex.evidence);ex.acts=joinU(prevForMerge.acts,ex.acts);ex.notes=joinU(prevForMerge.notes,ex.notes);
+      }
       setExtracted(ex);
       if(!forceUpdate&&!updating){
         const dup=checkDup(ex.name);
@@ -813,8 +859,10 @@ export default function App(){
       const uid=updating||Date.now().toString();
       // Re-scan history: keep the last 10 snapshots so the profile can show stat deltas
       const prevCard=updating?all.find(c=>c.id===uid):null;
-      const history=prevCard?[...(prevCard.history||[]),{date:prevCard.updatedAt||prevCard.createdAt,OVR:prevCard.OVR,stats:prevCard.stats}].slice(-10):[];
-      const newCard={id:uid,...(prevCard?{chat:prevCard.chat,ninety:prevCard.ninety,plan:prevCard.plan,posts:prevCard.posts,goals:prevCard.goals}:{}),...ex,stats,OVR,history,roast:sc.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
+      const history=prevCard?[...(prevCard.history||[]),{date:prevCard.updatedAt||prevCard.createdAt,OVR:prevCard.OVR,stats:prevCard.stats,rubricV:prevCard.rubricV||0}].slice(-10):[];
+      const mix=Array.isArray(sc.archetype_mix)?sc.archetype_mix.filter(m=>m&&m.build).map(m=>({build:String(m.build),weight:Math.max(1,Math.min(100,Math.round(Number(m.weight)||0)))})).slice(0,3):null;
+      const lastDeltaCause=prevCard?((prevCard.rubricV||0)!==RUBRIC_VERSION?"rating system updated since the last scan":"profile updated with new screenshots"):null;
+      const newCard={id:uid,...(prevCard?{chat:prevCard.chat,ninety:prevCard.ninety,plan:prevCard.plan,posts:prevCard.posts,goals:prevCard.goals,asp_type:prevCard.asp_type,asp_build:prevCard.asp_build}:{}),...ex,stats,OVR,history,rubricV:RUBRIC_VERSION,lastDeltaCause,archetype_mix:mix,roast:sc.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
       const base=updating?all.filter(c=>c.id!==uid):all;
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
       await persist(updated);setDone(newCard);setRevealed(false);setFlipping(false);setRoastOpen(false);setStep(3);setUpdating(null);
@@ -845,7 +893,7 @@ Timeline: ${sel.timeline||"-"}
 Evidence: ${sel.evidence||"-"}
 Weakest signal: ${sel.weak_signal||"-"}
 Fastest upgrade: ${sel.upgrade||"-"}`;
-      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:1400,thinking:{type:"disabled"},system:NINETY_PROMPT,messages:[{role:"user",content:payload}]})});
+      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:3200,thinking:{type:"disabled"},system:NINETY_PROMPT,messages:[{role:"user",content:payload}]})});
       const text=await r.text();
       if(!text)throw new Error("empty response from API");
       const d=JSON.parse(text);
@@ -961,12 +1009,16 @@ ${JSON.stringify({name:sel.name,uni:sel.uni,uni_years:sel.uni_years,cohort:sel.y
         if(stats.RARE>=90&&stats.STACK<50)out.push("Scored as a near-unique configuration but with an incoherent stack — one of those two reads is off.");
         if(Math.max(...vals)-Math.min(...vals)<12)out.push("Stat line unusually flat — possible scale compression; genuinely spiky profiles are the honest norm.");
         return out.length?out:null;})();
-      const history=[...(sel.history||[]),{date:sel.updatedAt||sel.createdAt,OVR:sel.OVR,stats:sel.stats}].slice(-10);
-      const newCard={...sel,stats,OVR,history,roast:sc.roast||sel.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||sel.profile_type||null,archetype:sc.archetype||sel.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||sel.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||sel.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,updatedAt:new Date().toISOString()};
+      const history=[...(sel.history||[]),{date:sel.updatedAt||sel.createdAt,OVR:sel.OVR,stats:sel.stats,rubricV:sel.rubricV||0}].slice(-10);
+      const mix=Array.isArray(sc.archetype_mix)?sc.archetype_mix.filter(m=>m&&m.build).map(m=>({build:String(m.build),weight:Math.max(1,Math.min(100,Math.round(Number(m.weight)||0)))})).slice(0,3):null;
+      const lastDeltaCause=(sel.rubricV||0)!==RUBRIC_VERSION?"rating system updated — re-measured under the current rubric":"re-measured under the same rubric (small variance is model noise)";
+      const newCard={...sel,stats,OVR,history,rubricV:RUBRIC_VERSION,lastDeltaCause,archetype_mix:mix||sel.archetype_mix||null,roast:sc.roast||sel.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||sel.profile_type||null,archetype:sc.archetype||sel.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||sel.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||sel.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,updatedAt:new Date().toISOString()};
       const base=cards.filter(c=>c.id!==sel.id);
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
       await persist(updated);
       setSel(newCard);
+      // Upgrade? Run the pack-opening again — earned reveals only.
+      if(newCard.OVR>sel.OVR){setRsReveal({prev:sel.OVR,open:false});setRsFlipping(false);}
     }catch(e){setRsErr(friendlyErr(e.message));}
     setScoring(false);
     setRescoring(false);
@@ -1138,7 +1190,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
         html.theme-dark{
           --bg:#080808;--s0a:#0a0a0a;--s0c:#0c0c0c;--s0f:#0f0f0f;--s11:#111;--s16:#161616;
           --b14:#1c1c1c;--b15:#1e1e1e;
-          --v1a:#2e2e2e;--v1e:#3a3a3a;--v222:#6a6a6a;--v2a:#8a8a8a;--v2e:#949494;--v333:#a0a0a0;--v444:#adadad;--v555:#bababa;--v666:#c6c6c6;--v777:#d2d2d2;--v888:#dedede;--vaaa:#ececec;--vddd:#f5f5f5;--veee:#fff;
+          --v1a:#2e2e2e;--v1e:#3a3a3a;--v222:#8c8c8c;--v2a:#a8a8a8;--v2e:#b4b4b4;--v333:#c2c2c2;--v444:#cecece;--v555:#dadada;--v666:#e4e4e4;--v777:#ebebeb;--v888:#f1f1f1;--vaaa:#f6f6f6;--vddd:#fbfbfb;--veee:#fff;
           --gold:#FFD700;--gold2:#FF8800;--gold-deep:#aa8800;--gold-ink:#000;
           --c-pace:#00E5FF;--c-reach:#FF6B35;--c-stack:#A855F7;--c-rare:#10B981;--c-depth:#F43F5E;
           --warn-bg:#1a0a00;--conf-bg:#141200;--conf-dim:#a89a55;--conf-label:#cbbd6a;--axis:#ffffff30;
@@ -1164,6 +1216,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
            and a pressed state (shadow ring + press-down) so clickability never
            relies on the cursor alone. */
         button{position:relative;z-index:2;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        /* Generous hit area: anything within 8px of a button counts as the button */
+        button::after{content:"";position:absolute;inset:-8px;border-radius:inherit}
         button:not(:disabled):hover{filter:brightness(1.09)}
         button:not(:disabled):active{transform:translateY(1px) scale(0.98);filter:brightness(1.18);box-shadow:0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent)!important;transition:transform 0.04s,box-shadow 0.04s}
       `}</style>
@@ -1186,12 +1240,25 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
       <div style={{maxWidth:880,margin:"0 auto",padding:"36px 24px"}}>
         <input ref={importRef} type="file" accept="application/json,.json" style={{display:"none"}} onChange={e=>importCards(e.target.files?.[0])}/>
 
-        {lightbox&&(
-          <div onClick={()=>setLightbox(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.93)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,cursor:"zoom-out"}}>
-            <img src={lightbox} alt="" style={{maxWidth:"94vw",maxHeight:"90vh",objectFit:"contain",borderRadius:6,boxShadow:"0 0 60px rgba(0,0,0,0.8)"}}/>
-            <div style={{position:"fixed",bottom:16,left:0,right:0,textAlign:"center",color:"#ffffff66",fontSize:9,letterSpacing:2,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>click anywhere to close</div>
+        {lightbox&&(()=>{
+          const L=lightbox;
+          const cur=L.list[L.idx];
+          if(!cur){setLightbox(null);return null;}
+          const go=d=>setLightbox({...L,idx:(L.idx+d+L.list.length)%L.list.length});
+          let touchX=null;
+          return(
+          <div onClick={()=>setLightbox(null)} onTouchStart={e=>{touchX=e.touches[0].clientX;}} onTouchEnd={e=>{if(touchX===null||L.list.length<2)return;const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>48){go(dx<0?1:-1);}touchX=null;}} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.93)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:"20px 56px"}}>
+            <img src={cur} alt="" onClick={e=>e.stopPropagation()} style={{maxWidth:"88vw",maxHeight:"84vh",objectFit:"contain",borderRadius:6,boxShadow:"0 0 60px rgba(0,0,0,0.8)"}}/>
+            {L.list.length>1&&<button onClick={e=>{e.stopPropagation();go(-1);}} style={{position:"fixed",left:12,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",color:"#fff",width:42,height:64,borderRadius:8,cursor:"pointer",fontSize:26,lineHeight:1}}>‹</button>}
+            {L.list.length>1&&<button onClick={e=>{e.stopPropagation();go(1);}} style={{position:"fixed",right:12,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",color:"#fff",width:42,height:64,borderRadius:8,cursor:"pointer",fontSize:26,lineHeight:1}}>›</button>}
+            {L.del&&<button onClick={e=>{e.stopPropagation();L.del(L.idx);const nl=L.list.filter((_,i)=>i!==L.idx);nl.length?setLightbox({...L,list:nl,idx:Math.min(L.idx,nl.length-1)}):setLightbox(null);}} style={{position:"fixed",top:14,right:14,background:"#dc2626",border:"none",color:"#fff",padding:"9px 16px",borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 2px 12px rgba(220,38,38,0.5)"}}>✕ DELETE THIS SCREENSHOT</button>}
+            <div style={{position:"fixed",bottom:14,left:0,right:0,textAlign:"center",color:"#ffffffaa",fontSize:9,letterSpacing:2,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>
+              {L.list.length>1&&<span style={{marginRight:16}}>{L.idx+1} / {L.list.length} · ‹ › or swipe to browse</span>}
+              <span style={{background:"rgba(255,255,255,0.1)",padding:"4px 12px",borderRadius:12}}>CLICK ANYWHERE TO DISMISS</span>
+            </div>
           </div>
-        )}
+          );
+        })()}
 
         {view==="home"&&(
           <div style={{animation:"fadeUp 0.4s ease"}}>
@@ -1241,8 +1308,26 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
 
         {view==="create"&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:540,margin:"0 auto"}}>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:3,color:"var(--gold)",marginBottom:2}}>{updating?"UPDATE CARD":"NEW CARD"}</div>
-            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,marginBottom:32,textTransform:"uppercase"}}>Find a LinkedIn profile, screenshot it, and we'll rate it</div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:3,color:"var(--gold)",marginBottom:2}}>{updating?"GOT AN UPDATE?":"NEW CARD"}</div>
+            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,marginBottom:updating?18:32,textTransform:"uppercase"}}>{updating?"only screenshot what's NEW — everything below is already on the card":"Find a LinkedIn profile, screenshot it, and we'll rate it"}</div>
+            {updating&&step<3&&(()=>{
+              const uc=cards.find(c=>c.id===updating);
+              if(!uc)return null;
+              const bad=v=>!v||/^(unknown|not visible|none|none visible|—|-)$/i.test(String(v).trim());
+              return(
+                <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",borderRadius:10,padding:"16px 18px",marginBottom:20}}>
+                  <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:14,letterSpacing:2,marginBottom:4}}>ESTABLISHED INFORMATION</div>
+                  <div style={{color:"var(--v555)",fontSize:9,lineHeight:1.7,marginBottom:10}}>This is what built {uc.name}'s current {uc.OVR} OVR — it's carried forward automatically, so don't re-screenshot any of it. Capture just the new role, award, result or section.</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"5px 14px"}}>
+                    {[["University",uc.uni],["Cohort",uc.year],["Company",uc.company],["Role",uc.role],["Grades",uc.grades],["Prior roles",uc.prev]].filter(([,v])=>!bad(v)).map(([l,v])=>(
+                      <div key={l}><span style={{color:"var(--v2a)",fontSize:8,letterSpacing:1}}>{l}: </span><span style={{color:"var(--v777)",fontSize:9}}>{String(v)}</span></div>
+                    ))}
+                  </div>
+                  {!bad(uc.timeline)&&<div style={{marginTop:8}}><span style={{color:"var(--v2a)",fontSize:8,letterSpacing:1}}>TIMELINE ON RECORD: </span><span style={{color:"var(--v666)",fontSize:9,lineHeight:1.6}}>{uc.timeline}</span></div>}
+                  {!bad(uc.evidence)&&<div style={{marginTop:6}}><span style={{color:"var(--v2a)",fontSize:8,letterSpacing:1}}>EVIDENCE ON RECORD: </span><span style={{color:"var(--v666)",fontSize:9,lineHeight:1.6}}>{uc.evidence}</span></div>}
+                </div>
+              );
+            })()}
             {step<3&&<Steps cur={step}/>}
 
             {step===0&&(
@@ -1262,15 +1347,36 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 </div>
                 <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:10,padding:"26px 24px",marginBottom:20}}>
                   <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>2 — SCREENSHOT IT</div>
-                  <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.9,marginBottom:24}}>Hold these three keys at the same time. A crosshair appears — drag a box around just their <span style={{color:"var(--vaaa)"}}>Experience section</span>. Screenshot copies to clipboard, no saving needed. Once you've done that, repeat for their <span style={{color:"var(--vaaa)"}}>Education section</span>. You can paste both on the next page — multiple screenshots are fine.</div>
-                  <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:8,marginBottom:18}}>
-                    <Key label="⊞ WIN" sub="windows key" wide pressed={pk.win}/>
-                    <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
-                    <Key label="SHIFT" pressed={pk.shift}/>
-                    <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
-                    <Key label="S" pressed={pk.s}/>
-                  </div>
-                  <div style={{color:"var(--v2a)",fontSize:9,textAlign:"center",letterSpacing:1}}>What's it called? Snip & Sketch — press these keys to try, they'll light up</div>
+                  {IS_MOBILE?(
+                    <>
+                      <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.9,marginBottom:14}}>Open their profile in the LinkedIn app and take a screenshot of the <span style={{color:"var(--vaaa)"}}>Experience section</span>, then another of the <span style={{color:"var(--vaaa)"}}>Education section</span> (press <span style={{color:"var(--vaaa)"}}>Power + Volume Up</span> on most phones). Then come back here and upload both on the next page.</div>
+                      <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:1}}>Long profiles: scroll and take a couple of screenshots per section — multiple screenshots are fine.</div>
+                    </>
+                  ):(
+                    <>
+                      <div style={{color:"var(--v666)",fontSize:11,lineHeight:1.9,marginBottom:24}}>Hold these keys at the same time. A crosshair appears — drag a box around just their <span style={{color:"var(--vaaa)"}}>Experience section</span>. Screenshot copies to clipboard, no saving needed. Once you've done that, repeat for their <span style={{color:"var(--vaaa)"}}>Education section</span>. You can paste both on the next page — multiple screenshots are fine.</div>
+                      <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:8,marginBottom:18,flexWrap:"wrap"}}>
+                        {IS_MAC?(
+                          <>
+                            <Key label="⌘ CMD" wide pressed={pk.win}/>
+                            <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                            <Key label="SHIFT" pressed={pk.shift}/>
+                            <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                            <Key label="4" pressed={pk.s4}/>
+                          </>
+                        ):(
+                          <>
+                            <Key label="⊞ WIN" sub="windows key" wide pressed={pk.win}/>
+                            <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                            <Key label="SHIFT" pressed={pk.shift}/>
+                            <span style={{color:"var(--v333)",fontSize:18,fontFamily:"'Bebas Neue'"}}>+</span>
+                            <Key label="S" pressed={pk.s}/>
+                          </>
+                        )}
+                      </div>
+                      <div style={{color:"var(--v2a)",fontSize:9,textAlign:"center",letterSpacing:1}}>{IS_MAC?"The area screenshot — add CTRL to copy straight to clipboard, or drag the saved file in":"What's it called? Snip & Sketch — press these keys to try, they'll light up"}</div>
+                    </>
+                  )}
                 </div>
                 <button onClick={()=>setStep(1)} style={{width:"100%",background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono'",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>GOT MY SCREENSHOTS →</button>
               </div>
@@ -1282,8 +1388,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                     {imgs.map((im,i)=>(
                       <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
-                        <img src={im.preview} alt="" onClick={()=>setLightbox(im.preview)} title="Click to inspect full size" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"zoom-in"}}/>
-                        <span onClick={()=>setLightbox(im.preview)} style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5,cursor:"zoom-in"}}>Screenshot {i+1} <span style={{color:"var(--v2a)",fontSize:8}}>· click to inspect</span></span>
+                        <img src={im.preview} alt="" onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} title="Click to inspect full size" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
+                        <span onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5,cursor:"pointer"}}>Screenshot {i+1} <span style={{color:"var(--v2a)",fontSize:8}}>· click to inspect</span></span>
                         <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0}}>remove</button>
                       </div>
                     ))}
@@ -1313,7 +1419,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{animation:"fadeUp 0.3s ease"}}>
                 <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                   {imgs.map((im,i)=>(
-                    <div key={i} onClick={()=>setLightbox(im.preview)} title="Click to inspect full size" style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden",cursor:"zoom-in",position:"relative"}}>
+                    <div key={i} onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} title="Click to inspect full size" style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden",cursor:"pointer",position:"relative"}}>
                       <img src={im.preview} alt="" style={{width:"100%",display:"block",maxHeight:140,objectFit:"cover",objectPosition:"top"}}/>
                       <div style={{position:"absolute",right:8,bottom:6,background:"rgba(0,0,0,0.55)",color:"#fff",fontSize:8,letterSpacing:1,padding:"3px 8px",borderRadius:3,fontFamily:"'Space Mono',monospace"}}>🔍 CLICK TO INSPECT</div>
                     </div>
@@ -1394,7 +1500,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 )}
                 <div style={{display:"flex",justifyContent:"center",marginBottom:20,perspective:900}}><div style={{animation:"flipIn 0.26s ease-out"}}><Card card={withMeta(done)} sz={1.05} onClick={()=>{setSel(done);setView("profile");}}/></div></div>
                 {done.history?.length>0&&(()=>{const ps=done.history[done.history.length-1];const d=done.OVR-ps.OVR;return(
-                  <div style={{fontSize:10,marginBottom:14,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"OVR unchanged":(d>0?`▲ OVR +${d}`:`▼ OVR ${d}`)} since last scan ({new Date(ps.date).toLocaleDateString()})</div>
+                  <div style={{fontSize:10,marginBottom:14,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"OVR unchanged":(d>0?`▲ OVR +${d}`:`▼ OVR ${d}`)} since last scan ({new Date(ps.date).toLocaleDateString()}){done.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {done.lastDeltaCause}</span>}</div>
                 );})()}
                 {done.thesis&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
                   <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Profile Thesis</div>
@@ -1452,7 +1558,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     <div key={c.id} className="row" onClick={()=>{setSel(c);setView("profile");}} style={{display:"grid",gridTemplateColumns:"36px 1fr 1fr 1fr 52px 60px 28px",padding:"12px 12px",gap:8,alignItems:"center",background:i%2===0?"var(--s0a)":"var(--s0c)",borderRadius:5,cursor:"pointer",border:"1px solid transparent",transition:"background 0.12s,border-color 0.12s"}}>
                       <span style={{fontFamily:"'Bebas Neue'",fontSize:18,color:i===0?"var(--gold)":i===1?"#B0B0B0":i===2?"#CD7F32":"var(--v2a)"}}>{i+1}</span>
                       <div>
-                        <div style={{fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:1,color:"var(--vddd)"}}>{myId===c.id&&<span style={{color:"var(--gold)",marginRight:6}}>★</span>}{c.name}</div>
+                        <div style={{fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:1,color:"var(--vddd)"}}>{myId===c.id&&<span style={{color:"var(--gold)",marginRight:6}}>★</span>}{c.name}{(c.rubricV||0)<RUBRIC_VERSION&&<span title="Scored under an older rating system — open the card and RE-SCORE to bring it up to date" style={{color:"var(--c-reach)",marginLeft:5,cursor:"help"}}>*</span>}</div>
                         <div style={{fontSize:8,color:"var(--v2e)",letterSpacing:1,marginTop:1}}>CLASS OF {c.year||"—"}</div>
                       </div>
                       <div style={{fontSize:10,color:"var(--v444)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.uni}</div>
@@ -1466,6 +1572,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     </div>
                   );
                 })}
+                {lbRows.some(c=>(c.rubricV||0)<RUBRIC_VERSION)&&<div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginTop:8,paddingLeft:12}}><span style={{color:"var(--c-reach)"}}>*</span> scored under an older rating system — open the card and RE-SCORE to make it comparable</div>}
               </div>
             )}
           </div>
@@ -1616,11 +1723,15 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 </div>
               ))}
             </div>
-            <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14}}>
+            <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files?.[0];if(f&&f.type.startsWith("image/")){const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);}}} style={{background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0f)",border:`2px dashed ${drag?"var(--gold)":"color-mix(in srgb, var(--gold) 27%, transparent)"}`,boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14,transition:"all 0.2s"}}>
+              <div style={{textAlign:"center",marginBottom:12}}>
+                <div style={{color:"color-mix(in srgb, var(--gold) 60%, transparent)",fontSize:11,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>Ctrl + V anywhere to paste a screenshot of the post</div>
+                <div style={{color:"var(--v333)",fontSize:9,letterSpacing:1,marginTop:2}}>or drop an image here · or type / paste the text below</div>
+              </div>
               <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {hgImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
-                  <img src={hgImg.preview} alt="" onClick={()=>setLightbox(hgImg.preview)} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"zoom-in"}}/>
+                  <img src={hgImg.preview} alt="" onClick={()=>openLB([hgImg.preview],0,()=>setHgImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
                   <span style={{color:"var(--v555)",fontSize:9,flex:1}}>Screenshot attached · click it to inspect</span>
                   <button onClick={()=>setHgImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                 </div>
@@ -1703,6 +1814,28 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
         {view==="profile"&&sel&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:640,margin:"0 auto"}}>
             {showShare&&<ShareCard card={sel} onClose={()=>setShowShare(false)}/>}
+            {rsReveal&&(
+              <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.9)",zIndex:250,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:24}}>
+                <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,marginBottom:18}}>RE-SCORE CAME BACK HIGHER</div>
+                {!rsReveal.open?(
+                  <>
+                    <div style={{perspective:900}}>
+                      <div onClick={()=>{if(rsFlipping)return;setRsFlipping(true);setTimeout(()=>setRsReveal(r=>r?{...r,open:true}:r),260);}} style={{cursor:"pointer",transform:rsFlipping?"rotateY(90deg)":"rotateY(0deg)",transition:"transform 0.26s ease-in"}}>
+                        <CardBack glow={T(sel.OVR).glow}/>
+                      </div>
+                    </div>
+                    <div style={{color:"#bbbbbb",fontSize:9,letterSpacing:2,marginTop:16,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>tap to reveal the upgraded card</div>
+                  </>
+                ):(
+                  <div style={{textAlign:"center"}}>
+                    <div style={{perspective:900,display:"flex",justifyContent:"center"}}><div style={{animation:"flipIn 0.26s ease-out"}}><Card card={withMeta(sel)} sz={1}/></div></div>
+                    <div style={{marginTop:14,fontFamily:"'Bebas Neue'",fontSize:24,color:"#16a34a",letterSpacing:1}}>▲ {rsReveal.prev} → {sel.OVR}</div>
+                    {sel.lastDeltaCause&&<div style={{color:"#cccccc",fontSize:9,marginTop:6,letterSpacing:0.5,fontFamily:"'Space Mono',monospace"}}>{sel.lastDeltaCause}</div>}
+                    <button onClick={()=>{setRsReveal(null);setRsFlipping(false);}} style={{marginTop:16,background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 24px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>NICE — CONTINUE</button>
+                  </div>
+                )}
+              </div>
+            )}
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
               <button className="ghost" onClick={()=>{setView("leaderboard");setSel(null);}} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>↠BACK</button>
               <div style={{display:"flex",gap:8}}>
@@ -1714,6 +1847,12 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               </div>
             </div>
             {rsErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,textAlign:"center",marginBottom:8}}>{rsErr}</div>}
+            {(sel.rubricV||0)<RUBRIC_VERSION&&!rescoring&&(
+              <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:"10px 14px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                <span style={{color:"var(--v777)",fontSize:9,lineHeight:1.6,flex:1,minWidth:220}}>⚠ Scored under an <span style={{color:"var(--c-reach)"}}>older rating system</span> — this OVR isn't directly comparable with freshly scanned cards until it's re-measured.</span>
+                <button onClick={rescore} disabled={rescoring} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>RE-SCORE NOW</button>
+              </div>
+            )}
             {rescoring&&(
               <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:14}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
@@ -1764,7 +1903,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   </div>
                   {cards.length<30&&<div style={{color:"var(--v1e)",fontSize:8,marginTop:4,letterSpacing:0.5}}>percentile unlocks at 30 profiles</div>}
                   {sel.history?.length>0&&(()=>{const ps=sel.history[sel.history.length-1];const d=sel.OVR-ps.OVR;return(
-                    <div style={{fontSize:9,marginTop:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"unchanged":(d>0?`▲ +${d}`:`▼ ${d}`)} since last scan · {new Date(ps.date).toLocaleDateString()}</div>
+                    <div style={{fontSize:9,marginTop:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"unchanged":(d>0?`▲ +${d}`:`▼ ${d}`)} since last scan · {new Date(ps.date).toLocaleDateString()}{sel.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {sel.lastDeltaCause}</span>}</div>
                   );})()}
                   {(sel.history?.length||0)>0&&<div style={{marginTop:14,display:"flex",justifyContent:"center"}}><Trend card={sel} acc={ct.acc}/></div>}
                 </div>
@@ -1835,10 +1974,47 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
                 {sel.profile_type&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:"var(--v555)"}}><span style={{color:"var(--v2a)",marginRight:6}}>TYPE</span>{sel.profile_type}</div>}
                 {sel.archetype&&<div style={{background:"var(--s0f)",border:`1px solid ${ct.acc}22`,borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:ct.acc,opacity:0.7}}><span style={{color:"var(--v2a)",marginRight:6}}>BUILD</span>{sel.archetype}</div>}
+                {sel.archetype_mix&&sel.archetype_mix.length>1&&(
+                  <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:5,padding:"6px 12px",fontSize:9,letterSpacing:1,textTransform:"uppercase",color:"var(--v555)"}}>
+                    <span style={{color:"var(--v2a)",marginRight:6}}>MIX</span>
+                    {sel.archetype_mix.map((m,i)=><span key={i}>{i>0&&" · "}<span style={{color:"var(--gold)"}}>{m.weight}%</span> {m.build}</span>)}
+                  </div>
+                )}
               </div>
             )}
 
             {sel.type_reason&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.6,margin:"-2px 0 10px",paddingLeft:2}}>{sel.type_reason}</div>}
+
+            {/* Aspiration vs the mirror — claimed card only */}
+            {myId===sel.id&&(
+              <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:10}}>
+                <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:8}}>Aspiration vs the mirror <span style={{color:"var(--v333)",textTransform:"none",letterSpacing:0.5}}>— how you want to be seen vs how the scout reads you</span></div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <select value={sel.asp_type||""} onChange={e=>saveAsp("asp_type",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_type?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                    <option value="">— aspirational type —</option>
+                    {PROFILE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+                  </select>
+                  <select value={sel.asp_build||""} onChange={e=>saveAsp("asp_build",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_build?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                    <option value="">— aspirational build —</option>
+                    {ARCHETYPES.map(t=><option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                {(sel.asp_type||sel.asp_build)&&(()=>{
+                  const typeMatch=!sel.asp_type||sel.asp_type===sel.profile_type;
+                  const buildMatch=!sel.asp_build||sel.asp_build===sel.archetype||(sel.archetype_mix||[]).some(m=>m.build===sel.asp_build);
+                  return(
+                    <div style={{marginTop:10,color:"var(--v555)",fontSize:9,lineHeight:1.75}}>
+                      {typeMatch&&buildMatch
+                        ?<span style={{color:"#16a34a"}}>The mirror agrees — the scout already reads you as what you're aiming to be. Now it's about climbing within the build.</span>
+                        :<>
+                          You aim to read as <span style={{color:"var(--gold)"}}>{[sel.asp_type,sel.asp_build].filter(Boolean).join(" · ")}</span>; the scout currently reads <span style={{color:ct.acc}}>{[sel.profile_type,sel.archetype].filter(Boolean).join(" · ")}</span>.
+                          <button onClick={()=>sendChat(`My aspirational identity is ${[sel.asp_type,sel.asp_build].filter(Boolean).join(" / ")} but you read me as ${[sel.profile_type,sel.archetype].filter(Boolean).join(" / ")}. What specific evidence would make my profile read as my aspiration — and what's the fastest first move?`)} disabled={chatBusy} style={{display:"block",marginTop:8,background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"6px 12px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>ASK THE SCOUT WHAT CLOSES THE GAP ↓</button>
+                        </>}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             {/* Profile thesis */}
             {sel.thesis&&(
@@ -1859,8 +2035,14 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               </div>
             )}
 
-            {/* Expanded analysis */}
-            {true&&(
+            {/* Deep dive — the full scouting rationale, collapsed by default */}
+            <div style={{background:"var(--s0f)",border:`1px solid ${deepDive?"color-mix(in srgb, var(--gold) 33%, transparent)":"var(--b15)"}`,boxShadow:deepDive?"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)":"none",borderRadius:8,marginBottom:10}}>
+              <div onClick={()=>setDeepDive(d=>!d)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"15px 18px",cursor:"pointer",userSelect:"none"}}>
+                <div><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>DEEP DIVE ANALYSIS</span><span style={{color:"var(--v555)",fontSize:9,marginLeft:10,fontFamily:"'Space Mono',monospace",letterSpacing:0.5}}>· the full rationale behind the numbers</span></div>
+                <span style={{color:"var(--v444)",fontSize:11}}>{deepDive?"▾":"▸"}</span>
+              </div>
+            {deepDive&&(
+              <div style={{padding:"0 10px 12px"}}>
               <div style={{display:"grid",gridTemplateColumns:"1fr",gap:8,marginBottom:10}}>
                 {[
                   {k:"best_signal",label:"Best Signal",icon:"◈",v:sel.best_signal},
@@ -1895,7 +2077,6 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   </div>
                 );})}
               </div>
-            )}
 
             {/* Ceiling references — real pool cards near the hypothetical ceiling */}
             {(()=>{
@@ -1931,6 +2112,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 </div>
               );
             })()}
+              </div>
+            )}
+            </div>
 
             {/* Profile details */}
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px"}}>
@@ -2105,7 +2289,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <textarea value={postIn} onChange={e=>setPostIn(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder="Paste the post text — or paste / upload a screenshot of it…" style={{width:"100%",minHeight:64,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {postImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
-                  <img src={postImg.preview} alt="" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0}}/>
+                  <img src={postImg.preview} alt="" onClick={()=>openLB([postImg.preview],0,()=>setPostImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
                   <span style={{color:"var(--v555)",fontSize:9,flex:1}}>Screenshot attached</span>
                   <button onClick={()=>setPostImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                 </div>
