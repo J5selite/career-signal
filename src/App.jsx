@@ -94,11 +94,28 @@ Each property of the evidence is scored in exactly one place:
 - Scarcity of the combination → RARE only
 - Verified output → DEPTH only
 
+═══ FIXED CALIBRATION ANCHORS (2K-style — the scale never moves) ═══
+Like NBA 2K, every rating is ABSOLUTE against fixed reference standards — never relative to other profiles this user has scanned, and never affected by scan order. These three synthetic anchor profiles ARE the scale; place every real profile against them:
+- ANCHOR ≈40 (developing): second-year business student, mid-ranked university, two society memberships, part-time retail work, nothing built or converted → PRES 35, PACE 45, REACH 45, STACK 38, RARE 30, DEPTH 40.
+- ANCHOR ≈52 (standard/median): Russell Group economics, penultimate-year Big 4 summer internship secured on schedule, one elected society exec role, no artifacts or numbers described → PRES 55, PACE 50, REACH 50, STACK 55, RARE 40, DEPTH 50.
+- ANCHOR ≈80 (rare tier): semi-target CS student, Y1 spring week converted to a BB summer, shipped app named on profile with ~2,000 users, coherent builder-meets-finance thesis → PRES 86, PACE 75, REACH 70, STACK 82, RARE 70, DEPTH 86.
+SCAN INDEPENDENCE IS MANDATORY: identical evidence must produce the same six stats whether it is the first profile ever scanned or the hundredth. You have no knowledge of any other card in this user's pool — pool comparisons happen in the app, never in your scoring.
+
+═══ INDUSTRY FAIRNESS ═══
+Every industry has its own selectivity ladder, and the TOP of any ladder can score 90+. Finance and tech are two ladders among many — never treat them as the only elite paths:
+- LAW: vacation schemes, magic/silver circle training contracts, competitive pupillages.
+- MEDICINE & LIFE SCIENCES: competitive programmes, academic foundation posts, funded research schemes, publications.
+- RESEARCH/ACADEMIA: funded summer research (UROP-type), first-author output, national olympiads and prizes.
+- POLICY/GOV: Civil Service Fast Stream, competitive think-tank internships, parliamentary schemes.
+- CREATIVE/MEDIA: commissioned work, competitive residencies/agencies, audiences and bodies of published work with numbers.
+- SPORT, MILITARY, TRADES, NONPROFIT: selection rates, national-level competition, scale of responsibility.
+Measure PRES by how selective the seat is WITHIN its own industry's ladder. Measure DEPTH by that industry's native artifacts (a case win, a publication, a portfolio, a funded grant — not just shipped software). A person is never marked down for being in a "less prestigious" industry; they are measured on how far up THEIR ladder they've climbed and what they've proven on it.
+
 ═══ STAT DEFINITIONS & ANCHORS ═══
 
 PRES — Seat Selectivity (weight 20%)
 "How hard is it to be admitted to the seats on this profile?" Judged by offer/admission rates and competition for the seat — not fame, not background. A selective degree course is a seat too.
-Lens by profile type: FINANCE — firm + desk halo dominates (GS IBD ≠ GS ops; Goldman is Goldman whether from Cambridge or Coventry). TECHNICAL — course selectivity + employer hiring bar. FOUNDER — selectivity of BACKING (YC batch, funded round, selective accelerator). A self-created founder title carries NO selectivity by itself: anyone can print the title. An unbacked founder's credit lives in DEPTH (what they built) and PACE (how early), not here.
+Lens by profile type: FINANCE — firm + desk halo dominates (GS IBD ≠ GS ops; Goldman is Goldman whether from Cambridge or Coventry). TECHNICAL — course selectivity + employer hiring bar. FOUNDER — selectivity of BACKING (YC batch, funded round, selective accelerator). A self-created founder title carries NO selectivity by itself: anyone can print the title. An unbacked founder's credit lives in DEPTH (what they built) and PACE (how early), not here. EVERY OTHER INDUSTRY — use the INDUSTRY FAIRNESS ladders above: selectivity is measured within the person's own industry, and the top of any ladder can hit 90+.
 - 90-99: multiple of the most selective seats in the market (sub-2% offer rates: Jane Street/Citadel/GS IBD/MBB, DeepMind, YC batch, IMO-level programmes)
 - 70-89: one clearly elite seat, or several strongly selective ones (top EB M&A, FAANG SWE intern, Oxbridge/ETH/MIT on a competitive course)
 - 50-69: solid selective seats — strong university + recognised scheme or mid-tier internships
@@ -122,6 +139,7 @@ REACH — Contextual Overperformance (weight 15%)
 - 30-49: mild underperformance versus the platform
 - 1-29: elite platform → visibly weak destination, no context
 If starting context is not visible, score 45-55 and say so in the reason.
+OPPORTUNITY CAPTURE: REACH also measures how much of what was actually AVAILABLE in their context they took. Someone from a low-resource school, region or industry who visibly captured every opportunity open to them (every scheme, competition, society, funded programme their context offered) scores HIGH on REACH even when the absolute destination is modest — taking 90% of a small pond beats coasting on 20% of an ocean.
 
 STACK — Compounding Narrative (weight 20%)
 "Do the assets reinforce one thesis, or is it a LinkedIn buffet?" Judge coherence and thematic depth, not fame — an unknown startup with real technical work can compound a builder narrative better than a random famous badge.
@@ -186,7 +204,8 @@ Every sentence must do one of four jobs: cite visible evidence, interpret it (la
 - weak_signal: the deeper missing category of validation, not just the surface gap.
 - traits: what the path signals about agency and direction — every inference labelled.
 - not_proven: specific capabilities not yet evidenced, calibrated to the exact peer group.
-- peer_calibration: three named reference groups — general student population, exact peer group, and the elite tier above — with what each step up would require.
+- peer_calibration: a LADDER of 4 named reference groups, one bullet each, ordered narrowest to widest: (1) exact peer group (e.g. "Warwick CS second-years chasing tech roles"), (2) their industry's student population overall, (3) all career-focused students on LinkedIn, (4) the general student/graduate population. For each: an honest standing statement. The wider the group, the stronger most profiles look — state that plainly and let modest profiles see the bigger-pond frames where they genuinely rank well. Honest, never inflated: if a profile is behind even the widest group, say so with the fastest fix.
+- opportunity_capture: 2-4 bullets: what was actually AVAILABLE in this person's visible context (schemes, competitions, programmes, resources their school/industry/stage offers) vs what they TOOK. End with an honest capture read, e.g. "took most of what the context offered" or "clear available opportunities not yet taken: <named>". This is the done-vs-could-have-done section — generous to constrained contexts, honest about untaken chances.
 - floor / base_case / ceiling: realistic minimum, most likely, and best outcome — name specific roles and company types, and what would unlock the ceiling.
 - upgrade: the single most concrete thing that would improve this profile fastest.
 - improvement_plan: 3-5 concrete moves ranked by expected OVR impact. Each move must name the stat it raises, the evidence gap it closes, and be verifiable once done (a shipped artifact with numbers, a named class of programme, a conversion). No platitudes.
@@ -195,9 +214,9 @@ Every sentence must do one of four jobs: cite visible evidence, interpret it (la
 - projected_roles: 2-4 SPECIFIC, time-bound placement predictions, like a football scout naming the league and division — role + firm tier/scheme type + timeframe + likelihood word (likely / possible / stretch). Required shape: "Likely: growth hire at a seed/Series-A UK startup within 12 months. Stretch: APM-style rotational programme at a large tech firm at graduation." Vague phrasing like "good roles in business" is banned. These are projections — write them as projections.
 - SPECIFICITY MANDATE (applies to every narrative field): name concrete things — scheme types, firm tiers, artifact shapes, numbers, terms and deadlines. "Build more projects" is banned; "ship <artifact type> with <number> users by <term>" is the required shape. If you cannot be specific, state exactly what information is missing instead of going vague.
 
-Output ALL fields, in exactly the template order below. Write best_signal, weak_signal, traits, not_proven, larp_check, smurf_check, peer_calibration, projected_roles, floor, base_case, ceiling, upgrade, improvement_plan and tier_path as 2-5 newline-separated bullet lines, each starting with "- " (use \\n between bullets inside the JSON string). thesis, moniker, type_reason and confidence_reason stay as prose. Keep each narrative field under 60 words (thesis, larp_check, smurf_check, improvement_plan and tier_path may run to 120). An omitted field is a failure.
+Output ALL fields, in exactly the template order below. Write best_signal, weak_signal, traits, not_proven, larp_check, smurf_check, peer_calibration, opportunity_capture, projected_roles, floor, base_case, ceiling, upgrade, improvement_plan and tier_path as 2-5 newline-separated bullet lines, each starting with "- " (use \\n between bullets inside the JSON string). thesis, moniker, type_reason and confidence_reason stay as prose. Keep each narrative field under 60 words (thesis, larp_check, smurf_check, improvement_plan and tier_path may run to 120). An omitted field is a failure.
 Return ONLY valid JSON, no markdown, no backticks:
-{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"stat_reasons":{"PRES":"one sentence citing the evidence used","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"profile_type":"...","archetype":"...","confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","floor":"...","floor_ovr":X,"base_case":"...","base_ovr":X,"ceiling":"...","ceiling_ovr":X,"upgrade":"...","improvement_plan":"...","tier_path":"...","larp_check":"...","smurf_check":"...","projected_roles":"...","type_reason":"..."}`;
+{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"stat_reasons":{"PRES":"one sentence citing the evidence used","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"profile_type":"...","archetype":"...","confidence":"HIGH|MEDIUM|LOW","confidence_reason":"...","moniker":"...","thesis":"...","best_signal":"...","weak_signal":"...","traits":"...","not_proven":"...","peer_calibration":"...","opportunity_capture":"...","floor":"...","floor_ovr":X,"base_case":"...","base_ovr":X,"ceiling":"...","ceiling_ovr":X,"upgrade":"...","improvement_plan":"...","tier_path":"...","larp_check":"...","smurf_check":"...","projected_roles":"...","type_reason":"..."}`;
 
 function erf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+p*x);return s*(1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x));}
 function getPct(cards,ovr){if(cards.length<5){const z=(ovr-58)/13;return Math.min(99,Math.max(1,Math.round(50*(1+erf(z/Math.sqrt(2))))));}return Math.min(99,Math.max(1,Math.round((cards.filter(c=>c.OVR<ovr).length/cards.length)*100)));}
@@ -232,8 +251,10 @@ const NINETY_PROMPT=`You are the same rigorous, skeptical career scout. You are 
 - Every upgrade must be concrete and verifiable once done: named seat tiers, shipped artifacts with numbers, conversions, competition results. Do not invent specific facts about the person.
 - This is a projection, not a measurement. Write "would require" / "would look like" throughout.
 - No flattery, no overfitting: be brutal about the gap between the current card and 90.
+- stat_moves must be SPECIFIC TO THIS PERSON: for each stat, one line naming what changes from their CURRENT number to the max number and the concrete thing that closes that exact gap (their industry, their assets, their stage — not generic advice).
+- milestones are the catch-up route WITH DATES: 3-5 milestones in chronological order, each a verifiable achievement with an estimated time of arrival ("eta") derived from today's date, their current stage, and real recruiting/industry cycles (e.g. "Summer 2027", "by graduation 2028"). The LAST milestone's eta is the estimated arrival date of the full max projection.
 Return ONLY valid JSON, no markdown, no backticks:
-{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"summary":"one paragraph: what this 90-OVR version of the same profile looks like","moves":"the 3-5 concrete jumps from the current card to this one, ranked by impact"}
+{"PRES":X,"PACE":X,"REACH":X,"STACK":X,"RARE":X,"DEPTH":X,"summary":"one paragraph: what this 90-OVR version of the same profile looks like","moves":"the 3-5 concrete jumps from the current card to this one, ranked by impact","stat_moves":{"PRES":"current→max: what specifically closes this gap for THIS person","PACE":"...","REACH":"...","STACK":"...","RARE":"...","DEPTH":"..."},"milestones":[{"m":"specific verifiable milestone","eta":"e.g. Summer 2027"}]}
 Choose the six stats so the weighted OVR (PRES 20%, PACE 15%, REACH 15%, STACK 20%, RARE 5%, DEPTH 25%) lands between 88 and 92, with a shape consistent with the profile type.`;
 
 // Dynamic, deadline-aware improvement checklist.
@@ -244,7 +265,22 @@ const PLAN_PROMPT=`You are the rigorous career scout acting as a coach for the a
 - Items previously marked DONE: propose the natural next step on top of them. Items marked NOT ELIGIBLE: never re-propose them or close variants.
 Return ONLY valid JSON, no markdown: {"items":[{"t":"short imperative title","d":"2-3 sentences of specific execution detail including any real deadline","stat":"PRES|PACE|REACH|STACK|RARE|DEPTH"}]} with 4-7 items ranked by expected OVR impact.`;
 
+// Standalone achievement rater for the HOW GOOD IS THIS? tab — no card required.
+const HOWGOOD_PROMPT=`You are the rigorous, evidence-based career scout behind Career Signal. You are given ONE LinkedIn post (text and/or screenshot) announcing something: a job change, an offer, an academic result, a launch, an award, an opportunity. It may be the poster's own achievement, someone else's they're celebrating, or an opportunity listing — rate THE THING ITSELF, in its context.
+
+RULES:
+- Absolute scale, fixed anchors: 50 = the median achievement a career-focused student posts about (a standard internship offer at a recognisable firm, a solid grade, an elected society role). 80+ = genuinely rare (sub-5% selectivity seats, national-level wins, shipped things with real numbers). 95+ = exceptional at national scale. Use the FULL 1-99 range.
+- INDUSTRY FAIRNESS: every industry has its own ladder — law, medicine, research, policy, creative, sport, trades, nonprofit. Measure how selective/rare this achievement is WITHIN its own industry and stage. Never mark something down for not being finance or tech.
+- CONTEXT IS THE MULTIPLIER: the same achievement means different things from different starting points. A first-gen student from a non-target landing a BB spring week is a bigger signal than the same spring week from a target school. If context is visible or provided, weigh it. If not, say what context would change the read.
+- OPPORTUNITY CAPTURE: include an honest read of what this achievement suggests about the person taking what was available to them — relative to what they could have done from their visible position. Someone maxing a constrained context reads HIGH.
+- Never punitive: celebrate what is real about the win, be honest about its scale, and always name what would make it stronger. Audit claims, never character. Label every inference.
+- The grade maps to the score: S=90+, A=80-89, B=65-79, C=50-64, D=under 50. The score uses the same 1-99 scale as Career Signal cards.
+
+Return ONLY valid JSON, no markdown, no backticks:
+{"headline":"one punchy sentence: the verdict","grade":"S|A|B|C|D","score":X,"what_it_is":"one sentence: what the post is announcing, neutrally","how_good":"3-5 bullet lines (\\n-separated, each starting '- '): how good this is and why — selectivity within its industry, earliness for the stage, rarity, what it proves","context_read":"2-3 bullets: how the visible/provided context changes the read, and what unknown context would move it most","vs_available":"2-3 bullets: the done-vs-could-have-done read — what this suggests about capturing available opportunities from their position","makes_it_stronger":"2-3 bullets: the specific follow-ups that would upgrade this achievement's signal","caveats":"1-2 bullets: what cannot be known from a post"}`;
+
 const CHANGELOG=[
+  {tag:"v1.9",date:"16 Jul 2026",items:["HOW GOOD IS THIS? — new tab: paste any LinkedIn post (text or screenshot) announcing an achievement and get a graded, context-aware breakdown on the same 1-99 scale — with a done-vs-could-have-done read and an optional follow-up chat","2K-style fixed calibration anchors: three synthetic reference profiles are now baked into every scan so identical evidence scores identically regardless of scan order — scans never calibrate against your pool","Industry fairness taught to the scout: law, medicine, research, policy, creative, sport and more each have their own selectivity ladder — the top of ANY ladder can hit 90+, and nobody is marked down for not being in finance or tech","Peer calibration is now a 4-rung ladder from your exact peer group out to the general population — modest cards get the honest bigger-pond frames where they genuinely rank well","OPPORTUNITY CAPTURE on every new scan: what was available in their context vs what they took","MAX PROJECTION now shows the per-stat current→max breakdown specific to the person, plus a dated milestone timeline with an estimated arrival for the full projection","Team of the Year now requires 80+ OVR — top-5 cards below 80 show as PENDING MORE CARDS","Stat rationale is click-to-expand per stat — clean numbers by default","Every button gives pressed feedback (shadow + press-down) and is clickable across its whole surface","Click any pasted screenshot to inspect it full-size before analysing","Versus verdicts name the actual people — no more Card A vs Card B","Card reveal cleaned up: copy removed, tier glow massively strengthened","Scan timing telemetry moved behind a settings toggle (⚙, default off)"]},
   {tag:"v1.8.2",date:"4 Jul 2026",items:["Watchdog blind spot fixed: the timeout only covered the connection handshake, not reading the response body — which is exactly where the claude.ai proxy stalls (your 556s scan proved it). The abort now covers the full round trip and actually fires","CANCEL button on every progress bar — kill a stuck request instantly and retry, no waiting for any timer","Scoring abort ceiling raised to 150s to fit the larger 5K-token reports on a congested proxy; extraction stays at 90s"]},
   {tag:"v1.8.1",date:"4 Jul 2026",items:["Report sections (Best Signal through Breaking Into The Higher Tiers) now render as bullet points — new scans write bullets natively, and older prose cards are auto-bulleted client-side","VS THE POOL on every profile: each stat and the OVR against the pool average with delta and rank (#3 of 12), fully deterministic","Natural segue into Versus: FULL MATCHUP VS THE FIELD and a vs-a-card picker jump straight into the head-to-head with both slots pre-filled"]},
   {tag:"v1.8",date:"4 Jul 2026",items:["Truncation bug fixed: the report had outgrown its token budget, silently cutting best/weak signal and confidence rationale off NEW cards — budget raised to 5K with a hard every-field-in-order, word-capped rule","Sanity Check panel: after every scan the app itself audits the OVR against its own rationale — flags elite-OVR-on-LOW-confidence, prestige-carried ratings with thin DEPTH, rare-but-incoherent reads, and suspiciously flat stat lines","Dense AI text now renders structured: headers, bold leads and bullets instead of a wall — applied to verdicts, max projection, ceiling-reference notes, post reads and chat","Analysis sections are click-to-expand — scan the labels, open only what you want; missing ones say 'needs re-score' right in the header","RE-SCORE now shows the full progress bar with stages, % and elapsed seconds","Gap verdicts gained EVIDENCE TO WATCH: exactly what would have to appear for the gap to close","Roast is always generated — the toggle now only controls instant reveal; every card has a REVEAL button","Type/archetype rationale shown under the chips; Evidence Confidence explains itself or says re-score","Full first + last name on the card side strip and the share card"]},
@@ -261,9 +297,9 @@ const CHANGELOG=[
 ];
 
 const STAT_INFO={
-  PRES:{full:"Prestige — Seat Selectivity · 20%",color:"var(--gold)",desc:"How hard is it to be ADMITTED to the seats on this profile? Judged on offer rates and competition — not fame, not background. A selective degree course counts as a seat. A self-created founder title doesn't: anyone can print one — unbacked founders earn credit in Depth and Pace instead.",examples:["Jane Street/GS IBD/MBB/DeepMind/YC batch → 90-99","Top EB, FAANG intern, Oxbridge competitive course → 70-89","Strong uni + recognised scheme → 50-69","Open-entry roles only (societies, ambassador) → 30-49"]},
+  PRES:{full:"Prestige — Seat Selectivity · 20%",color:"var(--gold)",desc:"How hard is it to be ADMITTED to the seats on this profile — measured within the person's OWN industry's ladder. Law, medicine, research, policy, creative and sport all have elite seats that score 90+; nobody is marked down for not being in finance or tech. A selective degree course counts as a seat. A self-created founder title doesn't: anyone can print one — unbacked founders earn credit in Depth and Pace instead.",examples:["Jane Street/GS IBD/MBB/DeepMind/YC/magic circle TC → 90-99","Top EB, FAANG intern, competitive pupillage/residency → 70-89","Strong uni + recognised scheme in any industry → 50-69","Open-entry roles only (societies, ambassador) → 30-49"]},
   PACE:{full:"Pace — Stage-Adjusted Earliness · 15%",color:"var(--c-pace)",desc:"How far ahead of the standard recruitment timeline is each milestone? Age lives here — there is no separate age bonus anywhere in the system. Military service, illness, founding, or switching countries never count as 'behind'.",examples:["2+ years ahead (pre-uni elite exposure) → 90-99","~1 year ahead (Y1 spring / early elite summer) → 70-89","On schedule → 50-69","Behind with no visible context → 1-49"]},
-  REACH:{full:"Reach — Contextual Overperformance · 15%",color:"var(--c-reach)",desc:"Given the visible starting context, how far above expectation did they land? The ONLY stat where background, school type and access count. If the starting context isn't visible, this sits near 50 — unknown is neither good nor bad.",examples:["Non-target / adverse context → elite destination → 90-99","Semi-target → BB front office → 70-89","On-script for the platform (Oxbridge → GS) → 50-69","Elite platform → weak destination, no context → 1-49"]},
+  REACH:{full:"Reach — Contextual Overperformance · 15%",color:"var(--c-reach)",desc:"Given the visible starting context, how far above expectation did they land — AND how much of what was actually available did they capture? Someone who took every opportunity their context offered scores high here even if the absolute destination is modest. The ONLY stat where background, school type and access count. If the starting context isn't visible, this sits near 50.",examples:["Non-target / adverse context → elite destination → 90-99","Captured nearly everything their context offered → 70-89","On-script for the platform (Oxbridge → GS) → 50-69","Elite platform → weak destination, no context → 1-49"]},
   STACK:{full:"Stack — Compounding Narrative · 20%",color:"var(--c-stack)",desc:"Do the assets reinforce one thesis, or is it a LinkedIn buffet? Judged on coherence, not fame — an unknown startup with real technical work can compound a builder narrative better than a random famous badge.",examples:["3+ assets, each building on the last → 90-99","Clear 2-3 asset thread → 70-89","A direction is guessable → 50-69","Accumulation without direction → 30-49"]},
   RARE:{full:"Rarity — Configuration Scarcity · 5%",color:"var(--c-rare)",desc:"Of 1,000 random career-focused profiles, how many look like this one? Deliberately the lowest weight: scarcity is the hardest thing to estimate from a screenshot, so it seasons the OVR rather than swinging it.",examples:["~1 in 1,000 → 90-99","~10 in 1,000 → 70-89","~50 in 1,000 → 50-69","Interchangeable with peers → 1-49"]},
   DEPTH:{full:"Depth — Verified Output · 25%",color:"var(--c-depth)",desc:"What does the evidence prove they can actually DO? Deliberately the highest weight: output is the only signal that can't be bought with a brand name or inflated language. Prestige gets you noticed — Depth is whether there's a person behind the logo.",examples:["Verifiable results: users, revenue, publication, national win → 90-99","Concrete artifacts described, or spring→summer conversion → 70-89","Serious seat, nothing described → 50-69","Titles or buzzwords only → 1-49"]},
@@ -300,7 +336,7 @@ function Star({sz}){return <div style={{width:sz,height:sz,background:"rgba(0,0,
 function CardBack({glow,sz=1.05}){
   const w=Math.round(220*sz),h=Math.round(310*sz);
   return(
-    <div style={{width:w,height:h,borderRadius:8,background:"#0b0b0b",border:"1px solid #333",boxShadow:`0 0 34px ${glow},0 6px 18px #00000099`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,position:"relative",overflow:"hidden",animation:"pulseGlow 1.6s ease-in-out infinite",fontFamily:"'Bebas Neue',sans-serif",userSelect:"none"}}>
+    <div style={{width:w,height:h,borderRadius:8,background:"#0b0b0b",border:"1px solid #333",boxShadow:`0 0 50px 12px ${glow},0 0 120px 36px ${glow},0 0 220px 60px ${glow},0 6px 18px #00000099`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,position:"relative",overflow:"hidden",animation:"pulseGlow 1.6s ease-in-out infinite",fontFamily:"'Bebas Neue',sans-serif",userSelect:"none"}}>
       <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(45deg,transparent 0 14px,rgba(255,255,255,0.025) 14px 28px)"}}/>
       <div style={{width:76,height:76,borderRadius:"50%",border:"2px solid #FFD70055",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,color:"#FFD700",letterSpacing:2}}>CS</div>
       <div style={{color:"#ffffff44",fontSize:12,letterSpacing:4}}>CAREER SIGNAL</div>
@@ -596,6 +632,21 @@ export default function App(){
   const postFileRef=useRef();
   const [openSecs,setOpenSecs]=useState({});
   const [roastOpen,setRoastOpen]=useState(false);
+  const [debugTiming,setDebugTiming]=useState(()=>{try{return localStorage.getItem("ca_debug_timing")==="1";}catch{return false;}});
+  const toggleDebugTiming=()=>{setDebugTiming(v=>{try{localStorage.setItem("ca_debug_timing",v?"0":"1");}catch{}return !v;});};
+  const [lightbox,setLightbox]=useState(null);
+  const [openStats,setOpenStats]=useState({});
+  const [hgText,setHgText]=useState("");
+  const [hgImg,setHgImg]=useState(null);
+  const [hgCtx,setHgCtx]=useState("");
+  const [hgBusy,setHgBusy]=useState(false);
+  const [hgErr,setHgErr]=useState("");
+  const [hgResult,setHgResult]=useState(null);
+  const [hgChat,setHgChat]=useState([]);
+  const [hgChatIn,setHgChatIn]=useState("");
+  const [hgChatBusy,setHgChatBusy]=useState(false);
+  const [hgChatOpen,setHgChatOpen]=useState(false);
+  const hgFileRef=useRef();
   const recordTime=(phase,secs)=>{setScanStats(prev=>{const next={...prev,[phase]:[...(prev[phase]||[]),secs].slice(-30)};try{storage.set("ca_times",JSON.stringify(next));}catch{}return next;});};
   const [vsA,setVsA]=useState("");
   const [vsB,setVsB]=useState("");
@@ -637,13 +688,13 @@ export default function App(){
 
   // Elapsed-seconds counter so long waits never read as frozen.
   useEffect(()=>{
-    if(!(extracting||scoring)){setElapsed(0);return;}
+    if(!(extracting||scoring||hgBusy)){setElapsed(0);return;}
     const t0=Date.now();
     const ev=setInterval(()=>setElapsed(Math.round((Date.now()-t0)/1000)),500);
     return()=>clearInterval(ev);
-  },[extracting,scoring]);
+  },[extracting,scoring,hgBusy]);
 
-  useEffect(()=>{setRoastOpen(false);},[sel?.id]);
+  useEffect(()=>{setRoastOpen(false);setOpenStats({});},[sel?.id]);
   const persist=async u=>{setCards(u);try{await storage.set("ca_v2",JSON.stringify(u));}catch{}};
 
   useEffect(()=>{
@@ -763,7 +814,7 @@ export default function App(){
       // Re-scan history: keep the last 10 snapshots so the profile can show stat deltas
       const prevCard=updating?all.find(c=>c.id===uid):null;
       const history=prevCard?[...(prevCard.history||[]),{date:prevCard.updatedAt||prevCard.createdAt,OVR:prevCard.OVR,stats:prevCard.stats}].slice(-10):[];
-      const newCard={id:uid,...(prevCard?{chat:prevCard.chat,ninety:prevCard.ninety,plan:prevCard.plan,posts:prevCard.posts,goals:prevCard.goals}:{}),...ex,stats,OVR,history,roast:sc.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
+      const newCard={id:uid,...(prevCard?{chat:prevCard.chat,ninety:prevCard.ninety,plan:prevCard.plan,posts:prevCard.posts,goals:prevCard.goals}:{}),...ex,stats,OVR,history,roast:sc.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||ex.profile_type||"Finance / Consulting",archetype:sc.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,percentile:0,createdAt:updating?(all.find(c=>c.id===uid)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:updating?new Date().toISOString():undefined};
       const base=updating?all.filter(c=>c.id!==uid):all;
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
       await persist(updated);setDone(newCard);setRevealed(false);setFlipping(false);setRoastOpen(false);setStep(3);setUpdating(null);
@@ -803,7 +854,7 @@ Fastest upgrade: ${sel.upgrade||"-"}`;
       const cl=v=>Math.min(99,Math.max(1,Math.round(Number(v)||90)));
       const stats={PRES:cl(sc.PRES),PACE:cl(sc.PACE),REACH:cl(sc.REACH),STACK:cl(sc.STACK),RARE:cl(sc.RARE),DEPTH:cl(sc.DEPTH)};
       const OVR=cl(stats.PRES*0.20+stats.PACE*0.15+stats.REACH*0.15+stats.STACK*0.20+stats.RARE*0.05+stats.DEPTH*0.25);
-      const ninety={stats,OVR,summary:sc.summary||"",moves:sc.moves||"",at:new Date().toISOString()};
+      const ninety={stats,OVR,summary:sc.summary||"",moves:sc.moves||"",stat_moves:sc.stat_moves||null,milestones:Array.isArray(sc.milestones)?sc.milestones.filter(m=>m&&m.m).map(m=>({m:String(m.m),eta:String(m.eta||"")})).slice(0,6):null,at:new Date().toISOString()};
       const upd=cards.map(c=>c.id===sel.id?{...c,ninety}:c);
       await persist(upd);
       setSel(s=>({...s,ninety}));
@@ -866,8 +917,9 @@ ${JSON.stringify({name:sel.name,uni:sel.uni,uni_years:sel.uni_years,cohort:sel.y
     const key=`${a.id}|${b.id}`;
     try{
       const pack=c=>JSON.stringify({name:c.name,stats:c.stats,OVR:c.OVR,stat_reasons:c.stat_reasons,thesis:c.thesis,evidence:c.evidence,timeline:c.timeline,confidence:c.confidence,larp_check:c.larp_check,smurf_check:c.smurf_check});
-      const sys=`You are the rigorous, evidence-based career scout. Compare exactly two profiles. Write a tight verdict (under 220 words) in three parts: (1) why the higher OVR is genuinely higher — name the specific evidence and stats driving it, not vibes; (2) where the lower card actually wins or may be underrated — including verifiability and possible understatement; (3) the single change that would flip the matchup; (4) EVIDENCE TO WATCH — the specific observable items that would have to appear on the lower card for the gap to actually close: named artifact types, conversions, numbers, dates. Label every inference. You rank visible signal, never human worth, and you never accuse anyone of lying — you assess what the evidence supports.${knowledge.trim()?`\nSCOUT KNOWLEDGE (trusted calibration): ${knowledge.trim()}`:""}${rubric.trim()?`\nOWNER RUBRIC (owner taste calibration — informs judgment, evidence discipline still wins): ${rubric.trim()}`:""}`;
-      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:700,thinking:{type:"disabled"},system:sys,messages:[{role:"user",content:`CARD A: ${pack(a)}\n\nCARD B: ${pack(b)}`}]})});
+      const nameOf=c=>c.name&&c.name!=="Unknown"?c.name:(c.moniker||"the unnamed card");
+      const sys=`You are the rigorous, evidence-based career scout. Compare exactly two profiles: ${nameOf(a)} and ${nameOf(b)}. ALWAYS refer to them by name — never as "Card A", "Card B", "A", "B", "the first card" or "the higher card". Write a tight verdict (under 220 words) in four parts: (1) why the higher OVR is genuinely higher — name the specific evidence and stats driving it, not vibes; (2) where the lower-rated person actually wins or may be underrated — including verifiability and possible understatement; (3) the single change that would flip the matchup; (4) EVIDENCE TO WATCH — the specific observable items that would have to appear on the lower-rated person's profile for the gap to actually close: named artifact types, conversions, numbers, dates. Label every inference. You rank visible signal, never human worth, and you never accuse anyone of lying — you assess what the evidence supports.${knowledge.trim()?`\nSCOUT KNOWLEDGE (trusted calibration): ${knowledge.trim()}`:""}${rubric.trim()?`\nOWNER RUBRIC (owner taste calibration — informs judgment, evidence discipline still wins): ${rubric.trim()}`:""}`;
+      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:700,thinking:{type:"disabled"},system:sys,messages:[{role:"user",content:`${nameOf(a).toUpperCase()}: ${pack(a)}\n\n${nameOf(b).toUpperCase()}: ${pack(b)}`}]})});
       const text=await r.text();
       if(!text)throw new Error("empty response from API");
       const d=JSON.parse(text);
@@ -910,7 +962,7 @@ ${JSON.stringify({name:sel.name,uni:sel.uni,uni_years:sel.uni_years,cohort:sel.y
         if(Math.max(...vals)-Math.min(...vals)<12)out.push("Stat line unusually flat — possible scale compression; genuinely spiky profiles are the honest norm.");
         return out.length?out:null;})();
       const history=[...(sel.history||[]),{date:sel.updatedAt||sel.createdAt,OVR:sel.OVR,stats:sel.stats}].slice(-10);
-      const newCard={...sel,stats,OVR,history,roast:sc.roast||sel.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||sel.profile_type||null,archetype:sc.archetype||sel.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||sel.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,updatedAt:new Date().toISOString()};
+      const newCard={...sel,stats,OVR,history,roast:sc.roast||sel.roast||null,stat_reasons:sc.stat_reasons||null,profile_type:sc.profile_type||sel.profile_type||null,archetype:sc.archetype||sel.archetype||null,confidence:sc.confidence||"MEDIUM",confidence_reason:sc.confidence_reason||null,moniker:sc.moniker||sel.moniker||null,thesis:sc.thesis||null,best_signal:sc.best_signal||null,weak_signal:sc.weak_signal||null,traits:sc.traits||null,not_proven:sc.not_proven||null,peer_calibration:sc.peer_calibration||null,opportunity_capture:sc.opportunity_capture||sel.opportunity_capture||null,floor:sc.floor||null,base_case:sc.base_case||null,ceiling:sc.ceiling||null,upgrade:sc.upgrade||null,improvement_plan:sc.improvement_plan||null,tier_path:sc.tier_path||null,larp_check:sc.larp_check||null,smurf_check:sc.smurf_check||null,projected_roles:sc.projected_roles||null,type_reason:sc.type_reason||null,floor_ovr:fl,base_ovr:ba,ceiling_ovr:ce,sanity,updatedAt:new Date().toISOString()};
       const base=cards.filter(c=>c.id!==sel.id);
       const updated=[...base,newCard].map(c=>({...c,percentile:getPct([...base,newCard].filter(x=>x.id!==c.id),c.OVR)}));
       await persist(updated);
@@ -999,6 +1051,45 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
     setRefBusy(false);
   };
 
+  // HOW GOOD IS THIS? — standalone achievement rating, no card required.
+  const rateHowGood=async()=>{
+    const post=hgText.trim();
+    if((!post&&!hgImg)||hgBusy)return;
+    setHgBusy(true);setHgErr("");setHgResult(null);setHgChat([]);setHgChatOpen(false);
+    try{
+      const userContent=[
+        ...(hgImg?[{type:"image",source:{type:"base64",media_type:hgImg.type,data:hgImg.b64}}]:[]),
+        {type:"text",text:`Today's date: ${new Date().toDateString()}\n${hgCtx.trim()?`CONTEXT PROVIDED BY THE USER (about the person/situation): ${hgCtx.trim()}\n`:""}${post?`THE POST:\n${post}`:"THE POST is in the attached screenshot — read it fully, including numbers, dates and visible context."}`}
+      ];
+      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:1600,thinking:{type:"disabled"},system:HOWGOOD_PROMPT+(knowledge.trim()?`\nSCOUT KNOWLEDGE (trusted calibration): ${knowledge.trim()}`:""),messages:[{role:"user",content:userContent}]})});
+      const text=await r.text();
+      if(!text)throw new Error("empty response from API");
+      const d=JSON.parse(text);
+      if(d.error)throw new Error(d.error.message);
+      const sc=repairJSON(d.content.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim());
+      const cl=v=>Math.min(99,Math.max(1,Math.round(Number(v)||50)));
+      setHgResult({...sc,score:cl(sc.score),grade:["S","A","B","C","D"].includes(sc.grade)?sc.grade:"C",at:new Date().toISOString(),snippet:post?post.slice(0,140):"[screenshot]"});
+    }catch(e){setHgErr(friendlyErr(e.message));}
+    setHgBusy(false);
+  };
+  const sendHgChat=async(preset)=>{
+    const q=(typeof preset==="string"?preset:hgChatIn).trim();
+    if(!q||hgChatBusy||!hgResult)return;
+    setHgChatIn("");setHgChatBusy(true);
+    const history=[...hgChat,{role:"user",content:q}];
+    setHgChat(history);
+    try{
+      const sys=`You are the rigorous, evidence-based career scout. The user asked "how good is this?" about a LinkedIn post and you produced this analysis: ${JSON.stringify(hgResult)}. Answer follow-up questions about THIS achievement only — grounded, honest, never punitive, every inference labelled, under 150 words unless asked for depth.`;
+      const r=await fetchT({method:"POST",headers:API_HEADERS,body:JSON.stringify({model:SCORE_MODEL,max_tokens:700,thinking:{type:"disabled"},system:sys,messages:history.map(m=>({role:m.role,content:m.content}))})});
+      const text=await r.text();
+      if(!text)throw new Error("empty response from API");
+      const d=JSON.parse(text);
+      if(d.error)throw new Error(d.error.message);
+      setHgChat([...history,{role:"assistant",content:d.content.map(b=>b.text||"").join("").trim()||"(no reply)"}]);
+    }catch(e){setHgChat([...history,{role:"assistant",content:friendlyErr(e.message)}]);}
+    setHgChatBusy(false);
+  };
+
   // window.confirm/alert are blocked inside the artifact sandbox — use an
   // arm-then-confirm click pattern and an inline status message instead.
   const [confirmDel,setConfirmDel]=useState(null);
@@ -1069,24 +1160,38 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
         .row:hover{background:var(--s11)!important;border-color:color-mix(in srgb, var(--gold) 13%, transparent)!important}
         .ghost:hover{color:var(--gold)!important}
         .delbtn{opacity:0;transition:opacity 0.15s}.row:hover .delbtn{opacity:1}
+        /* Every button: full-surface hit area above siblings, visible hover lift,
+           and a pressed state (shadow ring + press-down) so clickability never
+           relies on the cursor alone. */
+        button{position:relative;z-index:2;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        button:not(:disabled):hover{filter:brightness(1.09)}
+        button:not(:disabled):active{transform:translateY(1px) scale(0.98);filter:brightness(1.18);box-shadow:0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent)!important;transition:transform 0.04s,box-shadow 0.04s}
       `}</style>
 
       <div style={{display:"flex",alignItems:"center",borderBottom:"1px solid var(--s11)",background:"var(--bg)",padding:"0 28px",position:"sticky",top:0,zIndex:100}}>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,color:"var(--gold)",marginRight:36,padding:"15px 0",textShadow:"0 0 18px color-mix(in srgb, var(--gold) 27%, transparent)",cursor:"pointer"}} onClick={()=>{setView("home");reset();setSel(null);}}>CAREER SIGNAL</div>
-        {["home","create","versus","leaderboard","guide","changelog"].map(v=>(
-          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s"}}>{v}</button>
+        {[["home","home"],["create","create"],["howgood","how good?"],["versus","versus"],["leaderboard","leaderboard"],["guide","guide"],["changelog","changelog"]].map(([v,label])=>(
+          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s",whiteSpace:"nowrap"}}>{label}</button>
         ))}
         {myId&&cards.some(c=>c.id===myId)&&(
           <button className="ghost" onClick={()=>{const me=cards.find(c=>c.id===myId);if(me){setSel(me);setView("profile");reset();}}} style={{background:"none",border:"none",borderBottom:"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:"var(--gold)",fontFamily:"'Space Mono'",fontSize:10,letterSpacing:2,textTransform:"uppercase"}}>★ MY CARD</button>
         )}
         <div style={{flex:1}}/>
         <button onClick={exportCards} disabled={!cards.length} title="One-click backup — downloads your whole collection as JSON" style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--gold)":"var(--v1e)",borderRadius:5,padding:"4px 11px",cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:8}}>⬇</button>
-        <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Switch to light mode":"Switch to dark mode"} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:14,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color="var(--v444)";e.target.style.borderColor="var(--v1e)";}}>{theme==="dark"?"☀":"☾"}</button>
+        <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Switch to light mode":"Switch to dark mode"} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:8,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color="var(--v444)";e.target.style.borderColor="var(--v1e)";}}>{theme==="dark"?"☀":"☾"}</button>
+        <button onClick={()=>{setView("settings");reset();setSel(null);}} title="Settings" style={{background:"none",border:"1px solid var(--v1e)",color:view==="settings"?"var(--gold)":"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:14,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color=view==="settings"?"var(--gold)":"var(--v444)";e.target.style.borderColor="var(--v1e)";}}>⚙</button>
         <span style={{color:"var(--v222)",fontSize:9,letterSpacing:1}}>{cards.length} PROFILE{cards.length===1?"":"S"}</span>
       </div>
 
       <div style={{maxWidth:880,margin:"0 auto",padding:"36px 24px"}}>
         <input ref={importRef} type="file" accept="application/json,.json" style={{display:"none"}} onChange={e=>importCards(e.target.files?.[0])}/>
+
+        {lightbox&&(
+          <div onClick={()=>setLightbox(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.93)",zIndex:300,display:"flex",alignItems:"center",justifyContent:"center",padding:20,cursor:"zoom-out"}}>
+            <img src={lightbox} alt="" style={{maxWidth:"94vw",maxHeight:"90vh",objectFit:"contain",borderRadius:6,boxShadow:"0 0 60px rgba(0,0,0,0.8)"}}/>
+            <div style={{position:"fixed",bottom:16,left:0,right:0,textAlign:"center",color:"#ffffff66",fontSize:9,letterSpacing:2,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>click anywhere to close</div>
+          </div>
+        )}
 
         {view==="home"&&(
           <div style={{animation:"fadeUp 0.4s ease"}}>
@@ -1104,9 +1209,15 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             </div>
             {sorted.length>0&&(
               <>
-                <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:20}}>TEAM OF THE YEAR</div>
-                <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center",marginBottom:40}}>
-                  {sorted.slice(0,Math.min(3,sorted.length)).map(c=><Card key={c.id} card={withMeta(c)} sz={0.85} onClick={()=>{setSel(c);setView("profile");}}/>)}
+                <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:6}}>TEAM OF THE YEAR</div>
+                <div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginBottom:20}}>80+ OVR required for a full TOTY spot — top-5 cards below 80 hold the slot as pending until real competition arrives</div>
+                <div style={{display:"flex",gap:16,flexWrap:"wrap",justifyContent:"center",alignItems:"flex-start",marginBottom:40}}>
+                  {sorted.slice(0,Math.min(3,sorted.length)).map(c=>(
+                    <div key={c.id} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+                      <div style={{opacity:c.OVR>=80?1:0.75}}><Card card={withMeta(c)} sz={0.85} onClick={()=>{setSel(c);setView("profile");}}/></div>
+                      {c.OVR<80&&<div style={{background:"var(--s0c)",border:"1px dashed var(--v1e)",borderRadius:4,padding:"4px 10px",color:"var(--v444)",fontSize:8,letterSpacing:1.5,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>⏳ PENDING MORE CARDS · below 80 OVR</div>}
+                    </div>
+                  ))}
                 </div>
                 <div style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"20px 24px"}}>
                   <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:3,textTransform:"uppercase",marginBottom:14}}>OVR DISTRIBUTION</div>
@@ -1171,8 +1282,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                     {imgs.map((im,i)=>(
                       <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
-                        <img src={im.preview} alt="" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0}}/>
-                        <span style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5}}>Screenshot {i+1}</span>
+                        <img src={im.preview} alt="" onClick={()=>setLightbox(im.preview)} title="Click to inspect full size" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"zoom-in"}}/>
+                        <span onClick={()=>setLightbox(im.preview)} style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5,cursor:"zoom-in"}}>Screenshot {i+1} <span style={{color:"var(--v2a)",fontSize:8}}>· click to inspect</span></span>
                         <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0}}>remove</button>
                       </div>
                     ))}
@@ -1202,8 +1313,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{animation:"fadeUp 0.3s ease"}}>
                 <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:12}}>
                   {imgs.map((im,i)=>(
-                    <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden"}}>
+                    <div key={i} onClick={()=>setLightbox(im.preview)} title="Click to inspect full size" style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden",cursor:"zoom-in",position:"relative"}}>
                       <img src={im.preview} alt="" style={{width:"100%",display:"block",maxHeight:140,objectFit:"cover",objectPosition:"top"}}/>
+                      <div style={{position:"absolute",right:8,bottom:6,background:"rgba(0,0,0,0.55)",color:"#fff",fontSize:8,letterSpacing:1,padding:"3px 8px",borderRadius:3,fontFamily:"'Space Mono',monospace"}}>🔍 CLICK TO INSPECT</div>
                     </div>
                   ))}
                   <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono'",fontSize:9,padding:0,textDecoration:"underline",alignSelf:"flex-end"}}>edit screenshots</button>
@@ -1227,7 +1339,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     <div style={{height:6,background:"var(--v1a)",borderRadius:3,overflow:"hidden"}}>
                       <div style={{width:`${prog}%`,height:"100%",background:"linear-gradient(90deg,var(--gold),var(--gold2))",borderRadius:3,transition:"width 0.18s linear"}}/>
                     </div>
-                    {(()=>{
+                    {debugTiming&&(()=>{
                       const st=mstats(scanStats[extracting?"extract":"score"]);
                       const limit=extracting?90:150;
                       const warnAt=st?Math.max(40,Math.round(st.m+2*st.sd)):60;
@@ -1259,14 +1371,12 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             )}
 
             {step===3&&done&&!revealed&&(
-              <div style={{textAlign:"center",animation:"fadeUp 0.5s ease",padding:"24px 0"}}>
-                <div style={{color:"var(--v2a)",fontSize:9,letterSpacing:3,textTransform:"uppercase",marginBottom:24}}>Analysis complete — your pull is ready</div>
+              <div style={{textAlign:"center",animation:"fadeUp 0.5s ease",padding:"40px 0"}}>
                 <div style={{display:"flex",justifyContent:"center",perspective:900}}>
                   <div onClick={()=>{if(flipping)return;setFlipping(true);setTimeout(()=>setRevealed(true),260);}} style={{cursor:"pointer",transform:flipping?"rotateY(90deg)":"rotateY(0deg)",transition:"transform 0.26s ease-in"}}>
                     <CardBack glow={T(done.OVR).glow}/>
                   </div>
                 </div>
-                <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginTop:22}}>tap the card to reveal · the glow hints the tier</div>
               </div>
             )}
 
@@ -1462,6 +1572,134 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
           </div>
         )}
 
+        {view==="settings"&&(
+          <div style={{animation:"fadeUp 0.4s ease",maxWidth:560,margin:"0 auto"}}>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:30,letterSpacing:3,color:"var(--gold)",marginBottom:4}}>SETTINGS</div>
+            <div style={{color:"var(--v333)",fontSize:9,letterSpacing:2,marginBottom:28,textTransform:"uppercase"}}>defaults are tuned for everyday use — these are the extras</div>
+            <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 20px",marginBottom:12}}>
+              <div onClick={toggleDebugTiming} style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
+                <div style={{width:34,height:18,borderRadius:10,background:debugTiming?"var(--gold)":"var(--v1e)",position:"relative",transition:"background 0.15s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:2,left:debugTiming?18:2,width:14,height:14,borderRadius:"50%",background:"#fff",transition:"left 0.15s"}}/>
+                </div>
+                <div>
+                  <div style={{color:debugTiming?"var(--gold)":"var(--v888)",fontSize:11,letterSpacing:1}}>SCAN TIMING TELEMETRY</div>
+                  <div style={{color:"var(--v444)",fontSize:9,lineHeight:1.6,marginTop:3}}>Shows your typical scan durations (±σ over your last 30 runs) and slow-run warnings under the progress bar. Debug information — most people only need the progress bar and the seconds counter.</div>
+                </div>
+              </div>
+            </div>
+            <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"18px 20px",marginBottom:12}}>
+              <div onClick={toggleRoast} style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}}>
+                <div style={{width:34,height:18,borderRadius:10,background:roastMode?"var(--c-reach)":"var(--v1e)",position:"relative",transition:"background 0.15s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:2,left:roastMode?18:2,width:14,height:14,borderRadius:"50%",background:"#fff",transition:"left 0.15s"}}/>
+                </div>
+                <div>
+                  <div style={{color:roastMode?"var(--c-reach)":"var(--v888)",fontSize:11,letterSpacing:1}}>🔥 ROAST MODE DEFAULT</div>
+                  <div style={{color:"var(--v444)",fontSize:9,lineHeight:1.6,marginTop:3}}>Roasts are always generated — this controls whether they reveal instantly on new cards or wait behind the REVEAL button.</div>
+                </div>
+              </div>
+            </div>
+            <div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,lineHeight:1.7}}>Theme lives on the ☀/☾ button in the nav · your collection backup is the ⬇ button · settings are saved on this device.</div>
+          </div>
+        )}
+
+        {view==="howgood"&&(
+          <div style={{animation:"fadeUp 0.4s ease",maxWidth:640,margin:"0 auto"}}>
+            <div style={{textAlign:"center",marginBottom:34}}>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:54,letterSpacing:4,lineHeight:1,background:"linear-gradient(135deg,var(--gold),var(--gold2))",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>HOW GOOD IS THIS?</div>
+              <div style={{color:"var(--v333)",fontSize:10,letterSpacing:3,marginTop:8,textTransform:"uppercase"}}>paste any linkedin achievement post — get the honest, context-aware read</div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:26}}>
+              {[{t:"PASTE THE POST",d:"a job announcement, an offer, a result, a launch — text or screenshot, yours or anyone's"},{t:"CONTEXT-AWARE",d:"judged within its own industry's ladder and the person's starting point — never penalised for the field"},{t:"GRADED HONESTLY",d:"S to D grade on the same 1-99 scale as the cards, plus what would make it stronger"}].map(x=>(
+                <div key={x.t} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 14px"}}>
+                  <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:13,letterSpacing:1.5,marginBottom:5}}>{x.t}</div>
+                  <div style={{color:"var(--v555)",fontSize:9,lineHeight:1.6}}>{x.d}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14}}>
+              <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              {hgImg&&(
+                <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
+                  <img src={hgImg.preview} alt="" onClick={()=>setLightbox(hgImg.preview)} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"zoom-in"}}/>
+                  <span style={{color:"var(--v555)",fontSize:9,flex:1}}>Screenshot attached · click it to inspect</span>
+                  <button onClick={()=>setHgImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
+                </div>
+              )}
+              <input value={hgCtx} onChange={e=>setHgCtx(e.target.value)} placeholder="Optional context — who is this person? e.g. first-year at a non-target, career switcher, first in family at uni…" style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
+              <input ref={hgFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.target.value="";}}/>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+                <button onClick={()=>hgFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
+                <button onClick={rateHowGood} disabled={hgBusy||(!hgText.trim()&&!hgImg)} style={{flex:1,minWidth:160,background:hgBusy||(!hgText.trim()&&!hgImg)?"var(--s11)":"var(--gold)",color:hgBusy||(!hgText.trim()&&!hgImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"12px 20px",borderRadius:5,cursor:hgBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>{hgBusy?`RATING… ${elapsed||""}${elapsed?"s":""}`:"HOW GOOD IS IT?"}</button>
+                {hgBusy&&<button onClick={cancelActiveCall} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button>}
+              </div>
+              {hgErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,marginTop:10}}>{hgErr}</div>}
+            </div>
+            {hgResult&&(()=>{
+              const gradeColor={S:"var(--gold)",A:"#99b0ff",B:"#16a34a",C:"var(--v666)",D:"var(--c-reach)"}[hgResult.grade]||"var(--v666)";
+              return(
+              <div style={{animation:"fadeUp 0.4s ease"}}>
+                <div style={{background:"var(--s0f)",border:`1px solid ${A(gradeColor,40)}`,boxShadow:`0 0 24px ${A(gradeColor,13)}`,borderRadius:10,padding:"22px 24px",marginBottom:10}}>
+                  <div style={{display:"flex",gap:18,alignItems:"center",flexWrap:"wrap"}}>
+                    <div style={{width:74,height:74,borderRadius:12,background:A(gradeColor,13),border:`2px solid ${A(gradeColor,53)}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <div style={{fontFamily:"'Bebas Neue'",fontSize:34,color:gradeColor,lineHeight:1}}>{hgResult.grade}</div>
+                      <div style={{color:"var(--v444)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>{hgResult.score}/99</div>
+                    </div>
+                    <div style={{flex:1,minWidth:200}}>
+                      <div style={{color:"var(--v888)",lineHeight:1.6,fontFamily:"'Bebas Neue'",letterSpacing:0.5,fontSize:16}}>{hgResult.headline}</div>
+                      {hgResult.what_it_is&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.6,marginTop:4}}>{hgResult.what_it_is}</div>}
+                    </div>
+                  </div>
+                </div>
+                {[
+                  {k:"how_good",label:"How good is it, actually"},
+                  {k:"context_read",label:"The context read"},
+                  {k:"vs_available",label:"Vs what they could have done"},
+                  {k:"makes_it_stronger",label:"What would make it stronger"},
+                  {k:"caveats",label:"What a post can't tell us"},
+                ].filter(s=>hgResult[s.k]).map(s=>(
+                  <div key={s.k} style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"14px 18px",marginBottom:8}}>
+                    <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:8}}>{s.label}</div>
+                    <Rich text={bulletize(hgResult[s.k])}/>
+                  </div>
+                ))}
+                <div style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"12px 18px",marginBottom:8}}>
+                  <div onClick={()=>setHgChatOpen(o=>!o)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer",userSelect:"none"}}>
+                    <span style={{color:"var(--v666)",fontSize:8,letterSpacing:2,textTransform:"uppercase"}}>💬 Ask about this achievement</span>
+                    <span style={{color:"var(--v444)",fontSize:9}}>{hgChatOpen?"▾":"▸"}</span>
+                  </div>
+                  {hgChatOpen&&(
+                    <div style={{marginTop:12}}>
+                      {(hgChat.length>0||hgChatBusy)&&(
+                        <div style={{maxHeight:280,overflowY:"auto",marginBottom:10,display:"flex",flexDirection:"column",gap:8}}>
+                          {hgChat.map((m,i)=>(
+                            <div key={i} style={{display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start"}}>
+                              <div style={{maxWidth:"84%",background:m.role==="user"?"color-mix(in srgb, var(--gold) 13%, transparent)":"var(--s11)",border:`1px solid ${m.role==="user"?"color-mix(in srgb, var(--gold) 27%, transparent)":"var(--b15)"}`,borderRadius:10,padding:"9px 13px",color:"var(--v888)",fontSize:10,lineHeight:1.7,textAlign:"left"}}>{m.role==="assistant"?<Rich text={m.content}/>:m.content}</div>
+                            </div>
+                          ))}
+                          {hgChatBusy&&<div style={{color:"var(--v555)",fontSize:9,letterSpacing:1}}>Scout is thinking…</div>}
+                        </div>
+                      )}
+                      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
+                        {["Is this actually rare or does it just sound rare?","What would the S-tier version of this be?","How should they leverage this next?"].map(q=>(
+                          <button key={q} onClick={()=>sendHgChat(q)} disabled={hgChatBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 22%, transparent)",color:"var(--v666)",padding:"5px 10px",borderRadius:12,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:0.5}}>{q}</button>
+                        ))}
+                      </div>
+                      <div style={{display:"flex",gap:8}}>
+                        <input value={hgChatIn} onChange={e=>setHgChatIn(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")sendHgChat();}} placeholder="Ask a follow-up about this achievement…" style={{flex:1,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none"}}/>
+                        <button onClick={()=>sendHgChat()} disabled={hgChatBusy||!hgChatIn.trim()} style={{background:hgChatBusy||!hgChatIn.trim()?"var(--s11)":"var(--gold)",color:hgChatBusy||!hgChatIn.trim()?"var(--v444)":"var(--gold-ink)",border:"none",padding:"10px 18px",borderRadius:6,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>SEND</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:6}}>
+                  <button onClick={()=>{setHgResult(null);setHgText("");setHgImg(null);setHgCtx("");setHgChat([]);setHgChatOpen(false);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>RATE ANOTHER</button>
+                </div>
+              </div>
+              );
+            })()}
+          </div>
+        )}
+
         {view==="profile"&&sel&&(
           <div style={{animation:"fadeUp 0.4s ease",maxWidth:640,margin:"0 auto"}}>
             {showShare&&<ShareCard card={sel} onClose={()=>setShowShare(false)}/>}
@@ -1490,22 +1728,25 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <Card card={withMeta(sel)} sz={1}/>
               <div style={{flex:1,minWidth:200,display:"flex",flexDirection:"column",gap:14}}>
                 <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"16px 18px"}}>
-                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:12,textTransform:"uppercase"}}>Stat Breakdown <span style={{color:"var(--v333)",fontSize:7}}>— hover for definitions · rationale under each stat</span></div>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:12,textTransform:"uppercase"}}>Stat Breakdown <span style={{color:"var(--v333)",fontSize:7}}>— hover for definitions · click a stat for its rationale</span></div>
                   <div style={{display:"flex",justifyContent:"center",margin:"4px 0 16px"}}><Radar sets={[{stats:sel.stats,color:ct.acc,fillOpacity:0.16}]} size={200}/></div>
                   {STATS.map(st=>{
                     const v=sel.stats[st];
                     const info=STAT_INFO[st];
+                    const hasReason=!!sel.stat_reasons?.[st];
+                    const open=!!openStats[st];
                     return(
                       <div key={st} style={{marginBottom:10}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div onClick={()=>{if(hasReason)setOpenStats(o=>({...o,[st]:!o[st]}));}} style={{display:"flex",alignItems:"center",gap:8,cursor:hasReason?"pointer":"default"}}>
                         <StatTooltip stat={st} reason={sel.stat_reasons?.[st]}>
                           <span style={{color:"var(--v555)",fontSize:9,minWidth:38,letterSpacing:1,cursor:"help",borderBottom:"1px dotted var(--v333)"}}>{st}</span>
                         </StatTooltip>
                         <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${v}%`,height:"100%",background:`linear-gradient(90deg,${A(info?.color||ct.acc,53)},${info?.color||ct.acc})`,borderRadius:2}}/></div>
                         <span style={{color:"var(--vddd)",fontSize:12,fontFamily:"'Bebas Neue'",minWidth:26,textAlign:"right"}}>{v}</span>
                         {(()=>{const ps=sel.history?.[sel.history.length-1];if(!ps?.stats)return null;const d=v-(ps.stats[st]??v);if(!d)return null;return <span style={{color:d>0?"#16a34a":"#dc2626",fontSize:8,minWidth:22,fontFamily:"'Space Mono',monospace"}}>{d>0?`+${d}`:d}</span>;})()}
+                        {hasReason&&<span style={{color:open?info.color:"var(--v333)",fontSize:9,width:12,textAlign:"center",flexShrink:0}}>{open?"▾":"▸"}</span>}
                       </div>
-                      {sel.stat_reasons?.[st]&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.55,marginTop:3,marginLeft:46}}>{sel.stat_reasons[st]}</div>}
+                      {hasReason&&open&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.55,marginTop:4,marginLeft:46,borderLeft:`2px solid ${A(info.color,33)}`,paddingLeft:8,animation:"fadeUp 0.15s ease"}}>{sel.stat_reasons[st]}</div>}
                       </div>
                     );
                   })}
@@ -1628,7 +1869,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   {k:"not_proven",label:"What It Does Not Prove",icon:"✕",v:sel.not_proven},
                   {k:"larp_check",label:"LARP Check — verified vs claimed",icon:"⚖",v:sel.larp_check},
                   {k:"smurf_check",label:"Smurf Check — signs of understatement",icon:"◒",v:sel.smurf_check},
-                  {k:"peer_calibration",label:"Peer Calibration",icon:"⊕",v:sel.peer_calibration},
+                  {k:"peer_calibration",label:"Peer Calibration — your standing, from your exact peers out to everyone",icon:"⊕",v:sel.peer_calibration},
+                  {k:"opportunity_capture",label:"Opportunity Capture — what they took vs what was available",icon:"◎",v:sel.opportunity_capture},
                   {k:"projected_roles",label:"Projected Placements — where the scout sees them landing",icon:"➤",v:sel.projected_roles},
                   {k:"floor",label:sel.floor_ovr?`Floor · ≈ OVR ${sel.floor_ovr} (hypothetical)`:"Floor",icon:"▼",v:sel.floor},
                   {k:"base_case",label:sel.base_ovr?`Base Case · ≈ OVR ${sel.base_ovr} (hypothetical)`:"Base Case",icon:"◆",v:sel.base_case},
@@ -1778,7 +2020,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               {ninetyErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,marginTop:8}}>{ninetyErr}</div>}
               {!sel.ninety&&!ninetyBusy&&<div style={{color:"var(--v555)",fontSize:10,lineHeight:1.7,marginTop:10}}>See the elite-tier version of this exact profile — same lane, same thesis, upgraded through concrete verifiable jumps only. Like a 69-rated player's 90-rated future card, and clearly labelled as a projection, not a measurement.</div>}
               {sel.ninety&&(
-                <div style={{display:"flex",gap:20,flexWrap:"wrap",marginTop:16}}>
+                <div style={{marginTop:16}}>
+                <div style={{display:"flex",gap:20,flexWrap:"wrap"}}>
                   <Card card={withMeta({...sel,stats:sel.ninety.stats,OVR:sel.ninety.OVR,archetype:"HYPOTHETICAL · MAX CLASS"})} sz={0.8}/>
                   <div style={{flex:1,minWidth:220}}>
                     <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:4}}>What the max looks like</div>
@@ -1787,6 +2030,45 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     <div style={{marginBottom:10}}><Rich text={sel.ninety.moves}/></div>
                     <div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5}}>Hypothetical projection generated {new Date(sel.ninety.at).toLocaleDateString()} — evidence-based jumps, not a promise.</div>
                   </div>
+                </div>
+                {/* Per-stat current → max breakdown, specific to this person */}
+                <div style={{marginTop:16,background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"14px 16px"}}>
+                  <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:10}}>Stat by stat — current → max{!sel.ninety.stat_moves&&<span style={{marginLeft:8,color:"var(--v333)",textTransform:"none",letterSpacing:0.5}}>· hit REGENERATE for the per-stat route</span>}</div>
+                  {STATS.map(st=>{
+                    const cur=sel.stats[st],mx=sel.ninety.stats[st],d=mx-cur;
+                    const info=STAT_INFO[st];
+                    return(
+                      <div key={st} style={{borderBottom:"1px solid var(--b14)",padding:"7px 0"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <span style={{color:info.color,fontSize:8,letterSpacing:1,minWidth:40,fontFamily:"'Space Mono',monospace"}}>{st}</span>
+                          <span style={{fontFamily:"'Bebas Neue'",fontSize:14,color:"var(--v666)"}}>{cur}</span>
+                          <span style={{color:"var(--v333)",fontSize:10}}>→</span>
+                          <span style={{fontFamily:"'Bebas Neue'",fontSize:14,color:info.color}}>{mx}</span>
+                          <span style={{fontSize:9,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":"var(--v444)"}}>{d>0?`+${d}`:d===0?"held":d}</span>
+                        </div>
+                        {sel.ninety.stat_moves?.[st]&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.55,marginTop:3,marginLeft:50}}>{sel.ninety.stat_moves[st]}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Milestone timeline with ETAs */}
+                {sel.ninety.milestones&&sel.ninety.milestones.length>0&&(
+                  <div style={{marginTop:12,background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:8,padding:"14px 16px"}}>
+                    <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:10}}>The catch-up route — milestones & estimated arrival</div>
+                    {sel.ninety.milestones.map((m,i)=>(
+                      <div key={i} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"7px 0",borderBottom:i<sel.ninety.milestones.length-1?"1px solid var(--b14)":"none"}}>
+                        <div style={{display:"flex",flexDirection:"column",alignItems:"center",flexShrink:0}}>
+                          <div style={{width:22,height:22,borderRadius:"50%",background:A("var(--gold)",13),border:"1px solid "+A("var(--gold)",33),display:"flex",alignItems:"center",justifyContent:"center",color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:11}}>{i+1}</div>
+                        </div>
+                        <div style={{flex:1}}>
+                          <div style={{color:"var(--v888)",fontSize:10,lineHeight:1.6}}>{m.m}</div>
+                        </div>
+                        {m.eta&&<div style={{flexShrink:0,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:4,padding:"3px 9px",color:"var(--gold)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>ETA {m.eta}</div>}
+                      </div>
+                    ))}
+                    {sel.ninety.milestones[sel.ninety.milestones.length-1]?.eta&&<div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginTop:8}}>Estimated arrival at the full max projection: <span style={{color:"var(--gold)"}}>{sel.ninety.milestones[sel.ninety.milestones.length-1].eta}</span> — if every milestone lands on time. Projection, not promise.</div>}
+                  </div>
+                )}
                 </div>
               )}
             </div>
@@ -1893,6 +2175,13 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 ))}
               </div>
               <div style={{color:"var(--v2a)",fontSize:8,marginTop:12,lineHeight:1.6}}>There are no hidden modifiers. Every stat uses the full 1–99 range with 50 anchored to the median career-focused student, so a profile of all 50s scores an OVR of 50.</div>
+            </div>
+
+            {/* Scoring consistency — 2K-style fixed anchors */}
+            <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"20px 22px",marginBottom:14}}>
+              <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:10}}>SCORING CONSISTENCY — HOW NBA 2K DOES IT</div>
+              <div style={{color:"var(--v555)",fontSize:11,lineHeight:1.9}}>2K rates every player against <span style={{color:"var(--v888)"}}>fixed, absolute standards</span> — LeBron's rating doesn't change because of who else is in your MyTeam. Career Signal works the same way: three fixed calibration anchor profiles (a ≈40, a ≈52 and a ≈80) are baked into every single scan, and the scout is explicitly told it has no knowledge of your other cards. <span style={{color:"var(--v888)"}}>Scan order cannot move a rating</span> — the same screenshots produce the same read whether they're your first card or your fiftieth. Pool percentiles, VS THE POOL and the leaderboard are computed deterministically by the app afterwards. Small run-to-run wobble (±2–3 on a stat) is model noise, not drift — RE-SCORE any card to re-measure it against the same fixed anchors.</div>
+              <div style={{color:"var(--v2a)",fontSize:8,marginTop:10,lineHeight:1.6}}>Every industry is scored on its own selectivity ladder — law, medicine, research, policy, creative, sport and more. The top of ANY ladder can hit 90+; nobody is marked down for not being in finance or tech.</div>
             </div>
 
             {/* Percentile note */}
