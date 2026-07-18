@@ -360,7 +360,7 @@ function CardBack({glow,sz=1.05}){
       <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(45deg,transparent 0 14px,rgba(255,255,255,0.025) 14px 28px)"}}/>
       <div style={{width:76,height:76,borderRadius:"50%",border:"2px solid #FFD70055",display:"flex",alignItems:"center",justifyContent:"center",fontSize:30,color:"#FFD700",letterSpacing:2}}>CS</div>
       <div style={{color:"#ffffff44",fontSize:12,letterSpacing:4}}>CAREER SIGNAL</div>
-      <div style={{color:"#ffffff22",fontSize:8,letterSpacing:2,fontFamily:"'Oswald',sans-serif"}}>TAP TO REVEAL</div>
+      <div style={{color:"#ffffff22",fontSize:8,letterSpacing:2,fontFamily:"'Space Mono',monospace"}}>TAP TO REVEAL</div>
     </div>
   );
 }
@@ -397,7 +397,7 @@ function ShareCard({card,onClose}){
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:20}}>
             <div>
               <div style={{color:t.acc,fontSize:32,letterSpacing:2,lineHeight:1}}>{card.name!=="Unknown"?card.name.toUpperCase():"UNKNOWN"}</div>
-              <div style={{color:"#ffffff55",fontSize:11,letterSpacing:1,marginTop:2,fontFamily:"'Oswald',sans-serif"}}>{card.uni}</div>
+              <div style={{color:"#ffffff55",fontSize:11,letterSpacing:1,marginTop:2,fontFamily:"'Space Mono',monospace"}}>{card.uni}</div>
             </div>
             <div style={{textAlign:"right"}}>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:56,color:t.acc,lineHeight:1,textShadow:`0 0 20px ${t.acc}66`}}>{card.OVR}</div>
@@ -406,8 +406,8 @@ function ShareCard({card,onClose}){
           </div>
           {/* Type + Archetype */}
           <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>
-            {card.profile_type&&<div style={{background:`${t.acc}14`,border:`1px solid ${t.acc}33`,borderRadius:3,padding:"3px 8px",color:t.acc,fontSize:7,letterSpacing:1,textTransform:"uppercase",opacity:0.8,fontFamily:"'Oswald',sans-serif"}}>{card.profile_type}</div>}
-            {card.archetype&&<div style={{background:`${t.acc}14`,border:`1px solid ${t.acc}33`,borderRadius:3,padding:"3px 8px",color:t.acc,fontSize:7,letterSpacing:1,textTransform:"uppercase",opacity:0.8,fontFamily:"'Oswald',sans-serif"}}>{card.archetype}</div>}
+            {card.profile_type&&<div style={{background:`${t.acc}14`,border:`1px solid ${t.acc}33`,borderRadius:3,padding:"3px 8px",color:t.acc,fontSize:7,letterSpacing:1,textTransform:"uppercase",opacity:0.8,fontFamily:"'Space Mono',monospace"}}>{card.profile_type}</div>}
+            {card.archetype&&<div style={{background:`${t.acc}14`,border:`1px solid ${t.acc}33`,borderRadius:3,padding:"3px 8px",color:t.acc,fontSize:7,letterSpacing:1,textTransform:"uppercase",opacity:0.8,fontFamily:"'Space Mono',monospace"}}>{card.archetype}</div>}
           </div>
           {/* Stat bars */}
           <div style={{display:"flex",flexDirection:"column",gap:5,marginBottom:16}}>
@@ -416,7 +416,7 @@ function ShareCard({card,onClose}){
               const info=STAT_INFO[st];
               return(
                 <div key={st} style={{display:"flex",alignItems:"center",gap:8}}>
-                  <span style={{color:"#ffffff33",fontSize:8,minWidth:34,letterSpacing:0.5,fontFamily:"'Oswald',sans-serif"}}>{st}</span>
+                  <span style={{color:"#ffffff33",fontSize:8,minWidth:34,letterSpacing:0.5,fontFamily:"'Space Mono',monospace"}}>{st}</span>
                   <div style={{flex:1,height:3,background:"#ffffff0a",borderRadius:2,overflow:"hidden"}}>
                     <div style={{width:`${v}%`,height:"100%",background:t.acc,opacity:0.7}}/>
                   </div>
@@ -426,18 +426,18 @@ function ShareCard({card,onClose}){
             })}
           </div>
           {/* Thesis one-liner */}
-          {thesis1&&<div style={{color:"#ffffff44",fontSize:9,lineHeight:1.6,marginBottom:14,fontFamily:"'Oswald',sans-serif",fontStyle:"italic",borderLeft:`2px solid ${t.acc}33`,paddingLeft:10}}>{thesis1}</div>}
+          {thesis1&&<div style={{color:"#ffffff44",fontSize:9,lineHeight:1.6,marginBottom:14,fontFamily:"'Space Mono',monospace",fontStyle:"italic",borderLeft:`2px solid ${t.acc}33`,paddingLeft:10}}>{thesis1}</div>}
           {/* Footer */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",borderTop:`1px solid ${t.acc}22`,paddingTop:12}}>
-            <div style={{color:"#ffffff22",fontSize:7,letterSpacing:1,fontFamily:"'Oswald',sans-serif"}}>based on visible profile evidence only</div>
+            <div style={{color:"#ffffff22",fontSize:7,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>based on visible profile evidence only</div>
             <div style={{color:t.acc,fontSize:9,letterSpacing:2,opacity:0.5}}>CAREER SIGNAL</div>
           </div>
         </div>
         <div style={{display:"flex",gap:8,marginTop:14,justifyContent:"center"}}>
-          <button onClick={download} disabled={saving} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 22px",borderRadius:5,cursor:saving?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase",opacity:saving?0.6:1}}>{saving?"RENDERING…":"⬇ DOWNLOAD PNG"}</button>
+          <button onClick={download} disabled={saving} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 22px",borderRadius:5,cursor:saving?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",opacity:saving?0.6:1}}>{saving?"RENDERING…":"⬇ DOWNLOAD PNG"}</button>
         </div>
-        <div style={{color:saveErr?"#ff4444":"var(--v333)",fontSize:8,letterSpacing:1,fontFamily:"'Oswald',sans-serif",textAlign:"center",marginTop:8}}>{saveErr||"saves a 2× image ready for stories & group chats"}</div>
-        <button onClick={onClose} style={{display:"block",margin:"8px auto 0",background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>CLOSE</button>
+        <div style={{color:saveErr?"#ff4444":"var(--v333)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",textAlign:"center",marginTop:8}}>{saveErr||"saves a 2× image ready for stories & group chats"}</div>
+        <button onClick={onClose} style={{display:"block",margin:"8px auto 0",background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>CLOSE</button>
       </div>
     </div>
   );
@@ -527,7 +527,7 @@ function Radar({sets,size=220}){
       {sets.map((st,j)=><polygon key={j} points={poly(st.stats)} fill={st.color} fillOpacity={st.fillOpacity??0.16} stroke={st.color} strokeWidth="1.6" strokeLinejoin="round"/>)}
       {STATS.map((s,i)=>{
         const lx=cx+(r+16)*Math.cos(ang(i)),ly=cy+(r+16)*Math.sin(ang(i));
-        return <text key={s} x={lx} y={ly+3} textAnchor="middle" fill="var(--v555)" fontSize="9" fontFamily="'Oswald',sans-serif">{s}</text>;
+        return <text key={s} x={lx} y={ly+3} textAnchor="middle" fill="var(--v555)" fontSize="9" fontFamily="'Space Mono',monospace">{s}</text>;
       })}
     </svg>
   );
@@ -543,13 +543,13 @@ function Trend({card,acc}){
   const path=pts.map((p,i)=>`${i===0?"M":"L"}${X(i).toFixed(1)},${Y(p.o).toFixed(1)}`).join(" ");
   return(
     <svg width={W} height={H} style={{display:"block",overflow:"visible"}}>
-      <text x={W/2} y={8} textAnchor="middle" fill="var(--v444)" fontSize="7" fontFamily="'Oswald',sans-serif" letterSpacing="1">OVR OVER SCANS</text>
+      <text x={W/2} y={8} textAnchor="middle" fill="var(--v444)" fontSize="7" fontFamily="'Space Mono',monospace" letterSpacing="1">OVR OVER SCANS</text>
       <path d={path} fill="none" stroke={acc} strokeWidth="1.6"/>
       {pts.map((p,i)=>(
         <g key={i}>
           <circle cx={X(i)} cy={Y(p.o)} r="3" fill={acc}/>
           <text x={X(i)} y={Y(p.o)-7} textAnchor="middle" fill={acc} fontSize="9" fontFamily="Bebas Neue">{p.o}</text>
-          <text x={X(i)} y={H-4} textAnchor="middle" fill="var(--v444)" fontSize="7" fontFamily="'Oswald',sans-serif">{p.d?new Date(p.d).toLocaleDateString(undefined,{month:"short",day:"numeric"}):""}</text>
+          <text x={X(i)} y={H-4} textAnchor="middle" fill="var(--v444)" fontSize="7" fontFamily="'Space Mono',monospace">{p.d?new Date(p.d).toLocaleDateString(undefined,{month:"short",day:"numeric"}):""}</text>
         </g>
       ))}
     </svg>
@@ -579,8 +579,8 @@ function Rich({text}){
 function Key({label,sub,wide,pressed}){
   return(
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minWidth:wide?76:46,height:46,background:pressed?"var(--gold)":"var(--s16)",border:`1px solid ${pressed?"var(--gold)":"var(--v2a)"}`,borderBottom:`${pressed?"1px":"3px"} solid ${pressed?"var(--gold-deep)":"var(--v333)"}`,borderRadius:5,padding:"4px 8px",transform:pressed?"translateY(2px)":"none",transition:"all 0.12s",boxShadow:pressed?"none":"0 2px 0 var(--gold-ink)",cursor:"default"}}>
-      <span style={{fontFamily:"'Oswald',sans-serif",fontSize:10,fontWeight:400,color:pressed?"var(--gold-ink)":"var(--vaaa)",letterSpacing:0.5,textAlign:"center",lineHeight:1.2}}>{label}</span>
-      {sub&&<span style={{fontFamily:"'Oswald',sans-serif",fontSize:7,color:pressed?"#00000077":"var(--v444)",letterSpacing:0.5,marginTop:2}}>{sub}</span>}
+      <span style={{fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,color:pressed?"var(--gold-ink)":"var(--vaaa)",letterSpacing:0.5,textAlign:"center",lineHeight:1.2}}>{label}</span>
+      {sub&&<span style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:pressed?"#00000077":"var(--v444)",letterSpacing:0.5,marginTop:2}}>{sub}</span>}
     </div>
   );
 }
@@ -1199,9 +1199,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
   const withMeta=c=>({...c,_totalCards:cards.length});
 
   return(
-    <div style={{minHeight:"100vh",background:"var(--bg)",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontWeight:300}}>
+    <div style={{minHeight:"100vh",background:"var(--bg)",color:"var(--veee)",fontFamily:"'Space Mono',monospace"}}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
         html.theme-dark{
           --bg:#080808;--s0a:#0a0a0a;--s0c:#0c0c0c;--s0f:#0f0f0f;--s11:#111;--s16:#161616;
           --b14:#1c1c1c;--b15:#1e1e1e;
@@ -1241,15 +1241,15 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
       <div style={{display:"flex",alignItems:"center",borderBottom:"1px solid var(--s11)",background:"var(--bg)",padding:"0 28px",position:"sticky",top:0,zIndex:100}}>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:3,color:"var(--gold)",marginRight:36,padding:"15px 0",textShadow:"0 0 18px color-mix(in srgb, var(--gold) 27%, transparent)",cursor:"pointer"}} onClick={()=>{setView("home");reset();setSel(null);}}>CAREER SIGNAL</div>
         {[["home","home"],["create","create"],["howgood","how good?"],["versus","versus"],["leaderboard","leaderboard"],["guide","guide"],["changelog","changelog"]].map(([v,label])=>(
-          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Oswald',sans-serif",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s",whiteSpace:"nowrap"}}>{label}</button>
+          <button key={v} className="ghost" onClick={()=>{setView(v);reset();setSel(null);}} style={{background:"none",border:"none",borderBottom:view===v?"2px solid var(--gold)":"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:view===v?"var(--gold)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:10,letterSpacing:2,textTransform:"uppercase",transition:"color 0.15s",whiteSpace:"nowrap"}}>{label}</button>
         ))}
         {myId&&cards.some(c=>c.id===myId)&&(
-          <button className="ghost" onClick={()=>{const me=cards.find(c=>c.id===myId);if(me){setSel(me);setView("profile");reset();}}} style={{background:"none",border:"none",borderBottom:"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:"var(--gold)",fontFamily:"'Oswald',sans-serif",fontSize:10,letterSpacing:2,textTransform:"uppercase"}}>★ MY CARD</button>
+          <button className="ghost" onClick={()=>{const me=cards.find(c=>c.id===myId);if(me){setSel(me);setView("profile");reset();}}} style={{background:"none",border:"none",borderBottom:"2px solid transparent",cursor:"pointer",padding:"15px 14px",color:"var(--gold)",fontFamily:"'Space Mono',monospace",fontSize:10,letterSpacing:2,textTransform:"uppercase"}}>★ MY CARD</button>
         )}
         <div style={{flex:1}}/>
-        <button onClick={exportCards} disabled={!cards.length} title="One-click backup — downloads your whole collection as JSON" style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--gold)":"var(--v1e)",borderRadius:5,padding:"4px 11px",cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Oswald',sans-serif",fontSize:11,lineHeight:1.4,marginRight:8}}>⬇</button>
-        <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Switch to light mode":"Switch to dark mode"} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:11,lineHeight:1.4,marginRight:8,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color="var(--v444)";e.target.style.borderColor="var(--v1e)";}}>{theme==="dark"?"☀":"☾"}</button>
-        <button onClick={()=>{setView("settings");reset();setSel(null);}} title="Settings" style={{background:"none",border:"1px solid var(--v1e)",color:view==="settings"?"var(--gold)":"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:11,lineHeight:1.4,marginRight:14,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color=view==="settings"?"var(--gold)":"var(--v444)";e.target.style.borderColor="var(--v1e)";}}>⚙</button>
+        <button onClick={exportCards} disabled={!cards.length} title="One-click backup — downloads your whole collection as JSON" style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--gold)":"var(--v1e)",borderRadius:5,padding:"4px 11px",cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:8}}>⬇</button>
+        <button onClick={()=>setTheme(t=>t==="dark"?"light":"dark")} title={theme==="dark"?"Switch to light mode":"Switch to dark mode"} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:8,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color="var(--v444)";e.target.style.borderColor="var(--v1e)";}}>{theme==="dark"?"☀":"☾"}</button>
+        <button onClick={()=>{setView("settings");reset();setSel(null);}} title="Settings" style={{background:"none",border:"1px solid var(--v1e)",color:view==="settings"?"var(--gold)":"var(--v444)",borderRadius:5,padding:"4px 11px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,lineHeight:1.4,marginRight:14,transition:"color 0.15s,border-color 0.15s"}} onMouseEnter={e=>{e.target.style.color="var(--gold)";e.target.style.borderColor="var(--gold)";}} onMouseLeave={e=>{e.target.style.color=view==="settings"?"var(--gold)":"var(--v444)";e.target.style.borderColor="var(--v1e)";}}>⚙</button>
         <span style={{color:"var(--v222)",fontSize:9,letterSpacing:1}}>{cards.length} PROFILE{cards.length===1?"":"S"}</span>
       </div>
 
@@ -1267,8 +1267,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             <img src={cur} alt="" onClick={e=>e.stopPropagation()} style={{maxWidth:"88vw",maxHeight:"84vh",objectFit:"contain",borderRadius:6,boxShadow:"0 0 60px rgba(0,0,0,0.8)"}}/>
             {L.list.length>1&&<button onClick={e=>{e.stopPropagation();go(-1);}} style={{position:"fixed",left:12,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",color:"#fff",width:42,height:64,borderRadius:8,cursor:"pointer",fontSize:26,lineHeight:1}}>‹</button>}
             {L.list.length>1&&<button onClick={e=>{e.stopPropagation();go(1);}} style={{position:"fixed",right:12,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.2)",color:"#fff",width:42,height:64,borderRadius:8,cursor:"pointer",fontSize:26,lineHeight:1}}>›</button>}
-            {L.del&&<button onClick={e=>{e.stopPropagation();L.del(L.idx);const nl=L.list.filter((_,i)=>i!==L.idx);nl.length?setLightbox({...L,list:nl,idx:Math.min(L.idx,nl.length-1)}):setLightbox(null);}} style={{position:"fixed",top:14,right:14,background:"#dc2626",border:"none",color:"#fff",padding:"9px 16px",borderRadius:6,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 2px 12px rgba(220,38,38,0.5)"}}>✕ DELETE THIS SCREENSHOT</button>}
-            <div style={{position:"fixed",bottom:14,left:0,right:0,textAlign:"center",color:"#ffffffaa",fontSize:9,letterSpacing:2,fontFamily:"'Oswald',sans-serif",textTransform:"uppercase"}}>
+            {L.del&&<button onClick={e=>{e.stopPropagation();L.del(L.idx);const nl=L.list.filter((_,i)=>i!==L.idx);nl.length?setLightbox({...L,list:nl,idx:Math.min(L.idx,nl.length-1)}):setLightbox(null);}} style={{position:"fixed",top:14,right:14,background:"#dc2626",border:"none",color:"#fff",padding:"9px 16px",borderRadius:6,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",boxShadow:"0 2px 12px rgba(220,38,38,0.5)"}}>✕ DELETE THIS SCREENSHOT</button>}
+            <div style={{position:"fixed",bottom:14,left:0,right:0,textAlign:"center",color:"#ffffffaa",fontSize:9,letterSpacing:2,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>
               {L.list.length>1&&<span style={{marginRight:16}}>{L.idx+1} / {L.list.length} · ‹ › or swipe to browse</span>}
               <span style={{background:"rgba(255,255,255,0.1)",padding:"4px 12px",borderRadius:12}}>CLICK ANYWHERE TO DISMISS</span>
             </div>
@@ -1298,7 +1298,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   {sorted.slice(0,Math.min(3,sorted.length)).map(c=>(
                     <div key={c.id} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
                       <div style={{opacity:c.OVR>=80?1:0.75}}><Card card={withMeta(c)} sz={0.85} onClick={()=>{setSel(c);setView("profile");}}/></div>
-                      {c.OVR<80&&<div style={{background:"var(--s0c)",border:"1px dashed var(--v1e)",borderRadius:4,padding:"4px 10px",color:"var(--v444)",fontSize:8,letterSpacing:1.5,textTransform:"uppercase",fontFamily:"'Oswald',sans-serif"}}>⏳ PENDING MORE CARDS · below 80 OVR</div>}
+                      {c.OVR<80&&<div style={{background:"var(--s0c)",border:"1px dashed var(--v1e)",borderRadius:4,padding:"4px 10px",color:"var(--v444)",fontSize:8,letterSpacing:1.5,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>⏳ PENDING MORE CARDS · below 80 OVR</div>}
                     </div>
                   ))}
                 </div>
@@ -1313,8 +1313,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 <div style={{color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:2}}>NO PROFILES YET</div>
                 <div style={{color:"var(--v2a)",fontSize:9,marginTop:8,letterSpacing:1}}>screenshot a linkedin, we score it instantly</div>
                 <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:20,flexWrap:"wrap"}}>
-                  <button onClick={()=>setView("create")} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"11px 28px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:10,fontWeight:400,letterSpacing:3,textTransform:"uppercase"}}>CREATE FIRST CARD</button>
-                  <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"11px 24px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:10,letterSpacing:3,textTransform:"uppercase"}}>⬆ RESTORE BACKUP</button>
+                  <button onClick={()=>setView("create")} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"11px 28px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>CREATE FIRST CARD</button>
+                  <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"11px 24px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,letterSpacing:3,textTransform:"uppercase"}}>⬆ RESTORE BACKUP</button>
                 </div>
                 <div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginTop:10}}>coming from an older version? open the old artifact → leaderboard → EXPORT, then restore the file here</div>
               </div>
@@ -1359,7 +1359,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                       </div>
                     ))}
                   </div>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#0a66c2",color:"#fff",textDecoration:"none",padding:"9px 18px",borderRadius:5,fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>OPEN LINKEDIN ↗</a>
+                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:8,background:"#0a66c2",color:"#fff",textDecoration:"none",padding:"9px 18px",borderRadius:5,fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>OPEN LINKEDIN ↗</a>
                 </div>
                 <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:10,padding:"26px 24px",marginBottom:20}}>
                   <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,marginBottom:14}}>2 — SCREENSHOT IT</div>
@@ -1394,7 +1394,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     </>
                   )}
                 </div>
-                <button onClick={()=>setStep(1)} style={{width:"100%",background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:11,fontWeight:400,letterSpacing:3,textTransform:"uppercase"}}>GOT MY SCREENSHOTS →</button>
+                <button onClick={()=>setStep(1)} style={{width:"100%",background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>GOT MY SCREENSHOTS →</button>
               </div>
             )}
 
@@ -1406,7 +1406,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                       <div key={i} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
                         <img src={im.preview} alt="" onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} title="Click to inspect full size" style={{width:56,height:36,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
                         <span onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} style={{color:"var(--v444)",fontSize:9,flex:1,letterSpacing:0.5,cursor:"pointer"}}>Screenshot {i+1} <span style={{color:"var(--v2a)",fontSize:8}}>· click to inspect</span></span>
-                        <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,padding:0}}>remove</button>
+                        <button onClick={()=>setImgs(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                       </div>
                     ))}
                   </div>
@@ -1419,14 +1419,14 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   style={{border:`2px dashed ${drag?"var(--gold)":"var(--v1e)"}`,borderRadius:10,padding:"44px 24px",textAlign:"center",cursor:"pointer",background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0a)",transition:"all 0.2s",marginBottom:12}}>
                   <div style={{fontSize:28,marginBottom:12,opacity:0.3}}>⬆</div>
                   <div style={{fontFamily:"'Bebas Neue'",fontSize:20,letterSpacing:2,color:drag?"var(--gold)":"var(--v2e)",marginBottom:6}}>{imgs.length>0?"ADD ANOTHER SCREENSHOT":(IS_MOBILE?"ADD YOUR SCREENSHOTS HERE":"PASTE OR DROP HERE")}</div>
-                  <div style={{color:"color-mix(in srgb, var(--gold) 40%, transparent)",fontSize:11,letterSpacing:1,marginBottom:4,fontFamily:"'Oswald'"}}>{IS_MOBILE?"Tap here to add your screenshots":"Ctrl + V to paste from clipboard"}</div>
+                  <div style={{color:"color-mix(in srgb, var(--gold) 40%, transparent)",fontSize:11,letterSpacing:1,marginBottom:4,fontFamily:"'Space Mono'"}}>{IS_MOBILE?"Tap here to add your screenshots":"Ctrl + V to paste from clipboard"}</div>
                   <div style={{color:"var(--v1e)",fontSize:9,letterSpacing:1}}>{IS_MOBILE?"add multiple — both Experience and Education screenshots":"paste multiple if you have both Experience and Education screenshots"}</div>
                   <input ref={fileRef} type="file" accept="image/*" multiple style={{display:"none"}} onChange={e=>Array.from(e.target.files).forEach(addFile)}/>
                 </div>
                 {err&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:1,marginBottom:12}}>{err}</div>}
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <button className="ghost" onClick={()=>setStep(0)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>↠BACK</button>
-                  {imgs.length>0&&<button onClick={()=>setStep(2)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>ANALYSE {imgs.length} SCREENSHOT{imgs.length>1?"S":""} →</button>}
+                  <button className="ghost" onClick={()=>setStep(0)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>↠BACK</button>
+                  {imgs.length>0&&<button onClick={()=>setStep(2)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>ANALYSE {imgs.length} SCREENSHOT{imgs.length>1?"S":""} →</button>}
                 </div>
               </div>
             )}
@@ -1437,18 +1437,18 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   {imgs.map((im,i)=>(
                     <div key={i} onClick={()=>openLB(imgs.map(x=>x.preview),i,di=>setImgs(p=>p.filter((_,j)=>j!==di)))} title="Click to inspect full size" style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,overflow:"hidden",cursor:"pointer",position:"relative"}}>
                       <img src={im.preview} alt="" style={{width:"100%",display:"block",maxHeight:140,objectFit:"cover",objectPosition:"top"}}/>
-                      <div style={{position:"absolute",right:8,bottom:6,background:"rgba(0,0,0,0.55)",color:"#fff",fontSize:8,letterSpacing:1,padding:"3px 8px",borderRadius:3,fontFamily:"'Oswald',sans-serif"}}>🔍 CLICK TO INSPECT</div>
+                      <div style={{position:"absolute",right:8,bottom:6,background:"rgba(0,0,0,0.55)",color:"#fff",fontSize:8,letterSpacing:1,padding:"3px 8px",borderRadius:3,fontFamily:"'Space Mono',monospace"}}>🔍 CLICK TO INSPECT</div>
                     </div>
                   ))}
-                  <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,padding:0,textDecoration:"underline",alignSelf:"flex-end"}}>edit screenshots</button>
+                  <button onClick={()=>setStep(1)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0,textDecoration:"underline",alignSelf:"flex-end"}}>edit screenshots</button>
                 </div>
                 {dupWarn&&(
                   <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 20%, transparent)",borderRadius:8,padding:"14px 18px",marginBottom:14}}>
                     <div style={{color:"var(--c-reach)",fontSize:9,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Profile already in database</div>
                     <div style={{color:"var(--v666)",fontSize:10,lineHeight:1.6,marginBottom:10}}><span style={{color:"var(--v888)"}}>{dupWarn.name}</span> ({dupWarn.company}) was already analysed. Update their card or skip?</div>
                     <div style={{display:"flex",gap:8}}>
-                      <button onClick={()=>{setUpdating(dupWarn.id);setDupWarn(null);analyse(true);}} style={{background:"var(--c-reach)",color:"var(--gold-ink)",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>UPDATE CARD</button>
-                      <button onClick={()=>{setDupWarn(null);reset();}} style={{background:"none",border:"1px solid var(--v333)",color:"var(--v555)",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>SKIP</button>
+                      <button onClick={()=>{setUpdating(dupWarn.id);setDupWarn(null);analyse(true);}} style={{background:"var(--c-reach)",color:"var(--gold-ink)",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>UPDATE CARD</button>
+                      <button onClick={()=>{setDupWarn(null);reset();}} style={{background:"none",border:"1px solid var(--v333)",color:"var(--v555)",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>SKIP</button>
                     </div>
                   </div>
                 )}
@@ -1456,7 +1456,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"16px 18px",marginBottom:14}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                       <span style={{color:"var(--v777)",fontSize:10,letterSpacing:1}}>{(extracting?STAGES_EXTRACT:STAGES_SCORE)[Math.min(stageIdx,(extracting?STAGES_EXTRACT:STAGES_SCORE).length-1)]}</span>
-                      <span style={{display:"flex",alignItems:"center",gap:10}}><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:18,lineHeight:1}}>{Math.round(prog)}%</span><span style={{color:"var(--v444)",fontSize:8,fontFamily:"'Oswald',sans-serif"}}>{elapsed}s</span><button onClick={cancelActiveCall} title="Kill the in-flight request now — you can retry immediately" style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"3px 10px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button></span>
+                      <span style={{display:"flex",alignItems:"center",gap:10}}><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:18,lineHeight:1}}>{Math.round(prog)}%</span><span style={{color:"var(--v444)",fontSize:8,fontFamily:"'Space Mono',monospace"}}>{elapsed}s</span><button onClick={cancelActiveCall} title="Kill the in-flight request now — you can retry immediately" style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"3px 10px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button></span>
                     </div>
                     <div style={{height:6,background:"var(--v1a)",borderRadius:3,overflow:"hidden"}}>
                       <div style={{width:`${prog}%`,height:"100%",background:"linear-gradient(90deg,var(--gold),var(--gold2))",borderRadius:3,transition:"width 0.18s linear"}}/>
@@ -1486,7 +1486,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     </div>
                   </div>
                 )}
-                {!dupWarn&&<button onClick={()=>analyse(false)} disabled={extracting||scoring} style={{width:"100%",background:extracting||scoring?"var(--s11)":"var(--gold)",color:extracting||scoring?"var(--v333)":"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:extracting||scoring?"not-allowed":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:11,fontWeight:400,letterSpacing:3,textTransform:"uppercase",transition:"background 0.15s"}}>
+                {!dupWarn&&<button onClick={()=>analyse(false)} disabled={extracting||scoring} style={{width:"100%",background:extracting||scoring?"var(--s11)":"var(--gold)",color:extracting||scoring?"var(--v333)":"var(--gold-ink)",border:"none",padding:"13px",borderRadius:5,cursor:extracting||scoring?"not-allowed":"pointer",fontFamily:"'Space Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",transition:"background 0.15s"}}>
                   {extracting?"READING PROFILE…":scoring?"BUILDING THE CARD…":"ANALYSE & GENERATE CARD"}
                 </button>}
               </div>
@@ -1516,7 +1516,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 )}
                 <div style={{display:"flex",justifyContent:"center",marginBottom:20,perspective:900}}><div style={{animation:"flipIn 0.26s ease-out"}}><Card card={withMeta(done)} sz={1.05} onClick={()=>{setSel(done);setView("profile");}}/></div></div>
                 {done.history?.length>0&&(()=>{const ps=done.history[done.history.length-1];const d=done.OVR-ps.OVR;return(
-                  <div style={{fontSize:10,marginBottom:14,letterSpacing:1,fontFamily:"'Oswald',sans-serif",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"OVR unchanged":(d>0?`▲ OVR +${d}`:`▼ OVR ${d}`)} since last scan ({new Date(ps.date).toLocaleDateString()}){done.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {done.lastDeltaCause}</span>}</div>
+                  <div style={{fontSize:10,marginBottom:14,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"OVR unchanged":(d>0?`▲ OVR +${d}`:`▼ OVR ${d}`)} since last scan ({new Date(ps.date).toLocaleDateString()}){done.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {done.lastDeltaCause}</span>}</div>
                 );})()}
                 {done.thesis&&<div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
                   <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,marginBottom:8,textTransform:"uppercase"}}>Profile Thesis</div>
@@ -1525,7 +1525,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 {done.roast&&<div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:18,marginBottom:14,textAlign:"left"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <div style={{color:"var(--c-reach)",fontSize:8,letterSpacing:2,textTransform:"uppercase"}}>🔥 The Roast</div>
-                    {!(roastOpen||roastMode)&&<button onClick={()=>setRoastOpen(true)} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"6px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>REVEAL</button>}
+                    {!(roastOpen||roastMode)&&<button onClick={()=>setRoastOpen(true)} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"6px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>REVEAL</button>}
                   </div>
                   {(roastOpen||roastMode)&&<div style={{color:"var(--v777)",fontSize:11,lineHeight:1.8,marginTop:8}}>{done.roast}</div>}
                 </div>}
@@ -1534,8 +1534,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <div style={{color:"var(--v333)",fontSize:9,textAlign:"center",marginTop:6,letterSpacing:1}}>TOP {100-(done.percentile||50)}% · OVR {done.OVR}</div>
                 </div>
                 <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-                  <button onClick={reset} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>ADD ANOTHER</button>
-                  <button onClick={()=>{setSel(done);setView("profile");}} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>VIEW PROFILE →</button>
+                  <button onClick={reset} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 20px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>ADD ANOTHER</button>
+                  <button onClick={()=>{setSel(done);setView("profile");}} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>VIEW PROFILE →</button>
                 </div>
               </div>
             )}
@@ -1551,14 +1551,14 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 <div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginTop:4,maxWidth:440,lineHeight:1.5}}>Raw OVR ranks absolute visible signal — a first-year vs a graduate isn't like-for-like. Filter by cohort to compare within the same stage.</div>
               </div>
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                {ioMsg&&<span style={{color:"var(--v555)",fontSize:9,letterSpacing:1,fontFamily:"'Oswald',sans-serif",marginRight:6}}>{ioMsg}</span>}
-                <select value={lbCohort} onChange={e=>setLbCohort(e.target.value)} style={{background:"var(--s0f)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:"var(--v555)",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:1,cursor:"pointer",outline:"none"}}>
+                {ioMsg&&<span style={{color:"var(--v555)",fontSize:9,letterSpacing:1,fontFamily:"'Space Mono',monospace",marginRight:6}}>{ioMsg}</span>}
+                <select value={lbCohort} onChange={e=>setLbCohort(e.target.value)} style={{background:"var(--s0f)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:"var(--v555)",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,cursor:"pointer",outline:"none"}}>
                   <option value="all">ALL COHORTS</option>
                   {cohorts.map(y=><option key={y} value={y}>CLASS OF {y}</option>)}
                 </select>
-                <button onClick={exportCards} disabled={!cards.length} style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--v555)":"var(--v1e)",padding:"8px 14px",borderRadius:5,cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬇ EXPORT</button>
-                <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"8px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬆ IMPORT</button>
-                <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 20%, transparent)",color:"var(--gold)",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 40%, transparent)"} onMouseLeave={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 20%, transparent)"}>+ ADD PROFILE</button>
+                <button onClick={exportCards} disabled={!cards.length} style={{background:"none",border:"1px solid var(--v1e)",color:cards.length?"var(--v555)":"var(--v1e)",padding:"8px 14px",borderRadius:5,cursor:cards.length?"pointer":"not-allowed",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬇ EXPORT</button>
+                <button onClick={()=>importRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"8px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>⬆ IMPORT</button>
+                <button onClick={()=>setView("create")} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 20%, transparent)",color:"var(--gold)",padding:"8px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}} onMouseEnter={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 40%, transparent)"} onMouseLeave={e=>e.target.style.borderColor="color-mix(in srgb, var(--gold) 20%, transparent)"}>+ ADD PROFILE</button>
               </div>
             </div>
             {sorted.length===0?(
@@ -1584,7 +1584,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                       </div>
                       <div style={{fontFamily:"'Bebas Neue'",fontSize:24,color:ct2.acc}}>{c.OVR}</div>
                       <div style={{fontSize:9,color:"var(--v444)"}}>{cards.length>=30?`TOP ${100-(c.percentile||50)}%`:ct2.label}</div>
-                      <button className="delbtn" onClick={e=>{e.stopPropagation();if(confirmDel===c.id){deleteCard(c.id);setConfirmDel(null);}else{armDelete(c.id);}}} title={confirmDel===c.id?"Click again to delete":"Delete card"} style={{background:"none",border:"none",color:"#ff4444",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:10,padding:0,lineHeight:1}}>{confirmDel===c.id?"SURE?":"✕"}</button>
+                      <button className="delbtn" onClick={e=>{e.stopPropagation();if(confirmDel===c.id){deleteCard(c.id);setConfirmDel(null);}else{armDelete(c.id);}}} title={confirmDel===c.id?"Click again to delete":"Delete card"} style={{background:"none",border:"none",color:"#ff4444",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,padding:0,lineHeight:1}}>{confirmDel===c.id?"SURE?":"✕"}</button>
                     </div>
                   );
                 })}
@@ -1601,13 +1601,13 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             {cards.length<2?(
               <div style={{textAlign:"center",padding:"64px 0"}}>
                 <div style={{color:"var(--v1a)",fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:2,marginBottom:14}}>NEED AT LEAST 2 CARDS</div>
-                <button onClick={()=>setView("create")} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>+ ADD PROFILES</button>
+                <button onClick={()=>setView("create")} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 22px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>+ ADD PROFILES</button>
               </div>
             ):(
               <>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:28}}>
                   {[["A",vsA,setVsA,vsB],["B",vsB,setVsB,vsA]].map(([label,val,setVal,other])=>(
-                    <select key={label} value={val} onChange={e=>setVal(e.target.value)} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:6,padding:"11px 12px",color:val?"var(--vddd)":"var(--v444)",fontFamily:"'Oswald',sans-serif",fontSize:10,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                    <select key={label} value={val} onChange={e=>setVal(e.target.value)} style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:6,padding:"11px 12px",color:val?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:10,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
                       <option value="">— Select card {label} —</option>
                       {other!=="__field"&&<option value="__field">THE FIELD · pool average · OVR {avg}</option>}
                       {sorted.filter(c=>c.id!==other).map(c=><option key={c.id} value={c.id}>{c.name!=="Unknown"?c.name:(c.moniker||"Unknown")} · OVR {c.OVR}</option>)}
@@ -1632,7 +1632,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                             <span style={{color:"var(--v333)",margin:"0 8px",fontSize:26}}>:</span>
                             <span style={{color:tb.acc}}>{b.OVR}</span>
                           </div>
-                          <div style={{color:"var(--v444)",fontSize:10,letterSpacing:1,marginTop:6,fontFamily:"'Oswald',sans-serif"}}>{aWins} – {bWins} on stats</div>
+                          <div style={{color:"var(--v444)",fontSize:10,letterSpacing:1,marginTop:6,fontFamily:"'Space Mono',monospace"}}>{aWins} – {bWins} on stats</div>
                           <div style={{marginTop:12,fontFamily:"'Bebas Neue'",fontSize:15,letterSpacing:2,color:winner?T(winner.OVR).acc:"var(--v555)"}}>
                             {winner?`${(winner.name!=="Unknown"?winner.name:winner.moniker||"?").split(" ").pop().toUpperCase()} WINS`:"DEAD HEAT"}
                           </div>
@@ -1669,7 +1669,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                               {rows.length===0&&<div style={{color:"var(--v555)",fontSize:10}}>Identical stat lines — a genuine dead heat.</div>}
                               {rows.map(r=>(
                                 <div key={r.s} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:"1px solid var(--b14)"}}>
-                                  <span style={{color:"var(--v666)",fontSize:9,fontFamily:"'Oswald',sans-serif"}}>{r.s} · {r.d>0?an:bn} leads by {Math.abs(r.d)}</span>
+                                  <span style={{color:"var(--v666)",fontSize:9,fontFamily:"'Space Mono',monospace"}}>{r.s} · {r.d>0?an:bn} leads by {Math.abs(r.d)}</span>
                                   <span style={{color:r.c>0?ta.acc:tb.acc,fontFamily:"'Bebas Neue'",fontSize:13}}>{r.c>0?"+":""}{r.c.toFixed(1)} OVR</span>
                                 </div>
                               ))}
@@ -1679,7 +1679,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         })()}
                         {a.id!=="__field"&&b.id!=="__field"&&(
                           <div style={{marginTop:12}}>
-                            {!vsVerdicts[`${a.id}|${b.id}`]&&<button onClick={()=>genVerdict(a,b)} disabled={vsBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:vsBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase",opacity:vsBusy?0.6:1}}>{vsBusy?"JUDGING…":"GENERATE SCOUT VERDICT"}</button>}
+                            {!vsVerdicts[`${a.id}|${b.id}`]&&<button onClick={()=>genVerdict(a,b)} disabled={vsBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:vsBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",opacity:vsBusy?0.6:1}}>{vsBusy?"JUDGING…":"GENERATE SCOUT VERDICT"}</button>}
                             {vsVerdicts[`${a.id}|${b.id}`]&&<div>
                               <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>Scout Verdict</div>
                               <Rich text={vsVerdicts[`${a.id}|${b.id}`]}/>
@@ -1741,23 +1741,23 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             </div>
             <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files?.[0];if(f&&f.type.startsWith("image/")){const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);}}} style={{background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0f)",border:`2px dashed ${drag?"var(--gold)":"color-mix(in srgb, var(--gold) 27%, transparent)"}`,boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14,transition:"all 0.2s"}}>
               <div style={{textAlign:"center",marginBottom:12}}>
-                <div style={{color:"color-mix(in srgb, var(--gold) 60%, transparent)",fontSize:11,letterSpacing:1,fontFamily:"'Oswald',sans-serif"}}>{IS_MOBILE?"Tap to add a screenshot of the post":"Ctrl + V anywhere to paste a screenshot of the post"}</div>
+                <div style={{color:"color-mix(in srgb, var(--gold) 60%, transparent)",fontSize:11,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>{IS_MOBILE?"Tap to add a screenshot of the post":"Ctrl + V anywhere to paste a screenshot of the post"}</div>
                 <div style={{color:"var(--v333)",fontSize:9,letterSpacing:1,marginTop:2}}>or drop an image here · or type / paste the text below</div>
               </div>
-              <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {hgImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
                   <img src={hgImg.preview} alt="" onClick={()=>openLB([hgImg.preview],0,()=>setHgImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
                   <span style={{color:"var(--v555)",fontSize:9,flex:1}}>Screenshot attached · click it to inspect</span>
-                  <button onClick={()=>setHgImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,padding:0}}>remove</button>
+                  <button onClick={()=>setHgImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                 </div>
               )}
-              <input value={hgCtx} onChange={e=>setHgCtx(e.target.value)} placeholder="Optional context — who is this person? e.g. first-year at a non-target, career switcher, first in family at uni…" style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
+              <input value={hgCtx} onChange={e=>setHgCtx(e.target.value)} placeholder="Optional context — who is this person? e.g. first-year at a non-target, career switcher, first in family at uni…" style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
               <input ref={hgFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.target.value="";}}/>
               <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-                <button onClick={()=>hgFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
-                <button onClick={rateHowGood} disabled={hgBusy||(!hgText.trim()&&!hgImg)} style={{flex:1,minWidth:160,background:hgBusy||(!hgText.trim()&&!hgImg)?"var(--s11)":"var(--gold)",color:hgBusy||(!hgText.trim()&&!hgImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"12px 20px",borderRadius:5,cursor:hgBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:10,fontWeight:400,letterSpacing:3,textTransform:"uppercase"}}>{hgBusy?`RATING… ${elapsed||""}${elapsed?"s":""}`:"HOW GOOD IS IT?"}</button>
-                {hgBusy&&<button onClick={cancelActiveCall} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button>}
+                <button onClick={()=>hgFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
+                <button onClick={rateHowGood} disabled={hgBusy||(!hgText.trim()&&!hgImg)} style={{flex:1,minWidth:160,background:hgBusy||(!hgText.trim()&&!hgImg)?"var(--s11)":"var(--gold)",color:hgBusy||(!hgText.trim()&&!hgImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"12px 20px",borderRadius:5,cursor:hgBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>{hgBusy?`RATING… ${elapsed||""}${elapsed?"s":""}`:"HOW GOOD IS IT?"}</button>
+                {hgBusy&&<button onClick={cancelActiveCall} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button>}
               </div>
               {hgErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,marginTop:10}}>{hgErr}</div>}
             </div>
@@ -1769,7 +1769,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <div style={{display:"flex",gap:18,alignItems:"center",flexWrap:"wrap"}}>
                     <div style={{width:74,height:74,borderRadius:12,background:A(gradeColor,13),border:`2px solid ${A(gradeColor,53)}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                       <div style={{fontFamily:"'Bebas Neue'",fontSize:34,color:gradeColor,lineHeight:1}}>{hgResult.grade}</div>
-                      <div style={{color:"var(--v444)",fontSize:8,letterSpacing:1,fontFamily:"'Oswald',sans-serif"}}>{hgResult.score}/99</div>
+                      <div style={{color:"var(--v444)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>{hgResult.score}/99</div>
                     </div>
                     <div style={{flex:1,minWidth:200}}>
                       <div style={{color:"var(--v888)",lineHeight:1.6,fontFamily:"'Bebas Neue'",letterSpacing:0.5,fontSize:16}}>{hgResult.headline}</div>
@@ -1808,18 +1808,18 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                       )}
                       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:8}}>
                         {["Is this actually rare or does it just sound rare?","What would the S-tier version of this be?","How should they leverage this next?"].map(q=>(
-                          <button key={q} onClick={()=>sendHgChat(q)} disabled={hgChatBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 22%, transparent)",color:"var(--v666)",padding:"5px 10px",borderRadius:12,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:0.5}}>{q}</button>
+                          <button key={q} onClick={()=>sendHgChat(q)} disabled={hgChatBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 22%, transparent)",color:"var(--v666)",padding:"5px 10px",borderRadius:12,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:0.5}}>{q}</button>
                         ))}
                       </div>
                       <div style={{display:"flex",gap:8}}>
-                        <input value={hgChatIn} onChange={e=>setHgChatIn(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")sendHgChat();}} placeholder="Ask a follow-up about this achievement…" style={{flex:1,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,outline:"none"}}/>
-                        <button onClick={()=>sendHgChat()} disabled={hgChatBusy||!hgChatIn.trim()} style={{background:hgChatBusy||!hgChatIn.trim()?"var(--s11)":"var(--gold)",color:hgChatBusy||!hgChatIn.trim()?"var(--v444)":"var(--gold-ink)",border:"none",padding:"10px 18px",borderRadius:6,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>SEND</button>
+                        <input value={hgChatIn} onChange={e=>setHgChatIn(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")sendHgChat();}} placeholder="Ask a follow-up about this achievement…" style={{flex:1,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none"}}/>
+                        <button onClick={()=>sendHgChat()} disabled={hgChatBusy||!hgChatIn.trim()} style={{background:hgChatBusy||!hgChatIn.trim()?"var(--s11)":"var(--gold)",color:hgChatBusy||!hgChatIn.trim()?"var(--v444)":"var(--gold-ink)",border:"none",padding:"10px 18px",borderRadius:6,cursor:hgChatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>SEND</button>
                       </div>
                     </div>
                   )}
                 </div>
                 <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:6}}>
-                  <button onClick={()=>{setHgResult(null);setHgText("");setHgImg(null);setHgCtx("");setHgChat([]);setHgChatOpen(false);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>RATE ANOTHER</button>
+                  <button onClick={()=>{setHgResult(null);setHgText("");setHgImg(null);setHgCtx("");setHgChat([]);setHgChatOpen(false);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase"}}>RATE ANOTHER</button>
                 </div>
               </div>
               );
@@ -1840,40 +1840,40 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         <CardBack glow={T(sel.OVR).glow}/>
                       </div>
                     </div>
-                    <div style={{color:"#bbbbbb",fontSize:9,letterSpacing:2,marginTop:16,textTransform:"uppercase",fontFamily:"'Oswald',sans-serif"}}>tap to reveal the upgraded card</div>
+                    <div style={{color:"#bbbbbb",fontSize:9,letterSpacing:2,marginTop:16,textTransform:"uppercase",fontFamily:"'Space Mono',monospace"}}>tap to reveal the upgraded card</div>
                   </>
                 ):(
                   <div style={{textAlign:"center"}}>
                     <div style={{perspective:900,display:"flex",justifyContent:"center"}}><div style={{animation:"flipIn 0.26s ease-out"}}><Card card={withMeta(sel)} sz={1}/></div></div>
                     <div style={{marginTop:14,fontFamily:"'Bebas Neue'",fontSize:24,color:"#16a34a",letterSpacing:1}}>▲ {rsReveal.prev} → {sel.OVR}</div>
-                    {sel.lastDeltaCause&&<div style={{color:"#cccccc",fontSize:9,marginTop:6,letterSpacing:0.5,fontFamily:"'Oswald',sans-serif"}}>{sel.lastDeltaCause}</div>}
-                    <button onClick={()=>{setRsReveal(null);setRsFlipping(false);}} style={{marginTop:16,background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 24px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>NICE — CONTINUE</button>
+                    {sel.lastDeltaCause&&<div style={{color:"#cccccc",fontSize:9,marginTop:6,letterSpacing:0.5,fontFamily:"'Space Mono',monospace"}}>{sel.lastDeltaCause}</div>}
+                    <button onClick={()=>{setRsReveal(null);setRsFlipping(false);}} style={{marginTop:16,background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"10px 24px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>NICE — CONTINUE</button>
                   </div>
                 )}
               </div>
             )}
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:28}}>
-              <button className="ghost" onClick={()=>{setView("leaderboard");setSel(null);}} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>↠BACK</button>
+              <button className="ghost" onClick={()=>{setView("leaderboard");setSel(null);}} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:2,textTransform:"uppercase",padding:0,transition:"color 0.15s"}}>↠BACK</button>
               <div style={{display:"flex",gap:8}}>
-                {(myId===sel.id||!myId)&&<button onClick={toggleMine} title={myId===sel.id?"Click to unclaim":"Claim this card as yours — only one card can be yours"} style={{background:myId===sel.id?"var(--gold)":"none",color:myId===sel.id?"var(--gold-ink)":"var(--v444)",border:myId===sel.id?"none":"1px solid var(--v1e)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>{myId===sel.id?"★ MY CARD":"THIS IS ME?"}</button>}
-                <button onClick={()=>setShowShare(true)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>SHARE CARD</button>
-                <button title="Profile changed? Look at it again" onClick={()=>{setUpdating(sel.id);setView("create");reset();setUpdating(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="color-mix(in srgb, var(--gold) 33%, transparent)";e.target.style.color="var(--gold)";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v444)";}}>UPDATE</button>
-                <button title="Re-run the scout on this card's stored data — brings new report sections to old cards, no screenshots needed" onClick={rescore} disabled={rescoring} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"7px 14px",borderRadius:4,cursor:rescoring?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase",opacity:rescoring?0.6:1}}>{rescoring?"RE-SCORING…":"RE-SCORE"}</button>
-                <button onClick={()=>{if(confirmDel===sel.id){deleteCard(sel.id);setConfirmDel(null);}else{armDelete(sel.id);}}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v333)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v333)";}}>{confirmDel===sel.id?"CLICK AGAIN TO CONFIRM":"DELETE"}</button>
+                {(myId===sel.id||!myId)&&<button onClick={toggleMine} title={myId===sel.id?"Click to unclaim":"Claim this card as yours — only one card can be yours"} style={{background:myId===sel.id?"var(--gold)":"none",color:myId===sel.id?"var(--gold-ink)":"var(--v444)",border:myId===sel.id?"none":"1px solid var(--v1e)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>{myId===sel.id?"★ MY CARD":"THIS IS ME?"}</button>}
+                <button onClick={()=>setShowShare(true)} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>SHARE CARD</button>
+                <button title="Profile changed? Look at it again" onClick={()=>{setUpdating(sel.id);setView("create");reset();setUpdating(sel.id);}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v444)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="color-mix(in srgb, var(--gold) 33%, transparent)";e.target.style.color="var(--gold)";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v444)";}}>UPDATE</button>
+                <button title="Re-run the scout on this card's stored data — brings new report sections to old cards, no screenshots needed" onClick={rescore} disabled={rescoring} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"7px 14px",borderRadius:4,cursor:rescoring?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase",opacity:rescoring?0.6:1}}>{rescoring?"RE-SCORING…":"RE-SCORE"}</button>
+                <button onClick={()=>{if(confirmDel===sel.id){deleteCard(sel.id);setConfirmDel(null);}else{armDelete(sel.id);}}} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v333)",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase",transition:"border-color 0.15s,color 0.15s"}} onMouseEnter={e=>{e.target.style.borderColor="#ff444455";e.target.style.color="#ff4444";}} onMouseLeave={e=>{e.target.style.borderColor="var(--v1e)";e.target.style.color="var(--v333)";}}>{confirmDel===sel.id?"CLICK AGAIN TO CONFIRM":"DELETE"}</button>
               </div>
             </div>
             {rsErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,textAlign:"center",marginBottom:8}}>{rsErr}</div>}
             {(sel.rubricV||0)<RUBRIC_VERSION&&!rescoring&&(
               <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:"10px 14px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                 <span style={{color:"var(--v777)",fontSize:9,lineHeight:1.6,flex:1,minWidth:220}}>⚠ Scored under an <span style={{color:"var(--c-reach)"}}>older rating system</span> — this OVR isn't directly comparable with freshly scanned cards until it's re-measured.</span>
-                <button onClick={rescore} disabled={rescoring} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>RE-SCORE NOW</button>
+                <button onClick={rescore} disabled={rescoring} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"8px 16px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>RE-SCORE NOW</button>
               </div>
             )}
             {rescoring&&(
               <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:14}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
                   <span style={{color:"var(--v777)",fontSize:10,letterSpacing:1}}>{STAGES_SCORE[Math.min(stageIdx,STAGES_SCORE.length-1)]}</span>
-                  <span style={{display:"flex",alignItems:"center",gap:10}}><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:18,lineHeight:1}}>{Math.round(prog)}%</span><span style={{color:"var(--v444)",fontSize:8,fontFamily:"'Oswald',sans-serif"}}>{elapsed}s</span><button onClick={cancelActiveCall} title="Kill the in-flight request now — you can retry immediately" style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"3px 10px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button></span>
+                  <span style={{display:"flex",alignItems:"center",gap:10}}><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:18,lineHeight:1}}>{Math.round(prog)}%</span><span style={{color:"var(--v444)",fontSize:8,fontFamily:"'Space Mono',monospace"}}>{elapsed}s</span><button onClick={cancelActiveCall} title="Kill the in-flight request now — you can retry immediately" style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"3px 10px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>CANCEL</button></span>
                 </div>
                 <div style={{height:6,background:"var(--v1a)",borderRadius:3,overflow:"hidden"}}><div style={{width:`${prog}%`,height:"100%",background:"linear-gradient(90deg,var(--gold),var(--gold2))",borderRadius:3,transition:"width 0.18s linear"}}/></div>
               </div>
@@ -1898,7 +1898,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         </StatTooltip>
                         <div style={{flex:1,height:4,background:"var(--v1a)",borderRadius:2,overflow:"hidden"}}><div style={{width:`${v}%`,height:"100%",background:`linear-gradient(90deg,${A(info?.color||ct.acc,53)},${info?.color||ct.acc})`,borderRadius:2}}/></div>
                         <span style={{color:"var(--vddd)",fontSize:12,fontFamily:"'Bebas Neue'",minWidth:26,textAlign:"right"}}>{v}</span>
-                        {(()=>{const ps=sel.history?.[sel.history.length-1];if(!ps?.stats)return null;const d=v-(ps.stats[st]??v);if(!d)return null;return <span style={{color:d>0?"#16a34a":"#dc2626",fontSize:8,minWidth:22,fontFamily:"'Oswald',sans-serif"}}>{d>0?`+${d}`:d}</span>;})()}
+                        {(()=>{const ps=sel.history?.[sel.history.length-1];if(!ps?.stats)return null;const d=v-(ps.stats[st]??v);if(!d)return null;return <span style={{color:d>0?"#16a34a":"#dc2626",fontSize:8,minWidth:22,fontFamily:"'Space Mono',monospace"}}>{d>0?`+${d}`:d}</span>;})()}
                         {hasReason&&<span style={{color:open?info.color:"var(--v333)",fontSize:9,width:12,textAlign:"center",flexShrink:0}}>{open?"▾":"▸"}</span>}
                       </div>
                       {hasReason&&open&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.55,marginTop:4,marginLeft:46,borderLeft:`2px solid ${A(info.color,33)}`,paddingLeft:8,animation:"fadeUp 0.15s ease"}}>{sel.stat_reasons[st]}</div>}
@@ -1919,7 +1919,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   </div>
                   {cards.length<30&&<div style={{color:"var(--v1e)",fontSize:8,marginTop:4,letterSpacing:0.5}}>percentile unlocks at 30 profiles</div>}
                   {sel.history?.length>0&&(()=>{const ps=sel.history[sel.history.length-1];const d=sel.OVR-ps.OVR;return(
-                    <div style={{fontSize:9,marginTop:8,letterSpacing:1,fontFamily:"'Oswald',sans-serif",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"unchanged":(d>0?`▲ +${d}`:`▼ ${d}`)} since last scan · {new Date(ps.date).toLocaleDateString()}{sel.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {sel.lastDeltaCause}</span>}</div>
+                    <div style={{fontSize:9,marginTop:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d===0?"unchanged":(d>0?`▲ +${d}`:`▼ ${d}`)} since last scan · {new Date(ps.date).toLocaleDateString()}{sel.lastDeltaCause&&d!==0&&<span style={{display:"block",color:"var(--v444)",fontSize:8,marginTop:3,letterSpacing:0.5}}>why: {sel.lastDeltaCause}</span>}</div>
                   );})()}
                   {(sel.history?.length||0)>0&&<div style={{marginTop:14,display:"flex",justifyContent:"center"}}><Trend card={sel} acc={ct.acc}/></div>}
                 </div>
@@ -1952,10 +1952,10 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               return(
                 <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10,marginBottom:12}}>
-                    <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>VS THE POOL <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Oswald',sans-serif",letterSpacing:1}}>· ranked against {cards.length-1} other card{cards.length===2?"":"s"}</span></div>
+                    <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>VS THE POOL <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Space Mono',monospace",letterSpacing:1}}>· ranked against {cards.length-1} other card{cards.length===2?"":"s"}</span></div>
                     <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-                      <button onClick={()=>{setVsA(sel.id);setVsB("__field");setView("versus");}} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>FULL MATCHUP VS THE FIELD →</button>
-                      <select defaultValue="" onChange={e=>{if(e.target.value){setVsA(sel.id);setVsB(e.target.value);setView("versus");}}} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:4,padding:"7px 10px",color:"var(--v555)",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,cursor:"pointer",outline:"none",textTransform:"uppercase"}}>
+                      <button onClick={()=>{setVsA(sel.id);setVsB("__field");setView("versus");}} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"7px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>FULL MATCHUP VS THE FIELD →</button>
+                      <select defaultValue="" onChange={e=>{if(e.target.value){setVsA(sel.id);setVsB(e.target.value);setView("versus");}}} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:4,padding:"7px 10px",color:"var(--v555)",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,cursor:"pointer",outline:"none",textTransform:"uppercase"}}>
                         <option value="">VS A CARD…</option>
                         {sorted.filter(c=>c.id!==sel.id).map(c=><option key={c.id} value={c.id}>{c.name!=="Unknown"?c.name:(c.moniker||"Unknown")} · {c.OVR}</option>)}
                       </select>
@@ -1968,14 +1968,14 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                       return(
                         <div key={r.k} style={{background:"var(--s0c)",border:"1px solid var(--b14)",borderRadius:6,padding:"9px 11px"}}>
                           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-                            <span style={{color:r.color,fontSize:8,letterSpacing:1,fontFamily:"'Oswald',sans-serif"}}>{r.k}</span>
+                            <span style={{color:r.color,fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>{r.k}</span>
                             <span style={{fontFamily:"'Bebas Neue'",fontSize:16,color:"var(--vddd)"}}>{r.v}</span>
                           </div>
                           <div style={{display:"flex",justifyContent:"space-between",marginTop:3}}>
-                            <span style={{fontSize:8,color:"var(--v444)",fontFamily:"'Oswald',sans-serif"}}>pool {r.a.toFixed(0)}</span>
-                            <span style={{fontSize:9,fontFamily:"'Oswald',sans-serif",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d>0?`+${d.toFixed(0)}`:d.toFixed(0)}</span>
+                            <span style={{fontSize:8,color:"var(--v444)",fontFamily:"'Space Mono',monospace"}}>pool {r.a.toFixed(0)}</span>
+                            <span style={{fontSize:9,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":d<0?"#dc2626":"var(--v444)"}}>{d>0?`+${d.toFixed(0)}`:d.toFixed(0)}</span>
                           </div>
-                          <div style={{fontSize:8,color:"var(--v444)",marginTop:2,fontFamily:"'Oswald',sans-serif"}}>#{rk} of {cards.length}</div>
+                          <div style={{fontSize:8,color:"var(--v444)",marginTop:2,fontFamily:"'Space Mono',monospace"}}>#{rk} of {cards.length}</div>
                         </div>
                       );
                     })}
@@ -2006,11 +2006,11 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{background:"var(--s0f)",border:"1px solid var(--b15)",borderRadius:8,padding:"14px 18px",marginBottom:10}}>
                 <div style={{color:"var(--v2a)",fontSize:8,letterSpacing:2,textTransform:"uppercase",marginBottom:8}}>Aspiration vs the mirror <span style={{color:"var(--v333)",textTransform:"none",letterSpacing:0.5}}>— how you want to be seen vs how the scout reads you</span></div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                  <select value={sel.asp_type||""} onChange={e=>saveAsp("asp_type",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_type?"var(--vddd)":"var(--v444)",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                  <select value={sel.asp_type||""} onChange={e=>saveAsp("asp_type",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_type?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
                     <option value="">— aspirational type —</option>
                     {PROFILE_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
                   </select>
-                  <select value={sel.asp_build||""} onChange={e=>saveAsp("asp_build",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_build?"var(--vddd)":"var(--v444)",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
+                  <select value={sel.asp_build||""} onChange={e=>saveAsp("asp_build",e.target.value)} style={{background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:5,padding:"8px 10px",color:sel.asp_build?"var(--vddd)":"var(--v444)",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:0.5,cursor:"pointer",outline:"none"}}>
                     <option value="">— aspirational build —</option>
                     {ARCHETYPES.map(t=><option key={t} value={t}>{t}</option>)}
                   </select>
@@ -2024,7 +2024,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         ?<span style={{color:"#16a34a"}}>The mirror agrees — the scout already reads you as what you're aiming to be. Now it's about climbing within the build.</span>
                         :<>
                           You aim to read as <span style={{color:"var(--gold)"}}>{[sel.asp_type,sel.asp_build].filter(Boolean).join(" · ")}</span>; the scout currently reads <span style={{color:ct.acc}}>{[sel.profile_type,sel.archetype].filter(Boolean).join(" · ")}</span>.
-                          <button onClick={()=>sendChat(`My aspirational identity is ${[sel.asp_type,sel.asp_build].filter(Boolean).join(" / ")} but you read me as ${[sel.profile_type,sel.archetype].filter(Boolean).join(" / ")}. What specific evidence would make my profile read as my aspiration — and what's the fastest first move?`)} disabled={chatBusy} style={{display:"block",marginTop:8,background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"6px 12px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>ASK THE SCOUT WHAT CLOSES THE GAP ↓</button>
+                          <button onClick={()=>sendChat(`My aspirational identity is ${[sel.asp_type,sel.asp_build].filter(Boolean).join(" / ")} but you read me as ${[sel.profile_type,sel.archetype].filter(Boolean).join(" / ")}. What specific evidence would make my profile read as my aspiration — and what's the fastest first move?`)} disabled={chatBusy} style={{display:"block",marginTop:8,background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"6px 12px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>ASK THE SCOUT WHAT CLOSES THE GAP ↓</button>
                         </>}
                     </div>
                   );
@@ -2045,7 +2045,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{background:"var(--warn-bg)",border:"1px solid color-mix(in srgb, var(--c-reach) 33%, transparent)",borderRadius:8,padding:"18px 20px",marginBottom:10}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                   <div style={{color:"var(--c-reach)",fontSize:8,letterSpacing:2,textTransform:"uppercase"}}>🔥 The Roast</div>
-                  {!(roastOpen||roastMode)&&<button onClick={()=>setRoastOpen(true)} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"6px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase"}}>REVEAL</button>}
+                  {!(roastOpen||roastMode)&&<button onClick={()=>setRoastOpen(true)} style={{background:"var(--c-reach)",color:"#fff",border:"none",padding:"6px 14px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>REVEAL</button>}
                 </div>
                 {(roastOpen||roastMode)&&<div style={{color:"var(--v777)",fontSize:12,lineHeight:1.85,marginTop:10}}>{sel.roast}</div>}
               </div>
@@ -2054,7 +2054,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             {/* Deep dive — the full scouting rationale, collapsed by default */}
             <div style={{background:"var(--s0f)",border:`1px solid ${deepDive?"color-mix(in srgb, var(--gold) 33%, transparent)":"var(--b15)"}`,boxShadow:deepDive?"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)":"none",borderRadius:8,marginBottom:10}}>
               <div onClick={()=>setDeepDive(d=>!d)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"15px 18px",cursor:"pointer",userSelect:"none"}}>
-                <div><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>DEEP DIVE ANALYSIS</span><span style={{color:"var(--v555)",fontSize:9,marginLeft:10,fontFamily:"'Oswald',sans-serif",letterSpacing:0.5}}>· the full rationale behind the numbers</span></div>
+                <div><span style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>DEEP DIVE ANALYSIS</span><span style={{color:"var(--v555)",fontSize:9,marginLeft:10,fontFamily:"'Space Mono',monospace",letterSpacing:0.5}}>· the full rationale behind the numbers</span></div>
                 <span style={{color:"var(--v444)",fontSize:11}}>{deepDive?"▾":"▸"}</span>
               </div>
             {deepDive&&(
@@ -2117,9 +2117,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                           <div style={{padding:"0 0 12px 16px"}}>
                             {note
                               ?<div style={{color:"var(--v777)",fontSize:10,lineHeight:1.75,marginBottom:8,borderLeft:"2px solid color-mix(in srgb, var(--gold) 33%, transparent)",paddingLeft:10}}><Rich text={note.text}/></div>
-                              :<button onClick={()=>genRefWhy(r)} disabled={refBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"8px 14px",borderRadius:4,cursor:refBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase",marginBottom:8,opacity:refBusy?0.6:1}}>{refBusy?"ANALYSING…":"WHY THIS REFERENCE?"}</button>}
+                              :<button onClick={()=>genRefWhy(r)} disabled={refBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"8px 14px",borderRadius:4,cursor:refBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:8,opacity:refBusy?0.6:1}}>{refBusy?"ANALYSING…":"WHY THIS REFERENCE?"}</button>}
                             {refErr&&<div style={{color:"#ff4444",fontSize:9,marginBottom:8}}>{refErr}</div>}
-                            <button onClick={()=>jump(r)} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"7px 12px",borderRadius:4,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>OPEN THEIR CARD →</button>
+                            <button onClick={()=>jump(r)} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"7px 12px",borderRadius:4,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>OPEN THEIR CARD →</button>
                           </div>
                         )}
                       </div>
@@ -2148,7 +2148,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginTop:10}}>
                 <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:4}}>BENCHMARK INDEX</div>
                 <div style={{color:"var(--v555)",fontSize:9,letterSpacing:0.5,marginBottom:12}}>Pin reference profiles and track each gap over time. Rescan cards and the index shows whether every gap is closing or widening.</div>
-                <select defaultValue="" onChange={e=>{if(e.target.value){setBenchList([...benchIds,e.target.value]);e.target.value="";}}} style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"9px 12px",color:"var(--vddd)",fontFamily:"'Oswald',sans-serif",fontSize:10,outline:"none",marginBottom:10,cursor:"pointer"}}>
+                <select defaultValue="" onChange={e=>{if(e.target.value){setBenchList([...benchIds,e.target.value]);e.target.value="";}}} style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"9px 12px",color:"var(--vddd)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none",marginBottom:10,cursor:"pointer"}}>
                   <option value="">— pin a benchmark profile —</option>
                   {sorted.filter(c=>c.id!==sel.id&&!benchIds.includes(c.id)).map(c=><option key={c.id} value={c.id}>{c.name!=="Unknown"?c.name:(c.moniker||"Unknown")} · OVR {c.OVR}</option>)}
                 </select>
@@ -2169,13 +2169,13 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         </div>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
                           <span style={{fontFamily:"'Bebas Neue'",fontSize:16,color:gap>0?"var(--c-reach)":gap<0?"#16a34a":"var(--v555)"}}>{gap>0?`-${gap}`:gap<0?`+${-gap}`:"LEVEL"}</span>
-                          {move!==null&&move!==0&&<span style={{fontSize:8,color:move>0?"#dc2626":"#16a34a",fontFamily:"'Oswald',sans-serif"}}>{move>0?`gap widened +${move}`:`gap closed ${-move}`}</span>}
-                          <button onClick={()=>genVerdict(sel,b)} disabled={vsBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"4px 10px",borderRadius:4,cursor:vsBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>{vsBusy?"…":"ANALYSE GAP"}</button>
-                          <button onClick={()=>setBenchList(benchIds.filter(x=>x!==id))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,padding:0}}>✕</button>
+                          {move!==null&&move!==0&&<span style={{fontSize:8,color:move>0?"#dc2626":"#16a34a",fontFamily:"'Space Mono',monospace"}}>{move>0?`gap widened +${move}`:`gap closed ${-move}`}</span>}
+                          <button onClick={()=>genVerdict(sel,b)} disabled={vsBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 27%, transparent)",color:"var(--gold)",padding:"4px 10px",borderRadius:4,cursor:vsBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:1,textTransform:"uppercase"}}>{vsBusy?"…":"ANALYSE GAP"}</button>
+                          <button onClick={()=>setBenchList(benchIds.filter(x=>x!==id))} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>✕</button>
                         </div>
                       </div>
                       <div style={{display:"flex",gap:10,flexWrap:"wrap",marginTop:6}}>
-                        {STATS.map(s=>{const d=b.stats[s]-sel.stats[s];return <span key={s} style={{fontSize:8,color:"var(--v555)",fontFamily:"'Oswald',sans-serif"}}>{s} <span style={{color:d>0?"var(--c-reach)":d<0?"#16a34a":"var(--v444)"}}>{d>0?`-${d}`:d<0?`+${-d}`:"="}</span></span>;})}
+                        {STATS.map(s=>{const d=b.stats[s]-sel.stats[s];return <span key={s} style={{fontSize:8,color:"var(--v555)",fontFamily:"'Space Mono',monospace"}}>{s} <span style={{color:d>0?"var(--c-reach)":d<0?"#16a34a":"var(--v444)"}}>{d>0?`-${d}`:d<0?`+${-d}`:"="}</span></span>;})}
                       </div>
                       {vsVerdicts[`${sel.id}|${b.id}`]&&<div style={{marginTop:8,color:"var(--v666)",fontSize:10,lineHeight:1.75,whiteSpace:"pre-wrap",borderLeft:"2px solid color-mix(in srgb, var(--gold) 33%, transparent)",paddingLeft:10}}><Rich text={vsVerdicts[`${sel.id}|${b.id}`]}/></div>}
                     </div>
@@ -2187,11 +2187,11 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             {/* Signal plan — dynamic, deadline-aware checklist (claimed card only) */}
             {myId===sel.id&&(
               <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginTop:10}}>
-                <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:4}}>SIGNAL PLAN <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Oswald',sans-serif",letterSpacing:1}}>· time-aware · checkable</span></div>
+                <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:4}}>SIGNAL PLAN <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Space Mono',monospace",letterSpacing:1}}>· time-aware · checkable</span></div>
                 <div style={{color:"var(--v555)",fontSize:9,letterSpacing:0.5,marginBottom:10,lineHeight:1.6}}>Tell the scout where you're aiming, generate a plan, then tick items ✓ done or ✕ not eligible. Refresh builds on what's done and never re-proposes dead windows — the plan knows today's date.</div>
-                <textarea key={sel.id} ref={goalsRef} defaultValue={sel.goals||""} placeholder="Your goals — e.g. growth role at a high-traction startup by summer 2027; build j5studies to 100K…" style={{width:"100%",minHeight:56,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+                <textarea key={sel.id} ref={goalsRef} defaultValue={sel.goals||""} placeholder="Your goals — e.g. growth role at a high-traction startup by summer 2027; build j5studies to 100K…" style={{width:"100%",minHeight:56,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
                 <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
-                  <button onClick={genPlan} disabled={planBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:planBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase",opacity:planBusy?0.6:1}}>{planBusy?"PLANNING…":(sel.plan?"REFRESH PLAN":"GENERATE PLAN")}</button>
+                  <button onClick={genPlan} disabled={planBusy} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:planBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",opacity:planBusy?0.6:1}}>{planBusy?"PLANNING…":(sel.plan?"REFRESH PLAN":"GENERATE PLAN")}</button>
                   {planErr&&<span style={{color:"#ff4444",fontSize:9,letterSpacing:0.5}}>{planErr}</span>}
                 </div>
                 {(sel.plan?.items||[]).map((it,i)=>(
@@ -2202,8 +2202,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         <div style={{color:"var(--v555)",fontSize:10,lineHeight:1.65,marginTop:3,textDecoration:it.status==="na"?"line-through":"none"}}>{it.d}</div>
                       </div>
                       <div style={{display:"flex",gap:6,flexShrink:0}}>
-                        <button onClick={()=>setPlanStatus(i,"done")} title="Mark done (click again to undo)" style={{background:it.status==="done"?"#16a34a":"none",color:it.status==="done"?"#fff":"var(--v444)",border:"1px solid "+(it.status==="done"?"#16a34a":"var(--v1e)"),borderRadius:4,padding:"4px 9px",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9}}>✓</button>
-                        <button onClick={()=>setPlanStatus(i,"na")} title="Not eligible / window passed (click again to undo)" style={{background:it.status==="na"?"var(--v333)":"none",color:it.status==="na"?"var(--bg)":"var(--v444)",border:"1px solid var(--v1e)",borderRadius:4,padding:"4px 9px",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9}}>✕</button>
+                        <button onClick={()=>setPlanStatus(i,"done")} title="Mark done (click again to undo)" style={{background:it.status==="done"?"#16a34a":"none",color:it.status==="done"?"#fff":"var(--v444)",border:"1px solid "+(it.status==="done"?"#16a34a":"var(--v1e)"),borderRadius:4,padding:"4px 9px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9}}>✓</button>
+                        <button onClick={()=>setPlanStatus(i,"na")} title="Not eligible / window passed (click again to undo)" style={{background:it.status==="na"?"var(--v333)":"none",color:it.status==="na"?"var(--bg)":"var(--v444)",border:"1px solid var(--v1e)",borderRadius:4,padding:"4px 9px",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9}}>✕</button>
                       </div>
                     </div>
                   </div>
@@ -2214,8 +2214,8 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             {/* 90 OVR projection — hypothetical upgraded card */}
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginTop:10}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
-                <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>MAX PROJECTION <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Oswald',sans-serif",letterSpacing:1}}>· HYPOTHETICAL</span></div>
-                <button onClick={genNinety} disabled={ninetyBusy} style={{background:sel.ninety?"none":"var(--gold)",color:sel.ninety?"var(--v555)":"var(--gold-ink)",border:sel.ninety?"1px solid var(--v1e)":"none",padding:"8px 16px",borderRadius:4,cursor:ninetyBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,fontWeight:400,letterSpacing:1,textTransform:"uppercase",opacity:ninetyBusy?0.6:1}}>{ninetyBusy?"PROJECTING…":sel.ninety?"REGENERATE":"GENERATE MAX VERSION"}</button>
+                <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2}}>MAX PROJECTION <span style={{color:"var(--v555)",fontSize:9,fontFamily:"'Space Mono',monospace",letterSpacing:1}}>· HYPOTHETICAL</span></div>
+                <button onClick={genNinety} disabled={ninetyBusy} style={{background:sel.ninety?"none":"var(--gold)",color:sel.ninety?"var(--v555)":"var(--gold-ink)",border:sel.ninety?"1px solid var(--v1e)":"none",padding:"8px 16px",borderRadius:4,cursor:ninetyBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,fontWeight:700,letterSpacing:1,textTransform:"uppercase",opacity:ninetyBusy?0.6:1}}>{ninetyBusy?"PROJECTING…":sel.ninety?"REGENERATE":"GENERATE MAX VERSION"}</button>
               </div>
               {ninetyErr&&<div style={{color:"#ff4444",fontSize:9,letterSpacing:0.5,marginTop:8}}>{ninetyErr}</div>}
               {!sel.ninety&&!ninetyBusy&&<div style={{color:"var(--v555)",fontSize:10,lineHeight:1.7,marginTop:10}}>See the elite-tier version of this exact profile — same lane, same thesis, upgraded through concrete verifiable jumps only. Like a 69-rated player's 90-rated future card, and clearly labelled as a projection, not a measurement.</div>}
@@ -2240,11 +2240,11 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                     return(
                       <div key={st} style={{borderBottom:"1px solid var(--b14)",padding:"7px 0"}}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
-                          <span style={{color:info.color,fontSize:8,letterSpacing:1,minWidth:40,fontFamily:"'Oswald',sans-serif"}}>{st}</span>
+                          <span style={{color:info.color,fontSize:8,letterSpacing:1,minWidth:40,fontFamily:"'Space Mono',monospace"}}>{st}</span>
                           <span style={{fontFamily:"'Bebas Neue'",fontSize:14,color:"var(--v666)"}}>{cur}</span>
                           <span style={{color:"var(--v333)",fontSize:10}}>→</span>
                           <span style={{fontFamily:"'Bebas Neue'",fontSize:14,color:info.color}}>{mx}</span>
-                          <span style={{fontSize:9,fontFamily:"'Oswald',sans-serif",color:d>0?"#16a34a":"var(--v444)"}}>{d>0?`+${d}`:d===0?"held":d}</span>
+                          <span style={{fontSize:9,fontFamily:"'Space Mono',monospace",color:d>0?"#16a34a":"var(--v444)"}}>{d>0?`+${d}`:d===0?"held":d}</span>
                         </div>
                         {sel.ninety.stat_moves?.[st]&&<div style={{color:"var(--v555)",fontSize:9,lineHeight:1.55,marginTop:3,marginLeft:50}}>{sel.ninety.stat_moves[st]}</div>}
                       </div>
@@ -2263,7 +2263,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                         <div style={{flex:1}}>
                           <div style={{color:"var(--v888)",fontSize:10,lineHeight:1.6}}>{m.m}</div>
                         </div>
-                        {m.eta&&<div style={{flexShrink:0,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:4,padding:"3px 9px",color:"var(--gold)",fontSize:8,letterSpacing:1,fontFamily:"'Oswald',sans-serif",textTransform:"uppercase"}}>ETA {m.eta}</div>}
+                        {m.eta&&<div style={{flexShrink:0,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:4,padding:"3px 9px",color:"var(--gold)",fontSize:8,letterSpacing:1,fontFamily:"'Space Mono',monospace",textTransform:"uppercase"}}>ETA {m.eta}</div>}
                       </div>
                     ))}
                     {sel.ninety.milestones[sel.ninety.milestones.length-1]?.eta&&<div style={{color:"var(--v444)",fontSize:8,letterSpacing:0.5,marginTop:8}}>Estimated arrival at the full max projection: <span style={{color:"var(--gold)"}}>{sel.ninety.milestones[sel.ninety.milestones.length-1].eta}</span> — if every milestone lands on time. Projection, not promise.</div>}
@@ -2289,12 +2289,12 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
               )}
               <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
                 {["Why is this profile not rated higher?","What's the strongest case against this rating?","What's the fastest realistic +5 OVR?","Is anything here likely overstated — or understated?"].map(q=>(
-                  <button key={q} onClick={()=>sendChat(q)} disabled={chatBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 22%, transparent)",color:"var(--v666)",padding:"6px 10px",borderRadius:12,cursor:chatBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:8,letterSpacing:0.5}}>{q}</button>
+                  <button key={q} onClick={()=>sendChat(q)} disabled={chatBusy} style={{background:"none",border:"1px solid color-mix(in srgb, var(--gold) 22%, transparent)",color:"var(--v666)",padding:"6px 10px",borderRadius:12,cursor:chatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:0.5}}>{q}</button>
                 ))}
               </div>
               <div style={{display:"flex",gap:8}}>
-                <input value={chatIn} onChange={e=>setChatIn(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")sendChat();}} placeholder="e.g. What's realistically holding the OVR back?" style={{flex:1,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"11px 14px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,outline:"none"}}/>
-                <button onClick={()=>sendChat()} disabled={chatBusy||!chatIn.trim()} style={{background:chatBusy||!chatIn.trim()?"var(--s11)":"var(--gold)",color:chatBusy||!chatIn.trim()?"var(--v444)":"var(--gold-ink)",border:"none",padding:"11px 20px",borderRadius:6,cursor:chatBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>SEND</button>
+                <input value={chatIn} onChange={e=>setChatIn(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")sendChat();}} placeholder="e.g. What's realistically holding the OVR back?" style={{flex:1,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"11px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none"}}/>
+                <button onClick={()=>sendChat()} disabled={chatBusy||!chatIn.trim()} style={{background:chatBusy||!chatIn.trim()?"var(--s11)":"var(--gold)",color:chatBusy||!chatIn.trim()?"var(--v444)":"var(--gold-ink)",border:"none",padding:"11px 20px",borderRadius:6,cursor:chatBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>SEND</button>
               </div>
             </div>
 
@@ -2302,18 +2302,18 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginTop:10}}>
               <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:4}}>POST SIGNAL</div>
               <div style={{color:"var(--v555)",fontSize:9,letterSpacing:0.5,marginBottom:10,lineHeight:1.6}}>Paste one of this person's LinkedIn posts — the scout reads it as a telegraph of direction and checks it against the card's thesis.</div>
-              <textarea value={postIn} onChange={e=>setPostIn(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder="Paste the post text — or paste / upload a screenshot of it…" style={{width:"100%",minHeight:64,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              <textarea value={postIn} onChange={e=>setPostIn(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder="Paste the post text — or paste / upload a screenshot of it…" style={{width:"100%",minHeight:64,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {postImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
                   <img src={postImg.preview} alt="" onClick={()=>openLB([postImg.preview],0,()=>setPostImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
                   <span style={{color:"var(--v555)",fontSize:9,flex:1}}>Screenshot attached</span>
-                  <button onClick={()=>setPostImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,padding:0}}>remove</button>
+                  <button onClick={()=>setPostImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                 </div>
               )}
               <input ref={postFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.target.value="";}}/>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
-                <button onClick={()=>postFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
-                <button onClick={analysePost} disabled={postBusy||(!postIn.trim()&&!postImg)} style={{background:postBusy||(!postIn.trim()&&!postImg)?"var(--s11)":"var(--gold)",color:postBusy||(!postIn.trim()&&!postImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:postBusy?"wait":"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>{postBusy?"READING…":"ANALYSE POST"}</button>
+                <button onClick={()=>postFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
+                <button onClick={analysePost} disabled={postBusy||(!postIn.trim()&&!postImg)} style={{background:postBusy||(!postIn.trim()&&!postImg)?"var(--s11)":"var(--gold)",color:postBusy||(!postIn.trim()&&!postImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:postBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>{postBusy?"READING…":"ANALYSE POST"}</button>
                 {postErr&&<span style={{color:"#ff4444",fontSize:9,letterSpacing:0.5}}>{postErr}</span>}
               </div>
               {(sel.posts||[]).map((p,i)=>(
@@ -2494,9 +2494,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"20px 22px",marginTop:14}}>
               <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:6}}>SCOUT KNOWLEDGE</div>
               <div style={{color:"var(--v555)",fontSize:10,lineHeight:1.8,marginBottom:12}}>Teach the scout context it can't see from a screenshot — how selective a programme really is, what a society title actually involves, which firms are serious. Saved text is injected into every scan and every Scout Chat as trusted calibration. This is the first brick of the "second brain": paste hard facts about programmes and achievements, not opinions about people.</div>
-              <textarea value={knowledge} onChange={e=>setKnowledge(e.target.value)} placeholder={"e.g. URSS is a competitive funded research scheme at Warwick. A UK 'spring week' is a selective first-year insight programme at a bank. WFS exec roles are elected, not appointed."} style={{width:"100%",minHeight:120,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+              <textarea value={knowledge} onChange={e=>setKnowledge(e.target.value)} placeholder={"e.g. URSS is a competitive funded research scheme at Warwick. A UK 'spring week' is a selective first-year insight programme at a bank. WFS exec roles are elected, not appointed."} style={{width:"100%",minHeight:120,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
               <div style={{display:"flex",alignItems:"center",gap:10,marginTop:10}}>
-                <button onClick={saveKnowledge} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>SAVE</button>
+                <button onClick={saveKnowledge} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>SAVE</button>
                 {kMsg&&<span style={{color:"#16a34a",fontSize:9,letterSpacing:1}}>{kMsg}</span>}
               </div>
             </div>
@@ -2505,9 +2505,9 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"20px 22px",marginTop:14}}>
               <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:6}}>CRACKED RUBRIC</div>
               <div style={{color:"var(--v555)",fontSize:10,lineHeight:1.8,marginBottom:12}}>Your evolving document of what you actually rate as cracked and what's LinkedIn theatre. Every time a score lands wrong, write down WHY it was wrong here — over time this becomes the taste layer the model is missing. It's injected into every scan, chat and verdict, but the scout is told: your taste calibrates judgment, evidence discipline still wins. That protects the system's best property — it doesn't overrate.</div>
-              <textarea value={rubric} onChange={e=>setRubric(e.target.value)} placeholder={"e.g. Shipped products with real users beat any society title. A spring week is table stakes, not impressive. 'Founder' of a landing page is theatre; 'founder' with revenue is cracked. Conversions (spring to summer, return offers) are the strongest quiet signal."} style={{width:"100%",minHeight:120,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Oswald',sans-serif",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
+              <textarea value={rubric} onChange={e=>setRubric(e.target.value)} placeholder={"e.g. Shipped products with real users beat any society title. A spring week is table stakes, not impressive. 'Founder' of a landing page is theatre; 'founder' with revenue is cracked. Conversions (spring to summer, return offers) are the strongest quiet signal."} style={{width:"100%",minHeight:120,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box"}}/>
               <div style={{display:"flex",alignItems:"center",gap:10,marginTop:10}}>
-                <button onClick={saveRubric} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Oswald',sans-serif",fontSize:9,fontWeight:400,letterSpacing:2,textTransform:"uppercase"}}>SAVE</button>
+                <button onClick={saveRubric} style={{background:"var(--gold)",color:"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>SAVE</button>
                 {rMsg&&<span style={{color:"#16a34a",fontSize:9,letterSpacing:1}}>{rMsg}</span>}
               </div>
             </div>
