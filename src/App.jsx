@@ -13,6 +13,39 @@ const IS_MAC = !IS_MOBILE && /Mac/i.test(UA);
 // Analytics: main.jsx exposes Vercel's track() as window.__csTrack; in the
 // artifact sandbox it doesn't exist, so every call is a safe no-op.
 const track = (name, props) => { try { window.__csTrack?.(name, props); } catch {} };
+
+// Phone screenshots arrive at multi-MB full resolution, and several in one
+// request blows past upload limits. Claude's vision resizes to ~1568px on the
+// long edge regardless, so downscale to that and re-encode as JPEG 0.8 —
+// each image drops to a few hundred KB with the text still perfectly legible.
+const shrinkImage = (file) => new Promise((resolve) => {
+  const fallback = () => {
+    const r = new FileReader();
+    r.onload = (e) => resolve({ b64: e.target.result.split(",")[1], type: file.type || "image/png", preview: e.target.result });
+    r.onerror = () => resolve(null);
+    r.readAsDataURL(file);
+  };
+  try {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const MAX = 1568;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        const c = document.createElement("canvas"); c.width = w; c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); // JPEG has no alpha — flatten to white, not black
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL("image/jpeg", 0.8);
+        URL.revokeObjectURL(url);
+        resolve({ b64: dataUrl.split(",")[1], type: "image/jpeg", preview: dataUrl });
+      } catch { URL.revokeObjectURL(url); fallback(); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); fallback(); };
+    img.src = url;
+  } catch { fallback(); }
+});
 const API_URL = IS_ARTIFACT ? "https://api.anthropic.com/v1/messages" : "/api/anthropic";
 const API_HEADERS = IS_ARTIFACT
   ? { "Content-Type": "application/json", "anthropic-version": "2023-06-01" }
@@ -730,7 +763,7 @@ export default function App(){
   // HOW GOOD view: paste a screenshot anywhere on the page, like the create flow.
   useEffect(()=>{
     if(view!=="howgood")return;
-    const onPaste=e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);break;}}};
+    const onPaste=e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();shrinkImage(f).then(img=>img&&setHgImg(img));break;}}};
     window.addEventListener("paste",onPaste);
     return()=>window.removeEventListener("paste",onPaste);
   },[view]);
@@ -749,14 +782,11 @@ export default function App(){
 
   const addFile=useCallback(file=>{
     if(!file||!file.type.startsWith("image/"))return;
-    const type=file.type||"image/png";
-    const r=new FileReader();
-    r.onload=e=>{
-      const b64=e.target.result.split(",")[1];
-      setImgs(prev=>[...prev,{b64,type,preview:e.target.result}]);
+    shrinkImage(file).then(img=>{
+      if(!img)return;
+      setImgs(prev=>[...prev,img]);
       setStep(s=>Math.max(s,1));setErr("");
-    };
-    r.readAsDataURL(file);
+    });
   },[]);
 
   const repairJSON=raw=>{
@@ -1739,12 +1769,12 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 </div>
               ))}
             </div>
-            <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files?.[0];if(f&&f.type.startsWith("image/")){const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);}}} style={{background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0f)",border:`2px dashed ${drag?"var(--gold)":"color-mix(in srgb, var(--gold) 27%, transparent)"}`,boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14,transition:"all 0.2s"}}>
+            <div onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={e=>{e.preventDefault();setDrag(false);const f=e.dataTransfer.files?.[0];if(f&&f.type.startsWith("image/"))shrinkImage(f).then(img=>img&&setHgImg(img));}} style={{background:drag?"color-mix(in srgb, var(--gold) 3%, transparent)":"var(--s0f)",border:`2px dashed ${drag?"var(--gold)":"color-mix(in srgb, var(--gold) 27%, transparent)"}`,boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 8%, transparent)",borderRadius:10,padding:"20px 22px",marginBottom:14,transition:"all 0.2s"}}>
               <div style={{textAlign:"center",marginBottom:12}}>
                 <div style={{color:"color-mix(in srgb, var(--gold) 60%, transparent)",fontSize:11,letterSpacing:1,fontFamily:"'Space Mono',monospace"}}>{IS_MOBILE?"Tap to add a screenshot of the post":"Ctrl + V anywhere to paste a screenshot of the post"}</div>
                 <div style={{color:"var(--v333)",fontSize:9,letterSpacing:1,marginTop:2}}>or drop an image here · or type / paste the text below</div>
               </div>
-              <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              <textarea value={hgText} onChange={e=>setHgText(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();shrinkImage(f).then(img=>img&&setHgImg(img));e.preventDefault();break;}}}} placeholder={"Paste the post text — or paste / upload a screenshot of it…\ne.g. \"Thrilled to announce I'll be joining X as a Y this summer…\""} style={{width:"100%",minHeight:96,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"12px 14px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.7,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {hgImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
                   <img src={hgImg.preview} alt="" onClick={()=>openLB([hgImg.preview],0,()=>setHgImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
@@ -1753,7 +1783,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                 </div>
               )}
               <input value={hgCtx} onChange={e=>setHgCtx(e.target.value)} placeholder="Optional context — who is this person? e.g. first-year at a non-target, career switcher, first in family at uni…" style={{width:"100%",background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,outline:"none",boxSizing:"border-box",marginBottom:12}}/>
-              <input ref={hgFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;const rd=new FileReader();rd.onload=ev=>setHgImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.target.value="";}}/>
+              <input ref={hgFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;shrinkImage(f).then(img=>img&&setHgImg(img));e.target.value="";}}/>
               <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
                 <button onClick={()=>hgFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"10px 16px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
                 <button onClick={rateHowGood} disabled={hgBusy||(!hgText.trim()&&!hgImg)} style={{flex:1,minWidth:160,background:hgBusy||(!hgText.trim()&&!hgImg)?"var(--s11)":"var(--gold)",color:hgBusy||(!hgText.trim()&&!hgImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"12px 20px",borderRadius:5,cursor:hgBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:3,textTransform:"uppercase"}}>{hgBusy?`RATING… ${elapsed||""}${elapsed?"s":""}`:"HOW GOOD IS IT?"}</button>
@@ -2302,7 +2332,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
             <div style={{background:"var(--s0f)",border:"1px solid color-mix(in srgb, var(--gold) 33%, transparent)",boxShadow:"0 0 18px color-mix(in srgb, var(--gold) 10%, transparent)",borderRadius:8,padding:"18px 20px",marginTop:10}}>
               <div style={{color:"var(--gold)",fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:4}}>POST SIGNAL</div>
               <div style={{color:"var(--v555)",fontSize:9,letterSpacing:0.5,marginBottom:10,lineHeight:1.6}}>Paste one of this person's LinkedIn posts — the scout reads it as a telegraph of direction and checks it against the card's thesis.</div>
-              <textarea value={postIn} onChange={e=>setPostIn(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.preventDefault();break;}}}} placeholder="Paste the post text — or paste / upload a screenshot of it…" style={{width:"100%",minHeight:64,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
+              <textarea value={postIn} onChange={e=>setPostIn(e.target.value)} onPaste={e=>{const items=e.clipboardData?.items;if(!items)return;for(const it of items){if(it.type.startsWith("image/")){const f=it.getAsFile();shrinkImage(f).then(img=>img&&setPostImg(img));e.preventDefault();break;}}}} placeholder="Paste the post text — or paste / upload a screenshot of it…" style={{width:"100%",minHeight:64,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"10px 12px",color:"var(--veee)",fontFamily:"'Space Mono',monospace",fontSize:10,lineHeight:1.6,outline:"none",resize:"vertical",boxSizing:"border-box",marginBottom:10}}/>
               {postImg&&(
                 <div style={{display:"flex",alignItems:"center",gap:10,background:"var(--s11)",border:"1px solid var(--v1e)",borderRadius:6,padding:"8px 12px",marginBottom:10}}>
                   <img src={postImg.preview} alt="" onClick={()=>openLB([postImg.preview],0,()=>setPostImg(null))} title="Click to inspect full size" style={{width:64,height:40,objectFit:"cover",borderRadius:3,flexShrink:0,cursor:"pointer"}}/>
@@ -2310,7 +2340,7 @@ Marked NOT ELIGIBLE (never re-propose these or variants): ${JSON.stringify(kept.
                   <button onClick={()=>setPostImg(null)} style={{background:"none",border:"none",color:"var(--v333)",cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,padding:0}}>remove</button>
                 </div>
               )}
-              <input ref={postFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;const rd=new FileReader();rd.onload=ev=>setPostImg({b64:ev.target.result.split(",")[1],type:f.type||"image/png",preview:ev.target.result});rd.readAsDataURL(f);e.target.value="";}}/>
+              <input ref={postFileRef} type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(!f||!f.type.startsWith("image/"))return;shrinkImage(f).then(img=>img&&setPostImg(img));e.target.value="";}}/>
               <div style={{display:"flex",alignItems:"center",gap:10}}>
                 <button onClick={()=>postFileRef.current?.click()} style={{background:"none",border:"1px solid var(--v1e)",color:"var(--v555)",padding:"9px 14px",borderRadius:5,cursor:"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,letterSpacing:1,textTransform:"uppercase"}}>+ SCREENSHOT</button>
                 <button onClick={analysePost} disabled={postBusy||(!postIn.trim()&&!postImg)} style={{background:postBusy||(!postIn.trim()&&!postImg)?"var(--s11)":"var(--gold)",color:postBusy||(!postIn.trim()&&!postImg)?"var(--v444)":"var(--gold-ink)",border:"none",padding:"9px 18px",borderRadius:5,cursor:postBusy?"wait":"pointer",fontFamily:"'Space Mono',monospace",fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase"}}>{postBusy?"READING…":"ANALYSE POST"}</button>
